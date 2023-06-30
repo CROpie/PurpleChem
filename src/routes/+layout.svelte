@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '@picocss/pico';
-	import '../app.css';
+	import '../app.postcss';
 
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
