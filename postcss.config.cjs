@@ -1,4 +1,6 @@
+// eslint-disable-next-line
 const tailwindcss = require('tailwindcss');
+// eslint-disable-next-line
 const autoprefixer = require('autoprefixer');
 
 const config = {

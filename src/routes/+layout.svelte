@@ -1,5 +1,6 @@
 <script lang="ts">
-	import '@picocss/pico';
+	//import { Navbar, NavBrand, NavLi, NavUl, NavHamburger } from 'flowbite-svelte';
+	import { Navbar, NavUl, NavBrand, NavLi, NavHamburger } from '$lib/components/navbar/Nav';
 	import '../app.postcss';
 
 	import { invalidate } from '$app/navigation';
@@ -26,12 +27,21 @@
 	<title>Chem Database</title>
 </svelte:head>
 
-<div class="container" style="padding: 50px 0 100px 0">
-	<nav>
-		<a href="/orderChemical/">Order Chemical</a>
-		<a href="/browseDatabase/">Search Database</a>
-		<a href="/addCSV/">Add Chemicals via CSV</a>
-		<a href="/logout/">Log Out</a>
-	</nav>
-	<slot />
-</div>
+<Navbar let:hidden let:toggle>
+	<NavBrand href="/">
+		<img src="src/lib/images/BearbeerCrop.png" class="mr-3 h-12 sm:h-12" alt="PurpleChem" />
+		<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+			PurpleChem
+		</span>
+	</NavBrand>
+	<!-- hamburger only appears on mobile size -->
+	<NavHamburger on:click={toggle} />
+	<NavUl {hidden}>
+		<NavLi href="/orderChemical">Order Chemical</NavLi>
+		<NavLi href="/browseDatabase">Search Database</NavLi>
+		<NavLi href="/queryData">Query Database</NavLi>
+		<NavLi href="/addCSV">Add Chemicals via CSV</NavLi>
+		<NavLi href="/logout" class="dark:text-red-500">Log Out</NavLi>
+	</NavUl>
+</Navbar>
+<slot />

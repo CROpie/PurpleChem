@@ -1,4 +1,8 @@
 <script lang="ts">
+	import { Heading } from '$lib/components/typography/Typo';
+	import { Input } from '$lib/components/form/Input';
+	import { Button } from '$lib/components/button/button';
+
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -24,19 +28,32 @@
 	};
 </script>
 
-<h1>Welcome to purplechem.com</h1>
-
+<Heading tag="h2" class="text-center mt-3">Welcome to purplechem.com</Heading>
 <!-- don't use form action to log into supabase Auth, rather supabase.auth.signInWithPassword-->
-<form on:submit|preventDefault={handleSignIn}>
-	<label for="email">Please enter your work email address</label>
-	<input type="email" name="email" id="email" bind:value={email} />
-	<label for="password">Please enter your password</label>
-	<input type="password" name="password" id="password" bind:value={password} />
-	<button>Sign In</button>
+<form class="m-6" on:submit|preventDefault={handleSignIn}>
+	<div class="mb-6">
+		<Input
+			label="Please enter your work email address."
+			type="email"
+			name="email"
+			bind:value={email}
+			class="mb-3"
+			autocomplete="off"
+		/>
+
+		<Input
+			label="Please enter your password."
+			type="password"
+			name="password"
+			bind:value={password}
+			class="mb-6"
+		/>
+		<Button type="submit" outline class="w-full">Sign In</Button>
+	</div>
 </form>
 
 {#if loginError}
-	<p style="color: red">Please check your login credentials.</p>
+	<p class="text-red-500">Please check your login credentials.</p>
 {/if}
 
-<h6>one, two, three @ purplechem.com // default</h6>
+<p class="text-white">one, two, three @ purplechem.com // default</p>

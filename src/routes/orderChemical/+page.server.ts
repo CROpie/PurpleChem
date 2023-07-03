@@ -1,10 +1,11 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions } from '@sveltejs/kit';
-import type { RequestEvent } from '../$types';
+// import type { RequestEvent } from '../$types';
 
 export const actions: Actions = {
+	// orderChemical: async (event: RequestEvent)
 	// orderChemical: async ({ request, locals: { supabase, getSession } }) => {
-	orderChemical: async (event: RequestEvent) => {
+	orderChemical: async (event) => {
 		const formData = await event.request.formData();
 
 		if (!formData) {
@@ -17,6 +18,7 @@ export const actions: Actions = {
 		const chemicalName = formData.get('chemicalName');
 		const amount = formData.get('amount');
 		const amountUnit = formData.get('amountUnit');
+		console.log(amount);
 
 		// see if the chemical is in the database already, return object contains the ID if it exists
 		// need to use .maybeSingle() to return either one object or null

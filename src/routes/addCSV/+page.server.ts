@@ -11,7 +11,7 @@ export const actions = {
 		for (let i = 0; i < data3.length; i++) {
 			console.log('ITERATION: ', i);
 			// 1: data3.userName -> userID
-			let { data: userInfo } = await event.locals.supabase
+			const { data: userInfo } = await event.locals.supabase
 				.from('user')
 				.select()
 				.eq('userName', data3[i].userName)
