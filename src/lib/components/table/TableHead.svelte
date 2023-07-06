@@ -13,7 +13,11 @@
 		primary: 'text-primaryB-300 bg-primaryA-800'
 	};
 
-	let theadClass = twMerge('text-xs uppercase', tableHeadColours[color], $$props.class);
+	let theadClass = twMerge(
+		'text-xs uppercase cursor-pointer',
+		tableHeadColours[color],
+		$$props.class
+	);
 </script>
 
 <thead {...$$restProps} class={theadClass}>

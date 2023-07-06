@@ -10,53 +10,76 @@
 		TableHeadCell
 	} from '$lib/components/table/TableAll';
 
-	import Search from '$lib/components/Search.svelte';
+	import { Search, Input } from '$lib/components/form/formAll';
 
 	import type { PageData } from './$types';
 
-	// Custom Types
+	// Custom Type
+	// changes from { data }
+	// 		amount (added string for when combined with amountUnit)
+	// 		amountUnit (added ? because it gets deleted)
+	// 		orderDate (added undefined because that can be the return value of .slice (?) )
 	interface OrderData {
-		id: string;
-		chemicalName: string | null | undefined;
-		user: string | null | undefined;
-		amount: number | null;
-		amountUnit: string | null;
-		isConsumed: boolean;
+		chemicalName: string | null;
+		CAS: string | null;
+		username: string | null;
+		amount: number | string | null;
+		amountUnit?: string | null;
+		isConsumed: boolean | null;
+		supplierName: string | null;
+		supplierPN: string | null;
+		statusValue: string | null;
+		orderDate: string | null | undefined;
 	}
+
+	const tableHead = [
+		'chemicalName',
+		'CAS',
+		'username',
+		'amount',
+		'isConsumed',
+		'supplierName',
+		'supplierPN',
+		'statusValue',
+		'orderDate'
+	];
 
 	export let data: PageData;
 	let { supabase } = data;
 
+	//let queryOrders: OrderData[] = [];
 	let queryOrders: OrderData[] = [];
+
 	let queryChemicalName = '';
 
 	const hideConsumed = () => {
 		queryOrders = queryOrders?.filter((order) => order.isConsumed == false);
 	};
 
-	// for some reason, chemical!inner is essential to get this to work
-	// should be a way to chain ilikes, but not sure exactly how.
-	// maybe easier just using SQL than trying to figure out the supabase API??
+	// Solved the problem of searching multiple columns on multiple tables
+	// By 1st: creating a 'view' (ordersview) which brings all the useful data into one table (ie don't need to deal with foreignkeys)
+	// 2nd: chain .or by putting the entire thing in a template string, rather than trying to split it with '', "" and ``
+	// Since no foreinkeys, don't need to use the second argument in .or, which is { foreignTable: 'tablename' }.
+	// Maybe there is some way to do it with { foreignTable: [tablename, tablename] } ?? But this is easier to read
 	const queryDatabase = async () => {
 		let { data, error } = await supabase
-			.from('order')
+			.from('ordersview')
 			.select(
-				`id, chemical!inner ( chemicalName ), user!inner ( userName ), amount, amountUnit, isConsumed`
+				'chemicalName, CAS, username, amount, amountUnit, isConsumed, supplierName, supplierPN, statusValue, orderDate'
 			)
-			.ilike('chemical.chemicalName', `%${queryChemicalName}%`);
+			.or(
+				`chemicalName.ilike.%${queryChemicalName}%, username.ilike.%${queryChemicalName}%, CAS.ilike.%${queryChemicalName}%`
+			);
+		if (data) {
+			queryOrders = data;
 
-		queryOrders = [];
-		data?.forEach((order) => {
-			const currentOrder = {
-				id: order.id,
-				chemicalName: order.chemical?.chemicalName,
-				user: order.user?.userName,
-				amount: order.amount,
-				amountUnit: order.amountUnit,
-				isConsumed: order.isConsumed
-			};
-			queryOrders.push(currentOrder);
-		});
+			// make some adjustments
+			queryOrders.forEach((item) => {
+				item.orderDate = item.orderDate?.slice(0, 10);
+				item.amount += ` ${item.amountUnit}`;
+				delete item.amountUnit;
+			});
+		}
 		sortTable('chemicalName');
 	};
 
@@ -76,35 +99,90 @@
 			a[sortKey] > b[sortKey] ? -sortDirection : sortDirection
 		);
 	};
+
+	// variables for choosing what to display
+	interface show {
+		[key: string]: boolean;
+	}
+	let showObj: show;
+	$: showObj = {
+		chemicalName: true,
+		CAS: true,
+		username: true,
+		amount: true,
+		amountUnit: true,
+		isConsumed: true,
+		supplierName: true,
+		supplierPN: true,
+		statusValue: true,
+		orderDate: true
+	};
 </script>
 
 <Heading tag="h2" class="text-center mt-3">Search Database</Heading>
 
 <div class="mx-8 mt-3">
 	<form class="flex-1" on:submit={queryDatabase}>
-		<Search bind:inputValue={queryChemicalName} placeholder="Chemical Name" />
+		<Search
+			bind:inputValue={queryChemicalName}
+			outline
+			placeholder="Chemical Name, CAS or username"
+			divClass="my-4"
+		/>
 	</form>
+	<div class="flex justify-between">
+		{#each tableHead as heading}
+			<div class="flex flex-col items-center">
+				<label for="show{heading}" class="text-primaryA-500">{heading}</label>
+				<input type="checkbox" id="show{heading}" bind:checked={showObj[heading]} />
+			</div>
+		{/each}
+	</div>
 
 	<div class="flex mb-3">
-		<Button type="button" on:click={hideConsumed}>Hide Consumed</Button>
+		<Button type="button" outline on:click={hideConsumed}>Hide Consumed</Button>
 	</div>
 
 	<Table hoverable color="primary" striped>
 		<TableHead>
-			<TableHeadCell on:click={() => sortTable('chemicalName')}>Chemical</TableHeadCell>
-			<TableHeadCell on:click={() => sortTable('user')}>User</TableHeadCell>
-			<TableHeadCell on:click={() => sortTable('amount')}>Amount</TableHeadCell>
-			<TableHeadCell on:click={() => sortTable('isConsumed')}>Consumed</TableHeadCell>
+			{#each tableHead as heading}
+				{#if showObj[heading]}
+					<TableHeadCell on:click={() => sortTable(heading)}>{heading}</TableHeadCell>
+				{/if}
+			{/each}
 		</TableHead>
 		<TableBody>
-			{#each queryOrders as order (order.id)}
+			{#each queryOrders as order}
 				<TableBodyRow>
-					<TableBodyCell>{order.chemicalName}</TableBodyCell>
-					<TableBodyCell>{order.user}</TableBodyCell>
-					<TableBodyCell>{order.amount} {order.amountUnit}</TableBodyCell>
-					<TableBodyCell>{order.isConsumed}</TableBodyCell>
+					{#each Object.entries(order) as [key, value]}
+						{#if showObj[key]}
+							<TableBodyCell>{value}</TableBodyCell>
+						{/if}
+					{/each}
 				</TableBodyRow>
 			{/each}
 		</TableBody>
 	</Table>
 </div>
+
+<!--
+	Show Field Buttons
+<div class="flex justify-between">
+		<label for="showChemical" class="text-primaryA-500">Chemical</label>
+		<input type="checkbox" id="showChemical" bind:checked={showChemical} />
+</div>
+
+	Head
+<TableHead>
+	{#if showChemical}
+		<TableHeadCell on:click={() => sortTable('chemicalName')}>Chemical</TableHeadCell>
+	{/if}
+</TableHead>
+
+	Body
+<TableBodyRow>
+	{#if showChemical}
+		<TableBodyCell>{order.chemicalName}</TableBodyCell>
+	{/if}
+</TableBodyRow>
+-->

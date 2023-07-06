@@ -18,13 +18,20 @@ export const actions: Actions = {
 		const chemicalName = formData.get('chemicalName');
 		const amount = formData.get('amount');
 		const amountUnit = formData.get('amountUnit');
-		console.log(amount);
+		const supplierID = formData.get('supplierID');
+		const supplierPN = formData.get('supplierPN');
+		const MW = formData.get('MW');
+		const MP = formData.get('MP');
+		const BP = formData.get('BP');
+		const density = formData.get('density');
+
+		console.log(formData);
 
 		// see if the chemical is in the database already, return object contains the ID if it exists
 		// need to use .maybeSingle() to return either one object or null
 		// without, it's an array or null
 		let chemical = await event.locals.supabase
-			.from('chemical')
+			.from('chemicals')
 			.select()
 			.eq('CAS', CAS)
 			.maybeSingle();
@@ -33,25 +40,31 @@ export const actions: Actions = {
 		if (!chemical.data) {
 			console.log('Adding new chemical to database...');
 			chemical = await event.locals.supabase
-				.from('chemical')
+				.from('chemicals')
 				.insert({
 					CAS,
-					chemicalName
+					chemicalName,
+					MW,
+					MP,
+					BP,
+					density
 				})
 				.select();
 		}
 
 		// add order to database
-		const { error } = await event.locals.supabase.from('order').insert({
+		const { error } = await event.locals.supabase.from('orders').insert({
 			userID,
 			chemicalID: chemical.data.id,
 			amount,
-			amountUnit
+			amountUnit,
+			supplierID,
+			supplierPN
 		});
 
 		if (error) {
 			console.log('error');
-			return fail(400);
+			return fail(400, { error: true });
 		}
 		console.log('success');
 		return { success: true };
@@ -69,3 +82,11 @@ export const actions: Actions = {
 // still works fine though
 
 // PostgrestSingleResponse (return object of accessing the DB)
+
+export const load = async ({ locals: { supabase, getSession } }) => {
+	const session = await getSession();
+
+	const { data: supplierList } = await supabase.from('suppliers').select('*');
+
+	return { session, supplierList };
+};

@@ -1,14 +1,25 @@
 <script lang="ts">
+	import { Input } from './formAll';
+	import type { colorChoice } from '../types';
+	import { twMerge } from 'tailwind-merge';
 	export let inputValue = 'Search';
 	export let placeholder = '';
-	import { Input } from 'flowbite-svelte';
+
+	export let color = 'primary';
+
+	let svgColours: colorChoice = {
+		primary: 'dark:text-primaryA-500'
+	};
+
+	let svgClass = twMerge('w-5 h-5', svgColours[color], $$props.svgClass);
+	let divClass = twMerge('', $$props.divClass);
 </script>
 
-<div class="p-4">
+<div class={divClass}>
 	<div class="relative mt-1">
 		<div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
 			<svg
-				class="w-5 h-5 text-gray-500 dark:text-gray-400"
+				class={svgClass}
 				fill="currentColor"
 				viewBox="0 0 20 20"
 				xmlns="http://www.w3.org/2000/svg"
@@ -23,8 +34,16 @@
 			{...$$restProps}
 			bind:value={inputValue}
 			type="text"
-			class="border border-gray-300 text-sm rounded-lg dark:text-primary-500 pl-10 dark:bg-black"
 			{placeholder}
+			class={twMerge('pl-10', $$props.class)}
 		/>
 	</div>
 </div>
+
+<!--
+  @component
+  ## Props
+    divClass: container div
+	svgClass: svg on the left
+	class: input field
+-->

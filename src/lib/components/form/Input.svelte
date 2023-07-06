@@ -18,18 +18,17 @@
 	};
 
 	let inputClass = twMerge([defaultClass, inputColours[color], $$props.class]);
+	let divClass = twMerge('w-full', $$props.divClass);
 
 	// without bind:value, can't use bind value
 	// without {...$$restProps}, can't use input attributes like name, type etc
 	// add $$props.class to inputClass allows for modifications via class="" when using the component
 </script>
 
-<slot>
-	<div class="w-full">
-		<div class={labelColours[color]}>{label}</div>
-		<input {...$$restProps} bind:value class={inputClass} />
-	</div>
-</slot>
+<div class={divClass}>
+	<div class={labelColours[color]}>{label}</div>
+	<input {...$$restProps} bind:value class={inputClass} />
+</div>
 
 <!--
   @component

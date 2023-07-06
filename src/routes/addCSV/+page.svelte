@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { csvParse } from 'd3-dsv';
 
-	import { Input } from '$lib/components/form/Input';
+	import { Input } from '$lib/components/form/formAll';
 	import { Heading } from '$lib/components/typography/Typo';
 	import { Button } from '$lib/components/button/button';
 	import { Fileupload } from 'flowbite-svelte';

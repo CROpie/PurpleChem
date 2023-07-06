@@ -10,7 +10,7 @@
 		TableHeadCell
 	} from '$lib/components/table/TableAll';
 
-	import Search from '$lib/components/Search.svelte';
+	import { Search } from '$lib/components/form/formAll';
 	export let data;
 
 	//$: filteredOrders = data.orders ?? [];
