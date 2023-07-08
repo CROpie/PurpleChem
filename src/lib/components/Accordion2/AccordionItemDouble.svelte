@@ -46,7 +46,7 @@
 	</button>
 
 	{#if isOpen}
-		<div class={twMerge(defaultAccordion, $$props.contentClass)}>
+		<div class={twMerge(defaultAccordion, 'flex flex-col gap-8', $$props.contentClass)}>
 			<slot name="content" />
 			<Button on:click={setEditActive} outline>▽</Button>
 		</div>
