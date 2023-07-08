@@ -24,6 +24,7 @@ export const actions: Actions = {
 		const MP = formData.get('MP');
 		const BP = formData.get('BP');
 		const density = formData.get('density');
+		const smiles = formData.get('smiles');
 
 		console.log(formData);
 
@@ -47,9 +48,12 @@ export const actions: Actions = {
 					MW,
 					MP,
 					BP,
-					density
+					density,
+					smiles
 				})
-				.select();
+				.select()
+				.maybeSingle();
+			console.log('just added chemical: ', chemical);
 		}
 
 		// add order to database
@@ -63,7 +67,7 @@ export const actions: Actions = {
 		});
 
 		if (error) {
-			console.log('error');
+			console.log(error);
 			return fail(400, { error: true });
 		}
 		console.log('success');

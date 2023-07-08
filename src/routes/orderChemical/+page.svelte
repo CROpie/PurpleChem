@@ -21,6 +21,10 @@
 	let MP: phys = null;
 	let BP: phys = null;
 	let density: phys = null;
+
+	// stucture
+	let smiles: string | null;
+
 	$: notFound = false;
 
 	export let data: PageData;
@@ -39,6 +43,7 @@
 		console.log(data);
 		chemicalName = data.name;
 		MW = data.molecularMass;
+		smiles = data.smile;
 		if (data.experimentalProperties) {
 			extractPhys(data.experimentalProperties);
 		}
@@ -112,4 +117,5 @@
 	<input name="MP" type="hidden" bind:value={MP} />
 	<input name="BP" type="hidden" bind:value={BP} />
 	<input name="density" type="hidden" bind:value={density} />
+	<input name="smiles" type="hidden" bind:value={smiles} />
 </form>
