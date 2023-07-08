@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { csvParse } from 'd3-dsv';
 
-	import { Input } from '$lib/components/form/formAll';
+	import { Input, Fileupload } from '$lib/components/form/formAll';
 	import { Heading } from '$lib/components/typography/Typo';
 	import { Button } from '$lib/components/button/button';
-	import { Fileupload } from 'flowbite-svelte';
 
 	let csvFile: FileList;
 	let data: any;
@@ -24,7 +23,9 @@
 </script>
 
 <Heading tag="h2" class="text-center mt-3">Import CSV</Heading>
+
 <Fileupload type="file" accept=".csv" bind:files={csvFile} class="text-primary-500 mt-6" />
+
 <Button type="button" on:click={getData} outline class="w-full mt-6">Load</Button>
 
 <form method="POST" action="?/inputCSV">

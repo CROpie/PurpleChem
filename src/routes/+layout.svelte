@@ -31,6 +31,8 @@
 
 <svelte:head>
 	<title>Chem Database</title>
+	<script src="/node_modules/jsme-editor/jsme.nocache.js"></script>
+	<script src="/node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
 </svelte:head>
 
 <Navbar let:hidden let:toggle>

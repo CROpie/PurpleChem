@@ -14,6 +14,10 @@
 
 	import type { PageData } from './$types';
 
+	import { onMount } from 'svelte';
+
+	import type { JSMol, RDKitModule } from '$lib/rdkitTypes';
+
 	// Custom Type
 	// changes from { data }
 	// 		amount (added string for when combined with amountUnit)
@@ -46,6 +50,19 @@
 
 	export let data: PageData;
 	let { supabase } = data;
+
+	let jsmeApplet: any;
+	let RDKitModule: RDKitModule;
+	let jsmeContainer: HTMLElement | null;
+	let noHit = false;
+
+	onMount(() => {
+		jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
+
+		initRDKitModule().then(function (instance) {
+			RDKitModule = instance;
+		});
+	});
 
 	//let queryOrders: OrderData[] = [];
 	let queryOrders: OrderData[] = [];
@@ -117,6 +134,52 @@
 		statusValue: true,
 		orderDate: true
 	};
+
+	const toggleStructureSearch = () => {
+		if (!jsmeContainer) {
+			console.log('something has gone wrong with jsme.');
+		} else {
+			if (jsmeContainer.classList.contains('hidden')) {
+				jsmeContainer.classList.replace('hidden', 'flex');
+			} else if (jsmeContainer.classList.contains('flex')) {
+				jsmeContainer.classList.replace('flex', 'hidden');
+			}
+		}
+	};
+
+	const queryByStructure = async () => {
+		const inchi = getInchi();
+
+		let { data, error } = await supabase
+			.from('ordersview')
+			.select(
+				'chemicalName, CAS, username, amount, amountUnit, isConsumed, supplierName, supplierPN, statusValue, orderDate'
+			)
+			.eq('inchi', inchi);
+
+		if (data && data.length > 0) {
+			queryOrders = data;
+
+			// make some adjustments
+			queryOrders.forEach((item) => {
+				item.orderDate = item.orderDate?.slice(0, 10);
+				item.amount += ` ${item.amountUnit}`;
+				delete item.amountUnit;
+			});
+		}
+		if (data && data.length == 0) {
+			noHit = true;
+		}
+
+		sortTable('chemicalName');
+	};
+
+	function getInchi() {
+		const smiles = jsmeApplet.smiles();
+		const JSMol: JSMol = RDKitModule.get_mol(smiles);
+		const inchi = RDKitModule.get_mol(smiles).get_inchi();
+		return inchi;
+	}
 </script>
 
 <Heading tag="h2" class="text-center mt-3">Search Database</Heading>
@@ -130,6 +193,16 @@
 			divClass="my-4"
 		/>
 	</form>
+	<Button on:click={toggleStructureSearch}>Toggle Structure Search</Button>
+
+	<div bind:this={jsmeContainer} class="hidden">
+		<div id="jsme_container" />
+		<Button on:click={queryByStructure}>GO</Button>
+		{#if noHit}
+			<p class="text-red-500">No Hits!</p>
+		{/if}
+	</div>
+
 	<div class="flex justify-between">
 		{#each tableHead as heading}
 			<div class="flex flex-col items-center">

@@ -62,7 +62,7 @@
 {#if isInchi}
 	<Heading tag="h3">{inchi}</Heading>
 
-	<Button on:click={queryDatabase}>Get Name</Button>
+	<Button on:click={queryDatabase}>View Orders</Button>
 {/if}
 
 <canvas bind:this={canvas} width="200" height="200" />
