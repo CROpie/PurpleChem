@@ -25,7 +25,7 @@ export const actions: Actions = {
 		const BP = formData.get('BP');
 		const density = formData.get('density');
 		const inchi = formData.get('inchi');
-		const svg = formData.get('svg');
+		const smile = formData.get('smile');
 
 		console.log(formData);
 
@@ -51,7 +51,7 @@ export const actions: Actions = {
 					BP,
 					density,
 					inchi,
-					svg
+					smile
 				})
 				.select()
 				.maybeSingle();

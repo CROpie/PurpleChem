@@ -1,0 +1,11 @@
+Check out database constraints for units instead of having them in a separate table
+Look into what sveltekit enums are
+
+Want to show that the project was undertaken in an organized mannner
+    User github projects or jira for this
+        Even can link a story to a commit
+
+Even worth reverse engineering at this stage to make it look like it was done in this fashion
+
+Include light-dark mode toggle
+Include option to change the colour scheme (save choice in profile ??)

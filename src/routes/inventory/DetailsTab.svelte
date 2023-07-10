@@ -2,11 +2,9 @@
 	import { Select } from '$lib/components/form/formAll';
 	import Button from '$lib/components/button/Button.svelte';
 
-	export let order;
-	export let locationsList;
-
-	$: console.log('DetailsTab', order);
-	$: console.log(locationsList);
+	import type { order, location } from './orderType';
+	export let order: order;
+	export let locationsList: location[];
 </script>
 
 <form method="POST" action="?/updateData">
@@ -18,8 +16,8 @@
 	<p>Current Location:</p>
 
 	<Select name="locationID" value={order.locationID?.id}>
-		{#each locationsList as location (location.id)}
-			<option value={location.id}>{location.locationName}</option>
+		{#each locationsList as location (location?.id)}
+			<option value={location?.id}>{location?.locationName}</option>
 		{:else}
 			<option disabled>No Locations!</option>
 		{/each}

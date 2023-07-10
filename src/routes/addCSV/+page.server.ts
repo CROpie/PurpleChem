@@ -47,7 +47,7 @@ export const actions = {
 						BP: APIData.phys.BP,
 						density: APIData.phys.density,
 						inchi: APIData.inchi,
-						svg: APIData.image
+						smile: APIData.smile
 					})
 					.select()
 					.maybeSingle();

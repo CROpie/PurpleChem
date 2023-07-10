@@ -1,13 +1,38 @@
 <script lang="ts">
 	import { twMerge } from 'tailwind-merge';
 	import { Button } from '../button/button';
+	import { onMount } from 'svelte';
 	import type { Writable } from 'svelte/store';
+	import type { order } from '../../../routes/inventory/orderType';
 	type ActiveId = string | null;
 	type ActiveIdContext = Writable<ActiveId>;
+
+	import type { RDKitModule } from '$lib/rdkitTypes';
+	let RDKitModule: RDKitModule;
+
+	export let svgString;
+
+	onMount(() => {
+		initRDKitModule().then(function (instance: any) {
+			RDKitModule = instance;
+		});
+	});
+	let svg: any;
+	$: svg;
+	const drawStructure = () => {
+		if (order.chemicalID.smile) {
+			let JSMol = RDKitModule.get_mol(order.chemicalID.smile);
+			svg = JSMol.get_svg();
+			console.log(svg);
+			svgString = svg;
+		}
+	};
 
 	const componentId = crypto.randomUUID();
 
 	const editComponentId = crypto.randomUUID();
+
+	export let order: order;
 
 	// can be replaced by a link to context.ts
 	import { getContext } from 'svelte';
@@ -19,6 +44,7 @@
 	function setActive() {
 		if ($activeComponentId === componentId) {
 			isOpen = !isOpen;
+			isDoubleOpen = false;
 			return;
 		}
 		$activeComponentId = componentId;
@@ -31,6 +57,7 @@
 			return;
 		}
 		$activeEditComponentId = editComponentId;
+		drawStructure();
 	}
 
 	// look to see if the active component id matches the component id
@@ -38,24 +65,20 @@
 	$: isDoubleOpen = $activeEditComponentId === editComponentId;
 </script>
 
-<div>
-	<button on:click={setActive} class={twMerge(defaultAccordion, $$props.nameClass)}>
-		<div>
-			<slot name="title" />
-		</div>
+<div class={twMerge(defaultAccordion, 'flex flex-col gap-2 mb-4 dark:bg-gray-300', $$props.class)}>
+	<button on:click={setActive}>
+		<slot name="title" />
 	</button>
 
 	{#if isOpen}
-		<div class={twMerge(defaultAccordion, 'flex flex-col gap-8', $$props.contentClass)}>
+		<div class={'flex flex-col gap-4 dark:text-black'}>
 			<slot name="content" />
 			<Button on:click={setEditActive} outline>▽</Button>
 		</div>
 	{/if}
 
 	{#if isDoubleOpen}
-		<div class={twMerge(defaultAccordion, $$props.contentClass)}>
-			<slot name="edit" />
-		</div>
+		<slot name="edit" />
 	{/if}
 </div>
 

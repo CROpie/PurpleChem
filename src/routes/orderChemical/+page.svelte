@@ -24,7 +24,7 @@
 
 	// stucture
 	let inchi: string | null;
-	let svg: string | null;
+	let smile: string | null;
 
 	$: notFound = false;
 
@@ -45,7 +45,7 @@
 		chemicalName = data.name;
 		MW = data.molecularMass;
 		inchi = data.inchi;
-		svg = data.image;
+		smile = data.smile;
 		if (data.experimentalProperties) {
 			extractPhys(data.experimentalProperties);
 		}
@@ -120,5 +120,5 @@
 	<input name="BP" type="hidden" bind:value={BP} />
 	<input name="density" type="hidden" bind:value={density} />
 	<input name="inchi" type="hidden" bind:value={inchi} />
-	<input name="svg" type="hidden" bind:value={svg} />
+	<input name="smile" type="hidden" bind:value={smile} />
 </form>

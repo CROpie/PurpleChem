@@ -15,12 +15,17 @@
 	import DetailsTab from './DetailsTab.svelte';
 
 	import type { PageData } from './$types';
+	import type { order, location } from './orderType';
 
 	import { afterUpdate } from 'svelte';
 
+	let svgString = '';
+
 	export let data: PageData;
-	const { locationsList, ordersList } = data;
-	$: console.log(ordersList);
+
+	// https://flaviocopes.com/typescript-object-destructuring/
+	const { locationsList, ordersList }: { locationsList: location[]; ordersList: order[] } = data;
+	// $: console.log(ordersList, locationsList);
 
 	let addNew = false;
 
@@ -40,10 +45,11 @@
 		if (selectedLocationID == -1) {
 			filteredOrdersList = ordersList;
 		} else {
-			filteredOrdersList = ordersList.filter((order) => {
+			filteredOrdersList = ordersList.filter((order: order) => {
 				return order.locationID?.id == selectedLocationID;
 			});
 		}
+		// console.log(filteredOrdersList);
 	};
 
 	afterUpdate(() => {
@@ -55,7 +61,7 @@
 	<p>Loading</p>
 {:then}
 	<div class="flex">
-		<Sidebar>
+		<Sidebar class="mt-9">
 			<SidebarWrapper>
 				<SidebarGroup>
 					<SidebarItem label="All" on:click={() => chooseLocation(-1, 'All')} />
@@ -80,22 +86,40 @@
 				</SidebarGroup>
 			</SidebarWrapper>
 		</Sidebar>
-		<div class="border-2 dark:border-primaryB-300 flex-1">
+		<div class="flex-1">
 			<Heading tag="h3">{currentLocation}</Heading>
+
 			<AccordionDouble>
-				{#each filteredOrdersList as order}
-					<AccordionItemDouble>
+				{#each filteredOrdersList as order (order.id)}
+					<AccordionItemDouble {order} bind:svgString>
 						<svelte:fragment slot="title">
 							<p>{order.chemicalID.chemicalName} ({order.id})</p>
 						</svelte:fragment>
-						<div slot="content" class="flex flex-col">
+
+						<svelte:fragment slot="content">
 							<DetailsTab {order} {locationsList} />
-						</div>
+						</svelte:fragment>
+
 						<svelte:fragment slot="edit">
-							<div>
-								<Heading tag="h6" class="dark:text-black">PROPERTIES</Heading>
-								<p>CAS: {order.chemicalID.CAS}</p>
+							<Heading tag="h6" class="dark:text-black">PROPERTIES</Heading>
+
+							<div class="flex gap-2">
+								<div class="border-2 border-primaryA-600">
+									{@html `${svgString}`}
+								</div>
+								<ul>
+									<li>MW: {order.chemicalID.MW}</li>
+									<li>BP: {order.chemicalID.BP}</li>
+									<li>MP: {order.chemicalID.MP}</li>
+									<li>Density: {order.chemicalID.density}</li>
+								</ul>
 							</div>
+							<ul>
+								<li>CAS: {order.chemicalID.CAS}</li>
+								<!-- TODO -->
+								<li>Supplier:</li>
+								<li>Date Ordered:</li>
+							</ul>
 						</svelte:fragment>
 					</AccordionItemDouble>
 				{:else}

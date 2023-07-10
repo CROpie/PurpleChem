@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions } from '@sveltejs/kit';
+
 // import type { RequestEvent } from '../$types';
 
 export const load = async ({ locals: { supabase, getSession } }) => {
@@ -25,7 +26,7 @@ export const load = async ({ locals: { supabase, getSession } }) => {
 	const { data: ordersList } = await supabase
 		.from('orders')
 		.select(
-			'id, chemicalID( id, chemicalName, CAS, inchi ), amount, amountUnit, locationID( id, locationName )'
+			'id, chemicalID( id, chemicalName, CAS, MW, MP, BP, density, inchi, smile ), amount, amountUnit, locationID( id, locationName )'
 		)
 		.eq('userID', userID);
 
@@ -66,9 +67,9 @@ export const actions: Actions = {
 		// const session = await event.locals.getSession();
 		// const userID = session?.user.id;
 
-		const amount = parseInt(formData.get('amount'));
-		const locationID = parseInt(formData.get('locationID'));
-		const orderID = parseInt(formData.get('orderID'));
+		const amount = formData.get('amount');
+		const locationID = formData.get('locationID');
+		const orderID = formData.get('orderID');
 
 		// tried to use upsert instead of update
 		// apparently upsert can chain changes with ([{amount: amount}. {locationID: locationID}])
