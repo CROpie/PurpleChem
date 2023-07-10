@@ -49,6 +49,7 @@
 			<NavLi href="/admin" class="dark:text-green-300">Admin Area</NavLi>
 		{/if}
 		<NavLi href="/orderChemical">Order Chemical</NavLi>
+		<NavLi href="inventory">Inventory</NavLi>
 		<NavLi href="/queryData">Query Database</NavLi>
 		<NavLi href="/addCSV">Add Chemicals via CSV</NavLi>
 		<NavLi href="/logout" class="dark:text-red-500">Log Out</NavLi>

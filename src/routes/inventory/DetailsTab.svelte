@@ -5,25 +5,26 @@
 	export let order;
 	export let locationsList;
 
+	$: console.log('DetailsTab', order);
 	$: console.log(locationsList);
 </script>
 
 <form method="POST" action="?/updateData">
 	<p>
-		Remaining: <input value={order.amount} name="amount" type="text" />
+		Remaining: <input value={order.amount} name="amount" type="text" class="text-black" />
 		{order.amountUnit}
 	</p>
 
 	<p>Current Location:</p>
 
-	<Select name="locationID" value={order.locationID.id}>
-		{#each locationsList as location}
+	<Select name="locationID" value={order.locationID?.id}>
+		{#each locationsList as location (location.id)}
 			<option value={location.id}>{location.locationName}</option>
 		{:else}
-			<option>No Locations!</option>
+			<option disabled>No Locations!</option>
 		{/each}
 	</Select>
-	<Button type="submit" outline class="w-full">UPDATE</Button>
+	<Button type="submit" outline class="w-full text-black">UPDATE</Button>
 	<!--
 	<input type="hidden" name="userID" value={order.userID} />
         -->

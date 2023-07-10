@@ -9,7 +9,9 @@
 	let data: any;
 
 	function getData() {
+		console.log('hello');
 		const input = csvFile[0];
+		console.log(input);
 		const reader = new FileReader();
 
 		reader.onload = (event) => {
@@ -24,11 +26,11 @@
 
 <Heading tag="h2" class="text-center mt-3">Import CSV</Heading>
 
-<Fileupload type="file" accept=".csv" bind:files={csvFile} class="text-primary-500 mt-6" />
-
+<!-- <Fileupload type="file" accept=".csv" bind:files={csvFile} class="text-primary-500 mt-6" /> -->
+<input type="file" bind:files={csvFile} accept=".csv" />
 <Button type="button" on:click={getData} outline class="w-full mt-6">Load</Button>
 
 <form method="POST" action="?/inputCSV">
-	<Input type="hidden" name="csvData" bind:value={data} />
+	<input type="hidden" name="csvData" bind:value={data} />
 	<Button type="submit" outline class="w-full mt-6">Submit</Button>
 </form>

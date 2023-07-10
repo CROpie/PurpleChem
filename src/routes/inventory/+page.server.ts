@@ -5,6 +5,7 @@ import type { Actions } from '@sveltejs/kit';
 export const load = async ({ locals: { supabase, getSession } }) => {
 	const session = await getSession();
 	const userID = session?.user.id;
+	console.log(userID);
 
 	const { data: locationsList } = await supabase
 		.from('locations')
@@ -12,10 +13,19 @@ export const load = async ({ locals: { supabase, getSession } }) => {
 		.eq('userID', userID);
 
 	// seems can't have two * chemicalID!inner, need to put chemicalName & CAS together
+	// const { data: ordersList } = await supabase
+	// 	.from('orders')
+	// 	.select(
+	// 		'id, chemicalID!inner( id, chemicalName, CAS ), amount, amountUnit, locationID!inner( id, locationName )'
+	// 	)
+	// 	.eq('userID', userID);
+	// can't have locationID as null either ??
+	// BUT taking out !inner suddenly make everything work again ??
+
 	const { data: ordersList } = await supabase
 		.from('orders')
 		.select(
-			'id, chemicalID!inner( id, chemicalName, CAS ), amount, amountUnit, locationID!inner( id, locationName )'
+			'id, chemicalID( id, chemicalName, CAS, inchi ), amount, amountUnit, locationID( id, locationName )'
 		)
 		.eq('userID', userID);
 

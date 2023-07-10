@@ -15,8 +15,7 @@
 	const activeEditComponentId = writable<ActiveId>(null);
 	setContext<ActiveIdContext>('activeEdit', activeEditComponentId);
 
-	let defaultDivStyle =
-		'w-full p-2 text-primary-500 bg-yellow-200 border-4 border-white rounded-lg';
+	let defaultDivStyle = 'w-full p-2 text-white bg-primaryA-600 border-4 border-white rounded-lg';
 </script>
 
 <div class={twMerge(defaultDivStyle)}>

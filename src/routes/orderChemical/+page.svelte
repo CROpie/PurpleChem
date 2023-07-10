@@ -23,7 +23,8 @@
 	let density: phys = null;
 
 	// stucture
-	let smiles: string | null;
+	let inchi: string | null;
+	let svg: string | null;
 
 	$: notFound = false;
 
@@ -43,7 +44,8 @@
 		console.log(data);
 		chemicalName = data.name;
 		MW = data.molecularMass;
-		smiles = data.smile;
+		inchi = data.inchi;
+		svg = data.image;
 		if (data.experimentalProperties) {
 			extractPhys(data.experimentalProperties);
 		}
@@ -117,5 +119,6 @@
 	<input name="MP" type="hidden" bind:value={MP} />
 	<input name="BP" type="hidden" bind:value={BP} />
 	<input name="density" type="hidden" bind:value={density} />
-	<input name="smiles" type="hidden" bind:value={smiles} />
+	<input name="inchi" type="hidden" bind:value={inchi} />
+	<input name="svg" type="hidden" bind:value={svg} />
 </form>

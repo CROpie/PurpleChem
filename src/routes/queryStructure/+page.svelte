@@ -40,6 +40,8 @@
 		isInchi = true;
 		showCanvas = true;
 		JSMol.draw_to_canvas(canvas, 200, 200);
+		let svg = JSMol.get_svg();
+		console.log(svg);
 	};
 
 	const queryDatabase = async () => {
@@ -49,6 +51,12 @@
 			.eq('inchi', inchi);
 		getData = newData;
 		isData = true;
+	};
+
+	const test = () => {
+		let JSMol: JSMol = RDKitModule.get_mol('InChI=1S/C7H8/c1-7-5-3-2-4-6-7/h2-6H,1H3');
+		console.log('JSMol: ', JSMol);
+		JSMol.draw_to_canvas(canvas, 200, 200);
 	};
 </script>
 
@@ -64,6 +72,8 @@
 
 	<Button on:click={queryDatabase}>View Orders</Button>
 {/if}
+
+<Button on:click={test}>Test</Button>
 
 <canvas bind:this={canvas} width="200" height="200" />
 

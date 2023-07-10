@@ -20,6 +20,7 @@
 
 	export let data: PageData;
 	const { locationsList, ordersList } = data;
+	$: console.log(ordersList);
 
 	let addNew = false;
 
@@ -40,7 +41,7 @@
 			filteredOrdersList = ordersList;
 		} else {
 			filteredOrdersList = ordersList.filter((order) => {
-				return order.locationID.id == selectedLocationID;
+				return order.locationID?.id == selectedLocationID;
 			});
 		}
 	};
@@ -85,16 +86,16 @@
 				{#each filteredOrdersList as order}
 					<AccordionItemDouble>
 						<svelte:fragment slot="title">
-							<div class="flex">
-								<p>{order.chemicalID.chemicalName}</p>
-								<p>{order.chemicalID.id}</p>
-							</div>
+							<p>{order.chemicalID.chemicalName} ({order.id})</p>
 						</svelte:fragment>
 						<div slot="content" class="flex flex-col">
 							<DetailsTab {order} {locationsList} />
 						</div>
 						<svelte:fragment slot="edit">
-							{order.CAS}
+							<div>
+								<Heading tag="h6" class="dark:text-black">PROPERTIES</Heading>
+								<p>CAS: {order.chemicalID.CAS}</p>
+							</div>
 						</svelte:fragment>
 					</AccordionItemDouble>
 				{:else}

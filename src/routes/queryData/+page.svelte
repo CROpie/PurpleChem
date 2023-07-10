@@ -148,6 +148,7 @@
 	};
 
 	const queryByStructure = async () => {
+		noHit = false;
 		const inchi = getInchi();
 
 		let { data, error } = await supabase
