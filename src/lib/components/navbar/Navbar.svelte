@@ -2,20 +2,29 @@
 	import { twMerge } from 'tailwind-merge';
 	import { writable } from 'svelte/store';
 	import { setContext } from 'svelte';
-	import type { colorChoice } from '../types';
 
-	let defaultNavClass = 'px-2 sm:px-4 py-2.5 w-full';
-	let defaultNavDivClass = 'mx-auto flex flex-wrap justify-between items-center';
+	// props
+	export let outline = false;
+	export let noborder = false;
 
-	export let color = 'primary';
+	let defaultNavClass = 'py-2.5 w-full';
+	let defaultNavDivClass =
+		'px-4 py-1 mx-auto flex flex-wrap justify-between items-center rounded-lg';
 
-	const navBarColours: colorChoice = {
-		primary: 'dark:text-primaryA-800'
-	};
-	setContext('colorChoice', color);
+	const fillClass = 'text-opNeutral bg-primary';
+	const outlineClass = 'border text-primary border-primary bg-transparent';
 
-	let navClass = twMerge([defaultNavClass, navBarColours[color], $$props.class]);
-	let navDivClass = twMerge([defaultNavDivClass, $$props.class]);
+	const noborderClass = 'border-none';
+
+	setContext('outline', outline);
+
+	let navClass = twMerge(defaultNavClass, $$props.class);
+	let navDivClass = twMerge(
+		defaultNavDivClass,
+		outline ? outlineClass : fillClass,
+		noborder ? noborderClass : '',
+		$$props.class
+	);
 
 	let hidden = true;
 	let toggle = () => {
@@ -29,7 +38,7 @@
 	setContext('active', activeComponentId);
 
 	// styles for selected anchor tags, retrieved on Brand and Li
-	export let selectedColor = 'dark:text-primaryB-500';
+	export let selectedColor = 'text-complement';
 	setContext('selected', selectedColor);
 </script>
 

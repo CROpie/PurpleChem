@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Navbar, NavUl, NavBrand, NavLi, NavHamburger } from '$lib/components/navbar/Nav';
-	import '../app.postcss';
+	import '../app.css';
 
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
@@ -35,7 +35,7 @@
 	<script src="/node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
 </svelte:head>
 
-<Navbar let:hidden let:toggle>
+<Navbar let:hidden let:toggle outline>
 	<NavBrand href="/">
 		<img src="src/lib/images/BearbeerCrop.png" class="mr-3 h-12 sm:h-12" alt="PurpleChem" />
 		<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
@@ -52,7 +52,7 @@
 		<NavLi href="inventory">Inventory</NavLi>
 		<NavLi href="/queryData">Query Database</NavLi>
 		<NavLi href="/addCSV">Add Chemicals via CSV</NavLi>
-		<NavLi href="/logout" class="dark:text-red-500">Log Out</NavLi>
+		<NavLi href="/logout" class="text-neutral underline">Log Out</NavLi>
 	</NavUl>
 </Navbar>
 <slot />

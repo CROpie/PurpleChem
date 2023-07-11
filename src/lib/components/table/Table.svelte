@@ -2,18 +2,17 @@
 	import { twMerge } from 'tailwind-merge';
 	import { setContext } from 'svelte';
 
-	export let color = 'default';
-	export let striped = false;
+	// export let striped = true;
+	export let outline = false;
 
-	// Flowbite uses $: setContext ???
-	setContext('colorChoice', color);
-	setContext('striped', striped);
+	// setContext('striped', striped);
+	setContext('outline', outline);
 
 	let divClass = 'relative overflow-x-auto shadow-md sm:rounded-lg';
 	let tableClass = 'w-full text-left text-sm';
 </script>
 
-<div class={twMerge(divClass)}>
+<div class={twMerge(divClass, $$props.divClass)}>
 	<table {...$$restProps} class={twMerge(tableClass, $$props.class)}>
 		<slot />
 	</table>

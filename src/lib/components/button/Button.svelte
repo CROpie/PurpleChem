@@ -2,19 +2,16 @@
 	import { twMerge } from 'tailwind-merge';
 	import type { colorChoice } from '../types';
 
-	export let color = 'primary';
 	export let outline = false;
 	export let size = 'md';
 
 	export let href: string | undefined = undefined;
 
-	const buttonColours: colorChoice = {
-		primary:
-			'dark:text-primaryB-300 dark:bg-primaryA-700 border dark:border-primaryB-300 dark:hover:bg-primaryA-300'
-	};
-	const outlineColours: colorChoice = {
-		primary: 'dark:text-primaryA-500 border dark:border-primaryA-500 dark:hover:bg-primaryB-300'
-	};
+	const defaultClass = 'rounded-lg';
+	const fillClass = 'text-neutral bg-primary hover:text-opNeutral hover:bg-complement';
+	const outlineClass =
+		'border text-primary border-primary bg-transparent hover:text-complement hover:border-complement';
+
 	const sizeClasses: colorChoice = {
 		xs: 'px-3 py-2 text-xs',
 		sm: 'px-4 py-2 text-sm',
@@ -23,9 +20,9 @@
 		xl: 'px-6 py-3.5 text-base'
 	};
 
-	$: buttonClass = twMerge(
-		'rounded-lg',
-		outline ? outlineColours[color] : buttonColours[color],
+	const buttonClass = twMerge(
+		defaultClass,
+		outline ? outlineClass : fillClass,
 		sizeClasses[size],
 		$$props.class
 	);

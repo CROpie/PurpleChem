@@ -2,8 +2,6 @@
 	import { twMerge } from 'tailwind-merge';
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
-	import { getContext } from 'svelte';
-	import type { colorChoice } from '../types';
 
 	export let slideParams = { delay: 250, duration: 500, easing: quintOut };
 	export let hidden = true;
@@ -17,29 +15,13 @@
 		'flex flex-col p-4 mt-4 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium';
 	let defaultDivClass = 'w-full md:block md:w-auto';
 
-	export let color: string = getContext('colorChoice');
-
-	let ulColours: colorChoice = {
-		primary: 'dark:border-primaryB-300'
-	};
-
 	let divClass = twMerge([defaultDivClass, $$props.class]);
 
 	$: ulClass = twMerge([
 		defaultUlClass,
-		ulColours[color],
-		!hidden && 'border rounded-lg-border',
+		!hidden && 'border rounded-lg border-neutral',
 		$$props.class
 	]);
-
-	/*
-	let MobileUlClass = twMerge([
-		defaultUlClass,
-		'rounded-lg border',
-		ulColours[color],
-		$$props.class
-	]);
-	*/
 </script>
 
 {#if !hidden}

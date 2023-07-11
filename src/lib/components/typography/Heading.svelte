@@ -13,11 +13,8 @@
 		h6: 'text-lg font-bold'
 	};
 
-	export let color: string = 'primary';
-
-	const headingColours: colorChoice = {
-		primary: 'dark:text-primaryA-500'
-	};
+	const defaultClass = 'text-primary';
+	const headingClass = twMerge(defaultClass, textSizes[tag], $$props.class);
 
 	// need to include role={} if onclick is used with svelte:element due to A11y...
 </script>
@@ -27,7 +24,7 @@
 	{...$$restProps}
 	on:click
 	role={$$props.onclick ? 'button' : undefined}
-	class={twMerge(headingColours[color], textSizes[tag], $$props.class)}
+	class={headingClass}
 >
 	<slot />
 </svelte:element>

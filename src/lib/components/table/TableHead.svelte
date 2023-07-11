@@ -1,21 +1,19 @@
 <script lang="ts">
 	import { twMerge } from 'tailwind-merge';
 	import { getContext } from 'svelte';
-	import type { colorChoice } from '../types';
 
 	// can turn it to false, then have to manually add <tr>'s.
 	// this allows for multiple table rows in the table head.
 	export let defaultRow = true;
 
-	export let color: string = getContext('colorChoice');
+	let outline = getContext('outline');
 
-	const tableHeadColours: colorChoice = {
-		primary: 'text-primaryB-300 bg-primaryA-800'
-	};
+	const outlineClass = 'border-2 text-complement border-primary bg-transparent';
+	const fillClass = 'text-complement bg-primary';
 
 	let theadClass = twMerge(
 		'text-xs uppercase cursor-pointer',
-		tableHeadColours[color],
+		outline ? outlineClass : fillClass,
 		$$props.class
 	);
 </script>

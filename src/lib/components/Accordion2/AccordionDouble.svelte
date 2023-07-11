@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { twMerge } from 'tailwind-merge';
-
 	import type { Writable } from 'svelte/store';
 
 	type ActiveId = string | null;
@@ -15,8 +14,10 @@
 	const activeEditComponentId = writable<ActiveId>(null);
 	setContext<ActiveIdContext>('activeEdit', activeEditComponentId);
 
-	let defaultDivStyle =
-		'w-full p-2 text-black dark:bg-primaryA-600 border-4 border-white rounded-lg';
+	export let outline = false;
+	setContext('outline', outline);
+
+	let defaultDivStyle = 'w-full p-2 rounded-lg';
 </script>
 
 <div class={twMerge(defaultDivStyle)}>

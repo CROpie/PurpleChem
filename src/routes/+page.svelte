@@ -2,6 +2,7 @@
 	import { Heading } from '$lib/components/typography/Typo';
 	import { Input } from '$lib/components/form/formAll';
 	import { Button } from '$lib/components/button/button';
+	import ThemePick from '$lib/components/theme/ThemePick.svelte';
 
 	import type { PageData } from './$types';
 
@@ -39,6 +40,7 @@
 			bind:value={email}
 			class="mb-3"
 			autocomplete="off"
+			outline
 		/>
 
 		<Input
@@ -47,6 +49,7 @@
 			name="password"
 			bind:value={password}
 			class="mb-6"
+			outline
 		/>
 		<Button type="submit" outline class="w-full">Sign In</Button>
 	</div>
@@ -57,3 +60,5 @@
 {/if}
 
 <p class="text-white">one, two, three @ purplechem.com // default</p>
+
+<ThemePick />

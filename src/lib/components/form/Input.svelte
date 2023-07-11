@@ -5,20 +5,16 @@
 
 	export let label = '';
 	export let value: any = undefined;
-	export let color = 'primary';
+	export let outline = false;
 
-	let defaultClass = 'block w-full rounded-lg bg-transparent border-2 text-lg p-2 outline-none';
+	const defaultClass = 'block w-full rounded-lg text-lg p-2 outline-none focus:ring-0';
+	const outlineClass =
+		'border-2 text-primary border-primary bg-transparent focus:border-complement';
+	const fillClass = 'text-neutral bg-primary focus:bg-complement';
 
-	let inputColours: colorChoice = {
-		primary:
-			'dark:text-primaryB-300 dark:border-primaryA-500 dark:focus:border-primaryA-800 focus:ring-0'
-	};
-	let labelColours: colorChoice = {
-		primary: 'text-green-400 dark:text-primaryA-500'
-	};
-
-	let inputClass = twMerge([defaultClass, inputColours[color], $$props.class]);
-	let divClass = twMerge('w-full', $$props.divClass);
+	export let divClass = twMerge('w-full', $$props.divClass);
+	export let labelClass = twMerge('text-primary', $$props.labelClass);
+	const inputClass = twMerge(defaultClass, outline ? outlineClass : fillClass, $$props.class);
 
 	// without bind:value, can't use bind value
 	// without {...$$restProps}, can't use input attributes like name, type etc
@@ -26,7 +22,7 @@
 </script>
 
 <div class={divClass}>
-	<div class={labelColours[color]}>{label}</div>
+	<div class={labelClass}>{label}</div>
 	<input {...$$restProps} bind:value class={inputClass} />
 </div>
 

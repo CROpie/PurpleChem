@@ -1,32 +1,15 @@
 <script lang="ts">
 	import { twMerge } from 'tailwind-merge';
 	import { getContext } from 'svelte';
-	import type { colorChoice } from '../types';
 
-	export let color: string = getContext('colorChoice');
+	let outline = getContext('outline');
 
-	const tableRowColours: colorChoice = {
-		primary: 'dark:text-primaryB-100 dark:bg-primaryA-400 border-b dark:border-primaryA-300'
-	};
-	const stripedColours: colorChoice = {
-		primary: 'dark:odd:bg-primaryA-400 dark:even:bg-primaryA-600 border-0'
-	};
-	const hoverColours: colorChoice = {
-		primary: 'dark:hover:bg-primaryA-300'
-	};
-
-	let striped: boolean = getContext('striped');
+	const outlineClass =
+		'border-2 text-primary odd:border-primaryLight even:border-primary bg-transparent hover:bg-primaryDark hover:text-neutral';
+	const fillClass = 'text-neutral odd:bg-primaryLight even:bg-primary hover:bg-primaryDark';
 </script>
 
-<tr
-	{...$$restProps}
-	class={twMerge(
-		tableRowColours[color],
-		hoverColours[color],
-		striped && stripedColours[color],
-		$$props.class
-	)}
->
+<tr {...$$restProps} class={twMerge(outline ? outlineClass : fillClass, $$props.class)}>
 	<slot />
 </tr>
 

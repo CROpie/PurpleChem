@@ -1,45 +1,20 @@
 <script lang="ts">
 	import { twMerge } from 'tailwind-merge';
 	import { Button } from '../button/button';
-	import { onMount } from 'svelte';
+
 	import type { Writable } from 'svelte/store';
-	import type { order } from '../../../routes/inventory/orderType';
+
 	type ActiveId = string | null;
 	type ActiveIdContext = Writable<ActiveId>;
-
-	import type { RDKitModule } from '$lib/rdkitTypes';
-	let RDKitModule: RDKitModule;
-
-	export let svgString;
-
-	onMount(() => {
-		initRDKitModule().then(function (instance: any) {
-			RDKitModule = instance;
-		});
-	});
-	let svg: any;
-	$: svg;
-	const drawStructure = () => {
-		if (order.chemicalID.smile) {
-			let JSMol = RDKitModule.get_mol(order.chemicalID.smile);
-			svg = JSMol.get_svg();
-			console.log(svg);
-			svgString = svg;
-		}
-	};
 
 	const componentId = crypto.randomUUID();
 
 	const editComponentId = crypto.randomUUID();
 
-	export let order: order;
-
 	// can be replaced by a link to context.ts
 	import { getContext } from 'svelte';
 	const activeComponentId = getContext<ActiveIdContext>('active');
 	const activeEditComponentId = getContext<ActiveIdContext>('activeEdit');
-
-	let defaultAccordion = 'w-full flex justify-between p-1 border-2 border-black rounded-lg';
 
 	function setActive() {
 		if ($activeComponentId === componentId) {
@@ -57,28 +32,50 @@
 			return;
 		}
 		$activeEditComponentId = editComponentId;
-		drawStructure();
 	}
 
 	// look to see if the active component id matches the component id
 	$: isOpen = $activeComponentId === componentId;
 	$: isDoubleOpen = $activeEditComponentId === editComponentId;
+
+	// styling
+	let outline = getContext('outline');
+	let defaultAccordion = 'w-full flex flex-col gap-2 justify-between rounded-lg';
+
+	const outlineClass =
+		'border-2 text-complement odd:border-primary even:border-primaryLight bg-transparent';
+	const fillClass = 'text-complement odd:bg-primary even:bg-primaryLight';
+
+	const outlineContentClass = 'text-primary border-0 border-t-2 border-dashed border-primaryLight';
+	const fillContentClass = 'text-neutral border-0 border-t-2 border-dashed border-primaryLight';
 </script>
 
-<div class={twMerge(defaultAccordion, 'flex flex-col gap-2 mb-4 dark:bg-gray-300', $$props.class)}>
-	<button on:click={setActive}>
+<div class={twMerge(defaultAccordion, outline ? outlineClass : fillClass, $$props.class)}>
+	<button on:click={setActive} class={twMerge('text-complement', $$props.titleClass)}>
 		<slot name="title" />
 	</button>
 
 	{#if isOpen}
-		<div class={'flex flex-col gap-4 dark:text-black'}>
+		<div
+			class={twMerge(
+				'flex flex-col gap-4',
+				outline ? outlineContentClass : fillContentClass,
+				$$props.contentClass
+			)}
+		>
 			<slot name="content" />
-			<Button on:click={setEditActive} outline>▽</Button>
+			<Button
+				on:click={setEditActive}
+				outline
+				class={twMerge('border-0', outline ? 'text-primary' : 'text-neutral')}>▽</Button
+			>
 		</div>
 	{/if}
 
 	{#if isDoubleOpen}
-		<slot name="edit" />
+		<div class={twMerge('', outline ? outlineContentClass : fillContentClass, $$props.editClass)}>
+			<slot name="edit" />
+		</div>
 	{/if}
 </div>
 
