@@ -207,7 +207,7 @@
 	<div class="flex justify-between">
 		{#each tableHead as heading}
 			<div class="flex flex-col items-center">
-				<label for="show{heading}" class="text-primaryA-500">{heading}</label>
+				<label for="show{heading}" class="text-primary">{heading}</label>
 				<input type="checkbox" id="show{heading}" bind:checked={showObj[heading]} />
 			</div>
 		{/each}

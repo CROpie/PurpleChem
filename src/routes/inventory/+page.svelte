@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { Heading } from '$lib/components/typography/Typo';
+	import Button from '$lib/components/button/Button.svelte';
 	import {
 		Sidebar,
 		SidebarWrapper,
@@ -20,7 +22,7 @@
 	import { afterUpdate } from 'svelte';
 
 	let svgString = '';
-
+	let RDKitModule: RDKitModule;
 	export let data: PageData;
 
 	// https://flaviocopes.com/typescript-object-destructuring/
@@ -55,77 +57,107 @@
 	afterUpdate(() => {
 		filterOrdersList();
 	});
+
+	// structure
+
+	// possible to put this into layout?
+	// maybe save RDKitModule in a store?
+	async function initRDKit() {
+		await initRDKitModule().then(function (instance) {
+			RDKitModule = instance;
+		});
+	}
+
+	function generateSVGs() {
+		ordersList.forEach((order) => {
+			if (!order.chemicalID.smile) {
+				return;
+			}
+			order.svg = RDKitModule.get_mol(order.chemicalID.smile).get_svg();
+		});
+	}
 </script>
 
-{#await ordersList}
-	<p>Loading</p>
+{#await initRDKit()}
+	<p>Setting up RDKit</p>
 {:then}
-	<div class="flex">
-		<Sidebar class="mt-9">
-			<SidebarWrapper>
-				<SidebarGroup>
-					<SidebarItem label="All" on:click={() => chooseLocation(-1, 'All')} />
-				</SidebarGroup>
-				<SidebarGroup border>
-					{#each locationsList as location (location.id)}
-						<SidebarItem
-							label={location.locationName}
-							on:click={() => chooseLocation(location.id, location.locationName)}
-						/>
-					{:else}
-						<SidebarItem label="" />
-					{/each}
-					{#if addNew}
-						<form method="POST" action="?/addLocation">
-							<input type="text" name="newLocation" class="w-full" />
-						</form>
-					{/if}
-				</SidebarGroup>
-				<SidebarGroup border>
-					<SidebarItem label="New" class="dark:text-green-500" on:click={() => (addNew = true)} />
-				</SidebarGroup>
-			</SidebarWrapper>
-		</Sidebar>
-		<div class="flex-1">
-			<Heading tag="h3">{currentLocation}</Heading>
+	{#await ordersList}
+		<p>Loading</p>
+	{:then}
+		{generateSVGs()}
+		<div class="flex">
+			<Sidebar class="mt-9" outline>
+				<SidebarWrapper>
+					<SidebarGroup>
+						<SidebarItem label="All" on:click={() => chooseLocation(-1, 'All')} startSelected />
+					</SidebarGroup>
+					<SidebarGroup border>
+						{#each locationsList as location (location.id)}
+							<SidebarItem
+								label={location.locationName}
+								on:click={() => chooseLocation(location.id, location.locationName)}
+							/>
+						{:else}
+							<SidebarItem label="" />
+						{/each}
+						{#if addNew}
+							<form method="POST" action="?/addLocation">
+								<input type="text" name="newLocation" class="w-full" />
+							</form>
+						{/if}
+					</SidebarGroup>
+					<SidebarGroup border>
+						<SidebarItem label="New" class="text-neutral" on:click={() => (addNew = true)} />
+					</SidebarGroup>
+				</SidebarWrapper>
+				<!-- <Button type="button" on:click={generateSVGs} outline>GENERATE STRUCTURES</Button> -->
+			</Sidebar>
+			<div class="flex-1">
+				<Heading tag="h3">{currentLocation}</Heading>
 
-			<AccordionDouble>
-				{#each filteredOrdersList as order (order.id)}
-					<AccordionItemDouble {order} bind:svgString>
-						<svelte:fragment slot="title">
-							<p>{order.chemicalID.chemicalName} ({order.id})</p>
-						</svelte:fragment>
+				<AccordionDouble outline>
+					{#each filteredOrdersList as order (order.id)}
+						<AccordionItemDouble {order}>
+							<svelte:fragment slot="title">
+								<p>{order.chemicalID.chemicalName} ({order.id})</p>
+							</svelte:fragment>
 
-						<svelte:fragment slot="content">
-							<DetailsTab {order} {locationsList} />
-						</svelte:fragment>
+							<div slot="content" class="ml-4">
+								<Heading tag="h6" class="text-complement">MODIFY</Heading>
+								<DetailsTab {order} {locationsList} />
+							</div>
 
-						<svelte:fragment slot="edit">
-							<Heading tag="h6" class="dark:text-black">PROPERTIES</Heading>
+							<div slot="edit" class="ml-4">
+								<Heading tag="h6" class="text-complement">PROPERTIES</Heading>
 
-							<div class="flex gap-2">
-								<div class="border-2 border-primaryA-600">
-									{@html `${svgString}`}
+								<div class="flex gap-2">
+									<div class="border-2 border-primary">
+										{#if order.svg}
+											{@html `${order.svg}`}
+										{:else}
+											<p>NO IMAGE</p>
+										{/if}
+									</div>
+									<ul>
+										<li>MW: {order.chemicalID.MW}</li>
+										<li>BP: {order.chemicalID.BP}</li>
+										<li>MP: {order.chemicalID.MP}</li>
+										<li>Density: {order.chemicalID.density}</li>
+									</ul>
 								</div>
 								<ul>
-									<li>MW: {order.chemicalID.MW}</li>
-									<li>BP: {order.chemicalID.BP}</li>
-									<li>MP: {order.chemicalID.MP}</li>
-									<li>Density: {order.chemicalID.density}</li>
+									<li>CAS: {order.chemicalID.CAS}</li>
+									<!-- TODO -->
+									<li>Supplier:</li>
+									<li>Date Ordered:</li>
 								</ul>
 							</div>
-							<ul>
-								<li>CAS: {order.chemicalID.CAS}</li>
-								<!-- TODO -->
-								<li>Supplier:</li>
-								<li>Date Ordered:</li>
-							</ul>
-						</svelte:fragment>
-					</AccordionItemDouble>
-				{:else}
-					<p>Empty Inventory!</p>
-				{/each}
-			</AccordionDouble>
+						</AccordionItemDouble>
+					{:else}
+						<p>Empty Inventory!</p>
+					{/each}
+				</AccordionDouble>
+			</div>
 		</div>
-	</div>
+	{/await}
 {/await}

@@ -13,7 +13,6 @@ const first: Handle = async ({ event, resolve }) => {
 
 	const themeld = event.url.searchParams.get('themeld');
 	const themeco = event.url.searchParams.get('themeco');
-	console.log(themeld, themeco);
 
 	// if this isn't present, newTheme will be created when it shouldn't be
 	if (themeld && themeco) {
@@ -21,7 +20,6 @@ const first: Handle = async ({ event, resolve }) => {
 	}
 
 	const cookieTheme = event.cookies.get('colortheme');
-	console.log('cookieTheme: ', cookieTheme);
 
 	if (newTheme) {
 		theme = newTheme;

@@ -17,7 +17,7 @@
 	export let outline = false;
 	setContext('outline', outline);
 
-	let defaultDivStyle = 'w-full p-2 rounded-lg';
+	let defaultDivStyle = 'w-full p-2 rounded-lg text-lg';
 </script>
 
 <div class={twMerge(defaultDivStyle)}>

@@ -3,6 +3,7 @@
 	import { Input } from '$lib/components/form/formAll';
 	import { Button } from '$lib/components/button/button';
 	import { Select } from '$lib/components/form/formAll';
+	import { DropSelect, DropSelectItem } from '$lib/components/dropdown/dropdownAll';
 
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
@@ -81,7 +82,7 @@
 
 <Heading tag="h2" class="text-center mt-3">Order Chemical</Heading>
 <form method="POST" action="?/orderChemical" use:enhance={orderChemical} class="m-8">
-	<Input label="CAS number" name="CAS" type="text" bind:value={CAS} required />
+	<Input label="CAS number" name="CAS" type="text" bind:value={CAS} outline required />
 
 	<Button type="button" on:click={() => getProperties()} outline class="mt-2">SEARCH</Button>
 
@@ -89,22 +90,34 @@
 		<p class="text-red-500">No information from this CAS number was obtained.</p>
 	{/if}
 
-	<Input label="Chemical Name" name="chemicalName" type="text" bind:value={chemicalName} />
+	<Input label="Chemical Name" name="chemicalName" type="text" bind:value={chemicalName} outline />
 
 	<div class="flex">
-		<Input label="Amount" name="amount" type="text" required divClass="w-9/12" />
-		<Select label="Unit" name="amountUnit" class="" {items} divClass="w-3/12" />
+		<Input label="Amount" name="amount" type="text" required divClass="w-9/12" outline />
+		<DropSelect
+			name="amountUnit"
+			outline
+			label="Unit"
+			class="rounded-lg border-2"
+			divClass="w-3/12"
+		>
+			{#each items as item}
+				<DropSelectItem value={item.value} label={item.name} />
+			{:else}
+				<DropSelectItem label="No options!" class="bg-neutral text-opNeutral" />
+			{/each}
+		</DropSelect>
 	</div>
 
 	<div class="flex">
-		<Select label="Supplier" name="supplierID" class="">
+		<DropSelect label="Supplier" name="supplierID" outline class="rounded-lg border-2">
 			{#each supplierList as supplier}
-				<option value={supplier.id}>{supplier.supplierName}</option>
+				<DropSelectItem value={supplier.id} label={supplier.supplierName} />
 			{:else}
-				<!-- -->
+				<DropSelectItem label="No options!" class="bg-neutral text-opNeutral" />
 			{/each}
-		</Select>
-		<Input label="Product Code" name="supplierPN" type="text" />
+		</DropSelect>
+		<Input label="Product Code" name="supplierPN" type="text" outline />
 	</div>
 
 	<Button type="submit" outline class="w-full mt-8">ORDER CHEMICAL</Button>

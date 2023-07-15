@@ -1,28 +1,52 @@
 <script lang="ts">
 	import { twMerge } from 'tailwind-merge';
 	import { getContext } from 'svelte';
-	import type { colorChoice } from '../types';
+	import type { Writable } from 'svelte/store';
 
-	export let color: string = getContext('colorChoice');
+	type ActiveId = string | null;
+	type ActiveIdContext = Writable<ActiveId>;
 
-	const aColours: colorChoice = {
-		primary: 'dark:text-white dark:hover:bg-primaryA-500'
-	};
+	let outline = getContext('outline');
 
-	export let aClass = 'flex items-center p-2 text-base font-normal rounded-lg cursor-pointer';
+	const defaultClass = 'flex items-center p-2 text-base font-normal rounded-lg cursor-pointer';
+	let fillClass = 'text-neutral hover:text-complement';
+	let outlineClass = 'text-primary hover:text-complement';
+
 	export let href = '';
 	export let label = '';
 	export let spanClass = 'ml-3';
-	// export let activeClass = 'flex items-center p-2 text-base font-normal text-gray-900 bg-gray-200 dark:bg-gray-700 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700';
-	// export let active = false;
+
+	// change colour when clicked
+	const componentId = crypto.randomUUID();
+	const activeComponentId: ActiveIdContext = getContext('active');
+
+	export let startSelected = false;
+	$: startSelected && setActive();
+
+	function setActive() {
+		$activeComponentId = componentId;
+	}
+
+	export let isActive = false;
+
+	let selectedColour: string = getContext('selectedColour');
+	$: isActive = $activeComponentId === componentId;
+
+	let elementClass = '';
+	$: elementClass = twMerge(
+		defaultClass,
+		outline ? outlineClass : fillClass,
+		isActive ? selectedColour : '',
+		$$props.class
+	);
 </script>
 
-<li>
+<li on:click={setActive}>
 	<svelte:element
 		this={href ? 'a' : 'div'}
 		{...$$restProps}
 		role={href ? undefined : 'link'}
-		class={twMerge(aClass, aColours[color], $$props.class)}
+		class={elementClass}
 		on:click
 	>
 		<slot name="icon" />

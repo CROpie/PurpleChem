@@ -6,7 +6,6 @@ import type { Actions } from '@sveltejs/kit';
 export const load = async ({ locals: { supabase, getSession } }) => {
 	const session = await getSession();
 	const userID = session?.user.id;
-	console.log(userID);
 
 	const { data: locationsList } = await supabase
 		.from('locations')
@@ -87,6 +86,9 @@ export const actions: Actions = {
 			return fail(400, { error: true });
 		}
 
+		if (!locationID) {
+			return;
+		}
 		const { error: errorLocation } = await event.locals.supabase
 			.from('orders')
 			.update({ locationID: locationID })

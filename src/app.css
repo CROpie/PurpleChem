@@ -173,7 +173,7 @@
 	--primary: var(--color-primary-500);
 	--primary-light: var(--color-primary-300);
 	--primary-dark: var(--color-primary-700);
-	--complement: var(--color-complement-300);
+	--complement: var(--color-complement-500);
 	--neutral: theme('colors.white');
 	--op-neutral: theme('colors.black');
 }
@@ -182,7 +182,7 @@
 	--primary: var(--color-primary-500);
 	--primary-light: var(--color-primary-300);
 	--primary-dark: var(--color-primary-700);
-	--complement: var(--color-complement-300);
+	--complement: var(--color-complement-500);
 	--neutral: theme('colors.black');
 	--op-neutral: theme('colors.white');
 }

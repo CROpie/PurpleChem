@@ -2,7 +2,6 @@
 	import { Heading } from '$lib/components/typography/Typo';
 	import { Input } from '$lib/components/form/formAll';
 	import { Button } from '$lib/components/button/button';
-	import ThemePick from '$lib/components/theme/ThemePick.svelte';
 
 	import type { PageData } from './$types';
 
@@ -60,5 +59,3 @@
 {/if}
 
 <p class="text-white">one, two, three @ purplechem.com // default</p>
-
-<ThemePick />

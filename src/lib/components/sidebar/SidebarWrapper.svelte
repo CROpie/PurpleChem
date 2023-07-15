@@ -1,17 +1,16 @@
 <script lang="ts">
 	import { twMerge } from 'tailwind-merge';
 	import { getContext } from 'svelte';
-	import type { colorChoice } from '../types';
 
-	export let color: string = getContext('colorChoice');
+	let outline = getContext('outline');
 
-	const sidebarColours: colorChoice = {
-		primary: 'dark:bg-primaryA-800'
-	};
+	const defaultClass = 'overflow-y-auto py-4 px-3 rounded';
+	const fillClass = 'bg-primary';
+	const outlineClass = 'border-2 border-primary bg-transparent';
 
-	export let divClass = 'overflow-y-auto py-4 px-3 rounded';
+	let divClass = twMerge(defaultClass, outline ? outlineClass : fillClass, $$props.class);
 </script>
 
-<div {...$$restProps} class={twMerge(divClass, sidebarColours[color], $$props.class)}>
+<div {...$$restProps} class={divClass}>
 	<slot />
 </div>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Navbar, NavUl, NavBrand, NavLi, NavHamburger } from '$lib/components/navbar/Nav';
+	import DarkLightTheme from '$lib/components/theme/DarkLightTheme.svelte';
 	import '../app.css';
 
 	import { invalidate } from '$app/navigation';
@@ -42,6 +43,10 @@
 			PurpleChem
 		</span>
 	</NavBrand>
+	<div class="flex ml-4 mr-auto">
+		<DarkLightTheme brightness="light" />
+		<DarkLightTheme brightness="dark" />
+	</div>
 	<!-- hamburger only appears on mobile size -->
 	<NavHamburger on:click={toggle} />
 	<NavUl {hidden}>
