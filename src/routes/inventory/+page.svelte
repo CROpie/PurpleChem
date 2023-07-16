@@ -21,8 +21,8 @@
 
 	import { afterUpdate } from 'svelte';
 
-	let svgString = '';
-	let RDKitModule: RDKitModule;
+	// let svgString = '';
+	// let RDKitModule: RDKitModule;
 	export let data: PageData;
 
 	// https://flaviocopes.com/typescript-object-destructuring/
@@ -62,102 +62,125 @@
 
 	// possible to put this into layout?
 	// maybe save RDKitModule in a store?
-	async function initRDKit() {
-		await initRDKitModule().then(function (instance) {
-			RDKitModule = instance;
-		});
-	}
+	// Yes, successful!
+	// async function initRDKit() {
+	// 	await initRDKitModule().then(function (instance) {
+	// 		RDKitModule = instance;
+	// 	});
+	// }
 
-	function generateSVGs() {
-		ordersList.forEach((order) => {
-			if (!order.chemicalID.smile) {
-				return;
-			}
-			order.svg = RDKitModule.get_mol(order.chemicalID.smile).get_svg();
-		});
+	import { RDKitSS } from '$lib/stores/rdkitstore2';
+	const RDKitModule = $RDKitSS;
+
+	// first itiration generated all the svgs upon opening the page
+	// really not necesary though, and slowed things down even with just ~10 entries
+	// switched to generating on click (getSVG(smile) runs when a title is clicked
+
+	// function generateSVGs() {
+	// 	ordersList.forEach((order) => {
+	// 		if (!order.chemicalID.smile) {
+	// 			return;
+	// 		}
+	// 		if (RDKitModule) {
+	// 		order.svg = RDKitModule.get_mol(order.chemicalID.smile).get_svg();
+	// 		}
+	// 	});
+	// }
+
+	let currentSVG = '';
+	function getSVG(smile: string) {
+		if (RDKitModule) {
+			currentSVG = RDKitModule.get_mol(smile).get_svg();
+		}
 	}
 </script>
 
-{#await initRDKit()}
+<!-- {#await initRDKit()}
+	Prior to initializing and storing RDKitModule in a store,
+	needed to use this await setting to ensure that it had loaded before trying to make svg's
+	Don't need to do this anymore since it initializes when the app is opened
+
 	<p>Setting up RDKit</p>
+{:then} -->
+{#await ordersList}
+	<p>Loading</p>
 {:then}
-	{#await ordersList}
-		<p>Loading</p>
-	{:then}
-		{generateSVGs()}
-		<div class="flex">
-			<Sidebar class="mt-9" outline>
-				<SidebarWrapper>
-					<SidebarGroup>
-						<SidebarItem label="All" on:click={() => chooseLocation(-1, 'All')} startSelected />
-					</SidebarGroup>
-					<SidebarGroup border>
-						{#each locationsList as location (location.id)}
-							<SidebarItem
-								label={location.locationName}
-								on:click={() => chooseLocation(location.id, location.locationName)}
-							/>
-						{:else}
-							<SidebarItem label="" />
-						{/each}
-						{#if addNew}
-							<form method="POST" action="?/addLocation">
-								<input type="text" name="newLocation" class="w-full" />
-							</form>
-						{/if}
-					</SidebarGroup>
-					<SidebarGroup border>
-						<SidebarItem label="New" class="text-neutral" on:click={() => (addNew = true)} />
-					</SidebarGroup>
-				</SidebarWrapper>
-				<!-- <Button type="button" on:click={generateSVGs} outline>GENERATE STRUCTURES</Button> -->
-			</Sidebar>
-			<div class="flex-1">
-				<Heading tag="h3">{currentLocation}</Heading>
+	<!-- {generateSVGs()} -->
+	<div class="flex">
+		<Sidebar class="mt-9" outline>
+			<SidebarWrapper>
+				<SidebarGroup>
+					<SidebarItem label="All" on:click={() => chooseLocation(-1, 'All')} startSelected />
+				</SidebarGroup>
+				<SidebarGroup border>
+					{#each locationsList as location (location.id)}
+						<SidebarItem
+							label={location.locationName}
+							on:click={() => chooseLocation(location.id, location.locationName)}
+						/>
+					{:else}
+						<SidebarItem label="" />
+					{/each}
+					{#if addNew}
+						<form method="POST" action="?/addLocation">
+							<input type="text" name="newLocation" class="w-full" />
+						</form>
+					{/if}
+				</SidebarGroup>
+				<SidebarGroup border>
+					<SidebarItem label="New" class="text-neutral" on:click={() => (addNew = true)} />
+				</SidebarGroup>
+			</SidebarWrapper>
+			<!-- <Button type="button" on:click={generateSVGs} outline>GENERATE STRUCTURES</Button> -->
+		</Sidebar>
 
-				<AccordionDouble outline>
-					{#each filteredOrdersList as order (order.id)}
-						<AccordionItemDouble {order}>
-							<svelte:fragment slot="title">
-								<p>{order.chemicalID.chemicalName} ({order.id})</p>
-							</svelte:fragment>
+		<div class="flex-1">
+			<Heading tag="h3">{currentLocation}</Heading>
 
-							<div slot="content" class="ml-4">
-								<Heading tag="h6" class="text-complement">MODIFY</Heading>
-								<DetailsTab {order} {locationsList} />
-							</div>
+			<AccordionDouble outline>
+				{#each filteredOrdersList as order (order.id)}
+					<AccordionItemDouble {order}>
+						<div slot="title" on:click={() => getSVG(order.chemicalID.smile)}>
+							<p>{order.chemicalID.chemicalName} ({order.id})</p>
+						</div>
 
-							<div slot="edit" class="ml-4">
-								<Heading tag="h6" class="text-complement">PROPERTIES</Heading>
+						<div slot="content" class="ml-4">
+							<Heading tag="h6" class="text-complement">MODIFY</Heading>
+							<DetailsTab {order} {locationsList} />
+						</div>
 
-								<div class="flex gap-2">
-									<div class="border-2 border-primary">
-										{#if order.svg}
-											{@html `${order.svg}`}
-										{:else}
-											<p>NO IMAGE</p>
-										{/if}
-									</div>
-									<ul>
-										<li>MW: {order.chemicalID.MW}</li>
-										<li>BP: {order.chemicalID.BP}</li>
-										<li>MP: {order.chemicalID.MP}</li>
-										<li>Density: {order.chemicalID.density}</li>
-									</ul>
+						<div slot="edit" class="ml-4">
+							<Heading tag="h6" class="text-complement">PROPERTIES</Heading>
+
+							<div class="flex gap-2">
+								<div class="border-2 border-primary">
+									{@html `${currentSVG}`}
+									<!-- {#if order.svg}
+										{@html `${order.svg}`}
+									{:else}
+										<p>NO IMAGE</p>
+									{/if} -->
 								</div>
 								<ul>
-									<li>CAS: {order.chemicalID.CAS}</li>
-									<!-- TODO -->
-									<li>Supplier:</li>
-									<li>Date Ordered:</li>
+									<li>MW: {order.chemicalID.MW}</li>
+									<li>BP: {order.chemicalID.BP}</li>
+									<li>MP: {order.chemicalID.MP}</li>
+									<li>Density: {order.chemicalID.density}</li>
 								</ul>
 							</div>
-						</AccordionItemDouble>
-					{:else}
-						<p>Empty Inventory!</p>
-					{/each}
-				</AccordionDouble>
-			</div>
+							<ul>
+								<li>CAS: {order.chemicalID.CAS}</li>
+								<!-- TODO -->
+								<li>Supplier:</li>
+								<li>Date Ordered:</li>
+							</ul>
+						</div>
+					</AccordionItemDouble>
+				{:else}
+					<p>Empty Inventory!</p>
+				{/each}
+			</AccordionDouble>
 		</div>
-	{/await}
+	</div>
 {/await}
+<!-- {/await} -->

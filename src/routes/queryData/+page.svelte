@@ -52,17 +52,21 @@
 	let { supabase } = data;
 
 	let jsmeApplet: any;
-	let RDKitModule: RDKitModule;
+	// let RDKitModule: RDKitModule;
 	let jsmeContainer: HTMLElement | null;
 	let noHit = false;
 
 	onMount(() => {
 		jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
 
-		initRDKitModule().then(function (instance) {
-			RDKitModule = instance;
-		});
+		// initRDKitModule().then(function (instance) {
+		// 	RDKitModule = instance;
+		// });
 	});
+
+	// initialized & saved RDKitModule into a store in layout.svelte
+	import { RDKitSS } from '$lib/stores/rdkitstore2';
+	const RDKitModule = $RDKitSS;
 
 	//let queryOrders: OrderData[] = [];
 	let queryOrders: OrderData[] = [];
@@ -177,7 +181,6 @@
 
 	function getInchi() {
 		const smiles = jsmeApplet.smiles();
-		const JSMol: JSMol = RDKitModule.get_mol(smiles);
 		const inchi = RDKitModule.get_mol(smiles).get_inchi();
 		return inchi;
 	}
