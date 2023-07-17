@@ -1,7 +1,6 @@
 <script lang="ts">
 	/* want to replicate the Input component from flowbite */
 	import { twMerge } from 'tailwind-merge';
-	import type { colorChoice } from '../types';
 
 	export let label = '';
 	export let value: any = undefined;

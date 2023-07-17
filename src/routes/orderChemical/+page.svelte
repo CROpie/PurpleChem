@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { onMount } from 'svelte';
+
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { ActionData } from './$types';
 	import type { PageData } from './$types';
@@ -15,6 +17,7 @@
 
 	let CAS = '';
 	let chemicalName = '';
+	let amount: number | null = null;
 
 	// physical properties
 	let MW: phys = null;
@@ -26,33 +29,62 @@
 	let inchi: string | null;
 	let smile: string | null;
 
-	$: notFound = false;
+	let notFound = false;
+	let found = false;
 
 	export let data: PageData;
-	const { supplierList } = data;
+	const { supabase, supplierList } = data;
 
 	const getProperties = async () => {
-		// need to ensure that all properties are cleared
-		// for the case that a real chemical was found, then before ordering, another was searched but not found/not all fields found
-		console.log('searching: ', CAS);
+		resetAll();
+
+		console.log('searching commonchemistry: ', CAS);
 		let uri = `https://commonchemistry.cas.org/api/detail?cas_rn=${CAS}`;
+
+		// need to use try/catch here? 404 error if CAS isn't in their DB
 		const res = await fetch(uri);
-		if (!res.ok) {
-			notFound = true;
-			console.log('nope');
-			return;
+
+		if (res.ok) {
+			const data = await res.json();
+			chemicalName = data.name;
+			MW = data.molecularMass;
+			inchi = data.inchi;
+			smile = data.smile;
+			if (data.experimentalProperties) {
+				extractPhys(data.experimentalProperties);
+			}
+			found = true;
+		} else {
+			const res2 = await checkDBForCas();
+			if (!res2) {
+				toggleStructureSearch();
+				notFound = true;
+				return;
+			}
 		}
-		const data = await res.json();
-		console.log(data);
-		chemicalName = data.name;
-		MW = data.molecularMass;
-		inchi = data.inchi;
-		smile = data.smile;
-		if (data.experimentalProperties) {
-			extractPhys(data.experimentalProperties);
-		}
-		notFound = false;
 	};
+
+	function resetAll() {
+		chemicalName = '';
+		amount = null;
+
+		// phys
+		MW = null;
+		MP = null;
+		BP = null;
+		density = null;
+
+		// stucture
+		inchi = null;
+		smile = null;
+
+		notFound = false;
+		found = false;
+
+		if (jsmeContainer.classList.contains('flex')) {
+			jsmeContainer.classList.replace('flex', 'hidden');
+		}
+	}
 
 	function extractPhys(propertyArray: any[]) {
 		propertyArray.forEach((item) => {
@@ -68,6 +100,24 @@
 		});
 	}
 
+	async function checkDBForCas() {
+		// let chemical = await supabase
+		let { data: chemical } = await supabase.from('chemicals').select().eq('CAS', CAS).maybeSingle();
+		if (chemical) {
+			console.log(chemical);
+			chemicalName = chemical.chemicalName;
+			MW = chemical.MW;
+			MP = chemical.MP;
+			BP = chemical.BP;
+			density = chemical.density;
+			smile = chemical.smile;
+			inchi = chemical.inchi;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	const orderChemical: SubmitFunction = async (event) => {
 		//
 	};
@@ -79,6 +129,41 @@
 		{ value: 'mL', name: 'mL' },
 		{ value: 'L', name: 'L' }
 	];
+
+	// input structure
+	import { RDKitSS } from '$lib/stores/rdkitstore2';
+	const RDKitModule = $RDKitSS;
+
+	let jsmeApplet: any;
+	let jsmeContainer: HTMLElement | null;
+
+	onMount(() => {
+		jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
+	});
+
+	function toggleStructureSearch() {
+		if (!jsmeContainer) {
+			console.log('something has gone wrong with jsme.');
+		} else {
+			if (jsmeContainer.classList.contains('hidden')) {
+				jsmeContainer.classList.replace('hidden', 'flex');
+			} else if (jsmeContainer.classList.contains('flex')) {
+				jsmeContainer.classList.replace('flex', 'hidden');
+			}
+		}
+	}
+	// temp variables just to check that it's working correctly
+	let smileDisplay = '';
+	let inchiDisplay = '';
+
+	function generateStructureInfo() {
+		smile = jsmeApplet.smiles();
+		smileDisplay = smile;
+		if (smile) {
+			inchi = RDKitModule!.get_mol(smile).get_inchi();
+			inchiDisplay = inchi;
+		}
+	}
 </script>
 
 <Heading tag="h2" class="text-center mt-3">Order Chemical</Heading>
@@ -89,12 +174,39 @@
 
 	{#if notFound}
 		<p class="text-red-500">No information from this CAS number was obtained.</p>
+		<p class="text-red-500">
+			<span class="text-complement">Chemical Name</span> will need to be added manually.
+		</p>
+		<p class="text-red-500">
+			<span class="text-complement">Structure</span> and
+			<span class="text-complement">Physical Properties</span> may be added manually.
+		</p>
+	{/if}
+	{#if found}
+		<p class="text-green-500">Properties have been imported.</p>
 	{/if}
 
 	<Input label="Chemical Name" name="chemicalName" type="text" bind:value={chemicalName} outline />
 
+	<div bind:this={jsmeContainer} class="hidden flex-col">
+		<div class="text-primary">Chemical Structure</div>
+		<div id="jsme_container" />
+		<Button type="button" outline class="w-96" on:click={generateStructureInfo}
+			>Generate Structure Info</Button
+		>
+		<p class="text-primary">Smile: {smileDisplay} Inchi: {inchiDisplay}</p>
+	</div>
+
 	<div class="flex">
-		<Input label="Amount" name="amount" type="text" required divClass="w-9/12" outline />
+		<Input
+			label="Amount"
+			name="amount"
+			type="text"
+			required
+			divClass="w-9/12"
+			bind:value={amount}
+			outline
+		/>
 		<DropSelect
 			name="amountUnit"
 			outline
@@ -121,6 +233,21 @@
 		<Input label="Product Code" name="supplierPN" type="text" outline />
 	</div>
 
+	{#if notFound}
+		<div class="flex">
+			<Input
+				label="Molecular Weight (g/mol)"
+				type="text"
+				divClass="w-3/12"
+				outline
+				bind:value={MW}
+			/>
+			<Input label="Melting Point (°C)" type="text" divClass="w-3/12" outline bind:value={MP} />
+			<Input label="Boiling Point (°C)" type="text" divClass="w-3/12" outline bind:value={BP} />
+			<Input label="Density (g/mL)" type="text" divClass="w-3/12" outline bind:value={density} />
+		</div>
+	{/if}
+
 	<Button type="submit" outline class="w-full mt-8">ORDER CHEMICAL</Button>
 
 	{#if form?.success}
@@ -129,10 +256,12 @@
 		<p class="text-red-500">Something went wrong...</p>
 	{/if}
 	<!-- hidden properties -->
+
 	<input name="MW" type="hidden" bind:value={MW} />
 	<input name="MP" type="hidden" bind:value={MP} />
 	<input name="BP" type="hidden" bind:value={BP} />
 	<input name="density" type="hidden" bind:value={density} />
+
 	<input name="inchi" type="hidden" bind:value={inchi} />
 	<input name="smile" type="hidden" bind:value={smile} />
 </form>

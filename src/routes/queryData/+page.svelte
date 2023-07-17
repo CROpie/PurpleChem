@@ -10,7 +10,7 @@
 		TableHeadCell
 	} from '$lib/components/table/TableAll';
 
-	import { Search, Input } from '$lib/components/form/formAll';
+	import { Search } from '$lib/components/form/formAll';
 
 	import type { PageData } from './$types';
 
@@ -58,10 +58,6 @@
 
 	onMount(() => {
 		jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
-
-		// initRDKitModule().then(function (instance) {
-		// 	RDKitModule = instance;
-		// });
 	});
 
 	// initialized & saved RDKitModule into a store in layout.svelte

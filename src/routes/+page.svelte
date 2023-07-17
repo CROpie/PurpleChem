@@ -23,7 +23,7 @@
 			loginError = true;
 		} else {
 			console.log('no error so redirecting...');
-			window.location.href = '/menu';
+			window.location.href = '/orderChemical';
 		}
 	};
 </script>
