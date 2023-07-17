@@ -7,7 +7,6 @@ import type { Handle } from '@sveltejs/kit';
 import type { Database } from '$lib/db_types';
 
 const first: Handle = async ({ event, resolve }) => {
-	console.log('-------------------------');
 	let theme: string | null = null;
 	let newTheme: string | null = null;
 
@@ -61,26 +60,3 @@ const second: Handle = async ({ event, resolve }) => {
 };
 
 export const handle = sequence(first, second);
-
-// export const handle: Handle = async ({ event, resolve }) => {
-
-// 	// SUPABASE
-// 	event.locals.supabase = createSupabaseServerClient<Database>({
-// 		supabaseUrl: PUBLIC_SUPABASE_URL,
-// 		supabaseKey: PUBLIC_SUPABASE_ANON_KEY,
-// 		event
-// 	});
-
-// 	event.locals.getSession = async () => {
-// 		const {
-// 			data: { session }
-// 		} = await event.locals.supabase.auth.getSession();
-// 		return session;
-// 	};
-
-// 	return resolve(event, {
-// 		filterSerializedResponseHeaders(name) {
-// 			return name === 'content-range';
-// 		}
-// 	});
-// }

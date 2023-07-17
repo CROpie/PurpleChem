@@ -1,14 +1,13 @@
 <script lang="ts">
-	import { Heading } from '$lib/components/typography/Typo';
-	import { Input } from '$lib/components/form/formAll';
-	import { Button } from '$lib/components/button/button';
-	import { Select } from '$lib/components/form/formAll';
-	import { DropSelect, DropSelectItem } from '$lib/components/dropdown/dropdownAll';
-
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { ActionData } from './$types';
 	import type { PageData } from './$types';
+
+	import { Heading } from '$lib/components/typography/Typo';
+	import { Input } from '$lib/components/form/formAll';
+	import { Button } from '$lib/components/button/button';
+	import { DropSelect, DropSelectItem } from '$lib/components/dropdown/dropdownAll';
 
 	export let form: ActionData;
 
@@ -33,6 +32,8 @@
 	const { supplierList } = data;
 
 	const getProperties = async () => {
+		// need to ensure that all properties are cleared
+		// for the case that a real chemical was found, then before ordering, another was searched but not found/not all fields found
 		console.log('searching: ', CAS);
 		let uri = `https://commonchemistry.cas.org/api/detail?cas_rn=${CAS}`;
 		const res = await fetch(uri);
@@ -68,7 +69,7 @@
 	}
 
 	const orderChemical: SubmitFunction = async (event) => {
-		// do stg
+		//
 	};
 
 	// Select Items

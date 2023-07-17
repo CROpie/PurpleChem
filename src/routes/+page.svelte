@@ -10,7 +10,7 @@
 
 	let email: string;
 	let password: string;
-	let loginError: boolean = false;
+	let loginError = false;
 
 	const handleSignIn = async (event: Event) => {
 		const response = await supabase.auth.signInWithPassword({

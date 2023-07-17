@@ -7,8 +7,11 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	const session = await locals.getSession();
 
 	if (url.pathname != '/' && !session) {
+		console.log('Access denied.');
 		throw redirect(303, '/');
 	} else {
 		return { session };
 	}
 };
+
+// Is it possible to pass data via the redirect to say something like 'please log in' ??

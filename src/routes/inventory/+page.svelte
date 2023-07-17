@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { Heading } from '$lib/components/typography/Typo';
-	import Button from '$lib/components/button/Button.svelte';
 	import {
 		Sidebar,
 		SidebarWrapper,
@@ -54,8 +52,22 @@
 		// console.log(filteredOrdersList);
 	};
 
+	let sortByName = true;
+	let sortByDate = false;
+
+	function sortOrders() {
+		if (sortByName) {
+			filteredOrdersList = filteredOrdersList.sort((a, b) =>
+				a.chemicalID.chemicalName > b.chemicalID.chemicalName ? 1 : -1
+			);
+		} else if (sortByDate) {
+			filteredOrdersList = filteredOrdersList.sort((a, b) => (a.id > b.id ? 1 : -1));
+		}
+	}
+
 	afterUpdate(() => {
 		filterOrdersList();
+		sortOrders();
 	});
 
 	// structure
@@ -140,9 +152,9 @@
 			<AccordionDouble outline>
 				{#each filteredOrdersList as order (order.id)}
 					<AccordionItemDouble {order}>
-						<div slot="title" on:click={() => getSVG(order.chemicalID.smile)}>
+						<button slot="title" on:click={() => getSVG(order.chemicalID.smile)}>
 							<p>{order.chemicalID.chemicalName} ({order.id})</p>
-						</div>
+						</button>
 
 						<div slot="content" class="ml-4">
 							<Heading tag="h6" class="text-complement">MODIFY</Heading>
@@ -152,7 +164,7 @@
 						<div slot="edit" class="ml-4">
 							<Heading tag="h6" class="text-complement">PROPERTIES</Heading>
 
-							<div class="flex gap-2">
+							<div class="flex flex-wrap gap-2">
 								<div class="border-2 border-primary">
 									{@html `${currentSVG}`}
 									<!-- {#if order.svg}
@@ -167,13 +179,14 @@
 									<li>MP: {order.chemicalID.MP}</li>
 									<li>Density: {order.chemicalID.density}</li>
 								</ul>
+
+								<ul>
+									<li>CAS: {order.chemicalID.CAS}</li>
+									<!-- TODO -->
+									<li>Supplier:</li>
+									<li>Date Ordered:</li>
+								</ul>
 							</div>
-							<ul>
-								<li>CAS: {order.chemicalID.CAS}</li>
-								<!-- TODO -->
-								<li>Supplier:</li>
-								<li>Date Ordered:</li>
-							</ul>
 						</div>
 					</AccordionItemDouble>
 				{:else}

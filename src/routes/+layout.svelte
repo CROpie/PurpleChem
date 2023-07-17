@@ -1,10 +1,14 @@
 <script lang="ts">
-	import { Navbar, NavUl, NavBrand, NavLi, NavHamburger } from '$lib/components/navbar/Nav';
-	import DarkLightTheme from '$lib/components/theme/DarkLightTheme.svelte';
 	import '../app.css';
 
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
+
+	import { Navbar, NavUl, NavBrand, NavLi, NavHamburger } from '$lib/components/navbar/Nav';
+	import { DarkLightTheme } from '$lib/components/theme/themePick';
+
+	import { RDKitSS } from '$lib/stores/rdkitstore2';
+
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -28,8 +32,9 @@
 		return () => data.subscription.unsubscribe();
 	});
 
-	import { RDKitSS } from '$lib/stores/rdkitstore2';
-
+	// init RDKit in +layout so then store in a store so it can be accessed anywhere on the app
+	// initRDKitModule() comes from RDKit_minimal.js imported in svelte:head below
+	// need to run it before things have been mounted, or else errors in cases like Inventory which requires (required??) it to be up and running
 	async function initRDKit() {
 		console.log('initializing RDKit');
 		await initRDKitModule().then(function (instance) {

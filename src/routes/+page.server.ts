@@ -3,7 +3,6 @@ import type { Actions } from '@sveltejs/kit';
 
 export const actions: Actions = {
 	setTheme: async ({ url, cookies }) => {
-		console.log('setTheme');
 		const themeld = url.searchParams.get('themeld'); // light/dark
 		const themeco = url.searchParams.get('themeco'); // colour
 		const theme = `${themeld} ${themeco}`;

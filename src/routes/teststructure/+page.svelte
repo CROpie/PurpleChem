@@ -5,7 +5,7 @@
 
 	import type { JSMol, RDKitModule } from '$lib/rdkitTypes';
 
-	import type { PageData } from './$types';
+	import type { PageData } from '../queryStructure/$types';
 	export let data: PageData;
 	let { supabase } = data;
 
