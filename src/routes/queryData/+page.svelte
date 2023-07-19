@@ -16,8 +16,6 @@
 
 	import { onMount } from 'svelte';
 
-	import type { JSMol, RDKitModule } from '$lib/rdkitTypes';
-
 	// Custom Type
 	// changes from { data }
 	// 		amount (added string for when combined with amountUnit)
@@ -51,6 +49,9 @@
 	export let data: PageData;
 	let { supabase } = data;
 
+	let searching = false;
+	let structureSearch = false;
+
 	let jsmeApplet: any;
 	// let RDKitModule: RDKitModule;
 	let jsmeContainer: HTMLElement | null;
@@ -66,8 +67,13 @@
 
 	//let queryOrders: OrderData[] = [];
 	let queryOrders: OrderData[] = [];
+	let allQueryOrders: OrderData[] = [];
 
 	let queryChemicalName = '';
+
+	const showConsumed = () => {
+		queryOrders = allQueryOrders;
+	};
 
 	const hideConsumed = () => {
 		queryOrders = queryOrders?.filter((order) => order.isConsumed == false);
@@ -79,6 +85,12 @@
 	// Since no foreinkeys, don't need to use the second argument in .or, which is { foreignTable: 'tablename' }.
 	// Maybe there is some way to do it with { foreignTable: [tablename, tablename] } ?? But this is easier to read
 	const queryDatabase = async () => {
+		searching = true;
+		noHit = false;
+		queryOrders = [];
+		if (jsmeContainer?.classList.contains('flex')) {
+			jsmeContainer.classList.replace('flex', 'hidden');
+		}
 		let { data, error } = await supabase
 			.from('ordersview')
 			.select(
@@ -97,7 +109,10 @@
 				delete item.amountUnit;
 			});
 		}
+		allQueryOrders = queryOrders;
+		queryOrders = queryOrders?.filter((order) => order.isConsumed == false);
 		sortTable('chemicalName');
+		searching = false;
 	};
 
 	// SORTING BY CLICKING THE TABLE HEADING
@@ -136,6 +151,7 @@
 	};
 
 	const toggleStructureSearch = () => {
+		noHit = false;
 		if (!jsmeContainer) {
 			console.log('something has gone wrong with jsme.');
 		} else {
@@ -148,6 +164,8 @@
 	};
 
 	const queryByStructure = async () => {
+		queryOrders = [];
+		structureSearch = true;
 		noHit = false;
 		const inchi = getInchi();
 
@@ -173,6 +191,7 @@
 		}
 
 		sortTable('chemicalName');
+		structureSearch = false;
 	};
 
 	function getInchi() {
@@ -193,26 +212,34 @@
 			divClass="my-4"
 		/>
 	</form>
+	{#if searching}
+		<p class="text-red-500">Searching Database..</p>
+	{/if}
 	<Button on:click={toggleStructureSearch}>Toggle Structure Search</Button>
 
 	<div bind:this={jsmeContainer} class="hidden">
 		<div id="jsme_container" />
 		<Button on:click={queryByStructure}>GO</Button>
-		{#if noHit}
-			<p class="text-red-500">No Hits!</p>
-		{/if}
 	</div>
-
-	<div class="flex justify-between">
-		{#each tableHead as heading}
-			<div class="flex flex-col items-center">
-				<label for="show{heading}" class="text-primary">{heading}</label>
-				<input type="checkbox" id="show{heading}" bind:checked={showObj[heading]} />
-			</div>
-		{/each}
+	{#if structureSearch}
+		<p class="text-red-500">Searching Database..</p>
+	{/if}
+	{#if noHit}
+		<p class="text-red-500">No Hits!</p>
+	{/if}
+	<!-- not sure if I can be bothered making these look better -->
+	<div class="hidden">
+		<div class="flex justify-between">
+			{#each tableHead as heading}
+				<div class="flex flex-col items-center">
+					<label for="show{heading}" class="text-primary">{heading}</label>
+					<input type="checkbox" id="show{heading}" bind:checked={showObj[heading]} />
+				</div>
+			{/each}
+		</div>
 	</div>
-
-	<div class="flex mb-3">
+	<div class="flex my-3">
+		<Button type="button" outline on:click={showConsumed}>Show Consumed</Button>
 		<Button type="button" outline on:click={hideConsumed}>Hide Consumed</Button>
 	</div>
 

@@ -18,6 +18,11 @@
 	let CAS = '';
 	let chemicalName = '';
 	let amount: number | null = null;
+	let supplierPN: string | null = null;
+
+	// dropdown items for validation
+	let supplierID: number | null = null;
+	let amountUnit: string | null = null;
 
 	// physical properties
 	let MW: phys = null;
@@ -29,20 +34,40 @@
 	let inchi: string | null;
 	let smile: string | null;
 
+	// variables relating to error/progress messages
+
+	let searching = false;
+	let ordering = false;
+
 	let notFound = false;
 	let found = false;
+	let invalidCAS = false;
+	let failValidation = false;
 
 	export let data: PageData;
 	const { supabase, supplierList } = data;
 
-	const getProperties = async () => {
-		resetAll();
+	// Validation regxes
+	const CASRegexPattern = /^\d{2,7}-\d{2}-\d$/;
+	const numbersOnly = /^[0-9]+$/;
 
+	const getProperties = async () => {
+		if (!CAS) {
+			return;
+		}
+
+		if (!CASRegexPattern.test(CAS)) {
+			invalidCAS = true;
+			return;
+		}
+		resetAll();
+		searching = true;
 		console.log('searching commonchemistry: ', CAS);
 		let uri = `https://commonchemistry.cas.org/api/detail?cas_rn=${CAS}`;
 
 		// need to use try/catch here? 404 error if CAS isn't in their DB
 		const res = await fetch(uri);
+		searching = false;
 
 		if (res.ok) {
 			const data = await res.json();
@@ -67,6 +92,7 @@
 	function resetAll() {
 		chemicalName = '';
 		amount = null;
+		supplierPN = null;
 
 		// phys
 		MW = null;
@@ -78,11 +104,21 @@
 		inchi = null;
 		smile = null;
 
+		// messages
 		notFound = false;
 		found = false;
+		invalidCAS = false;
+		failValidation = false;
 
 		if (jsmeContainer.classList.contains('flex')) {
 			jsmeContainer.classList.replace('flex', 'hidden');
+		}
+
+		if (form?.success) {
+			form.success = false;
+		}
+		if (form?.error) {
+			form.error = false;
 		}
 	}
 
@@ -118,8 +154,37 @@
 		}
 	}
 
-	const orderChemical: SubmitFunction = async (event) => {
-		//
+	const validateData: SubmitFunction = async (event) => {
+		console.log(CAS);
+		if (!CASRegexPattern.test(CAS)) {
+			failValidation = true;
+			event.cancel();
+		}
+		if (!numbersOnly.test(amount)) {
+			failValidation = true;
+			event.cancel();
+		}
+		if (!supplierID) {
+			failValidation = true;
+			event.cancel();
+		}
+		if (!amountUnit) {
+			failValidation = true;
+			event.cancel();
+		}
+
+		// event.cancel();
+
+		ordering = true;
+		found = false;
+
+		// including return async () => {} means that the page doesn't get refreshed?? and form.messages don't get displayed??
+		// ** need to include update()
+		return async ({ result, update }) => {
+			ordering = false;
+			// result contains: { data: {success: true}, status: 200, type: "success" }
+			update();
+		};
 	};
 
 	// Select Items
@@ -167,11 +232,17 @@
 </script>
 
 <Heading tag="h2" class="text-center mt-3">Order Chemical</Heading>
-<form method="POST" action="?/orderChemical" use:enhance={orderChemical} class="m-8">
+<form method="POST" action="?/orderChemical" use:enhance={validateData} class="m-8">
 	<Input label="CAS number" name="CAS" type="text" bind:value={CAS} outline required />
 
 	<Button type="button" on:click={() => getProperties()} outline class="mt-2">SEARCH</Button>
 
+	{#if searching}
+		<p class="text-red-500">Searching...</p>
+	{/if}
+	{#if invalidCAS}
+		<p class="text-red-500">Please enter a valid CAS number.</p>
+	{/if}
 	{#if notFound}
 		<p class="text-red-500">No information from this CAS number was obtained.</p>
 		<p class="text-red-500">
@@ -185,8 +256,20 @@
 	{#if found}
 		<p class="text-green-500">Properties have been imported.</p>
 	{/if}
+	{#if failValidation}
+		<p class="text-red-500">
+			Please check that all the necessary fields have been entered correctly.
+		</p>
+	{/if}
 
-	<Input label="Chemical Name" name="chemicalName" type="text" bind:value={chemicalName} outline />
+	<Input
+		label="Chemical Name"
+		name="chemicalName"
+		type="text"
+		bind:value={chemicalName}
+		outline
+		required
+	/>
 
 	<div bind:this={jsmeContainer} class="hidden flex-col">
 		<div class="text-primary">Chemical Structure</div>
@@ -213,6 +296,7 @@
 			label="Unit"
 			class="rounded-lg border-2"
 			divClass="w-3/12"
+			bind:value={amountUnit}
 		>
 			{#each items as item}
 				<DropSelectItem value={item.value} label={item.name} />
@@ -223,14 +307,27 @@
 	</div>
 
 	<div class="flex">
-		<DropSelect label="Supplier" name="supplierID" outline class="rounded-lg border-2">
+		<DropSelect
+			label="Supplier"
+			name="supplierID"
+			outline
+			class="rounded-lg border-2"
+			bind:value={supplierID}
+		>
 			{#each supplierList as supplier}
 				<DropSelectItem value={supplier.id} label={supplier.supplierName} />
 			{:else}
 				<DropSelectItem label="No options!" class="bg-neutral text-opNeutral" />
 			{/each}
 		</DropSelect>
-		<Input label="Product Code" name="supplierPN" type="text" outline />
+		<Input
+			label="Product Code"
+			name="supplierPN"
+			type="text"
+			outline
+			bind:value={supplierPN}
+			required
+		/>
 	</div>
 
 	{#if notFound}
@@ -250,10 +347,18 @@
 
 	<Button type="submit" outline class="w-full mt-8">ORDER CHEMICAL</Button>
 
+	{#if ordering}
+		<p class="text-red-500">Ordering...</p>
+	{/if}
 	{#if form?.success}
 		<p class="text-green-500">Order successful.</p>
 	{:else if form?.error}
 		<p class="text-red-500">Something went wrong...</p>
+	{:else if form?.supabaseError}
+		<p class="text-red-500">
+			Problem with Supabase fetch for some reason. Try to order again, it will probably work this
+			time.
+		</p>
 	{/if}
 	<!-- hidden properties -->
 

@@ -43,6 +43,7 @@
 	}
 </script>
 
+<!-- B. Bienfait and P. Ertl, JSME: a free molecule editor in JavaScript, J. Cheminformatics 5:24 (2013) -->
 <svelte:head>
 	<title>Chem Database</title>
 	<script src="/node_modules/jsme-editor/jsme.nocache.js"></script>
@@ -73,7 +74,6 @@
 			<NavLi href="/orderChemical">Order Chemical</NavLi>
 			<NavLi href="inventory">Inventory</NavLi>
 			<NavLi href="/queryData">Query Database</NavLi>
-			<NavLi href="/addCSV">Add Chemicals via CSV</NavLi>
 			<NavLi href="/logout" class="text-neutral underline">Log Out</NavLi>
 		</NavUl>
 	</Navbar>

@@ -13,7 +13,7 @@ export interface Database {
 					inchi: string | null;
 					MP: string | null;
 					MW: string | null;
-					svg: string | null;
+					smile: string | null;
 				};
 				Insert: {
 					BP?: string | null;
@@ -24,7 +24,7 @@ export interface Database {
 					inchi?: string | null;
 					MP?: string | null;
 					MW?: string | null;
-					svg?: string | null;
+					smile?: string | null;
 				};
 				Update: {
 					BP?: string | null;
@@ -35,7 +35,7 @@ export interface Database {
 					inchi?: string | null;
 					MP?: string | null;
 					MW?: string | null;
-					svg?: string | null;
+					smile?: string | null;
 				};
 				Relationships: [];
 			};

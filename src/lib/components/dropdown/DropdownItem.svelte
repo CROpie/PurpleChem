@@ -13,6 +13,6 @@
 	const buttonClass = twMerge(defaultClass, outline ? outlineClass : fillClass, $$props.class);
 </script>
 
-<button class={buttonClass}>
+<button class={buttonClass} type="button">
 	<slot />
 </button>

@@ -1,4 +1,6 @@
 <script lang="ts">
+	console.log('page was just refreshed.');
+
 	import { Heading } from '$lib/components/typography/Typo';
 	import {
 		Sidebar,
@@ -15,25 +17,31 @@
 	import DetailsTab from './DetailsTab.svelte';
 
 	import type { PageData } from './$types';
-	import type { order, location } from './orderType';
+	import type { orders, locations } from './orderType';
 
-	import { afterUpdate } from 'svelte';
-
-	// let svgString = '';
-	// let RDKitModule: RDKitModule;
 	export let data: PageData;
 
-	// https://flaviocopes.com/typescript-object-destructuring/
-	const { locationsList, ordersList }: { locationsList: location[]; ordersList: order[] } = data;
-	// $: console.log(ordersList, locationsList);
+	import type { ActionData } from './$types';
+	export let form: ActionData;
+
+	// let locationsList: locations[] = data.locationsList;
+	// let ordersList: orders[] = data.ordersList;
+
+	// $: ordersList = data.ordersList;
+	// let filteredOrdersList: orders[] = ordersList;
+
+	let locationsList: locations[] = data.locationsList;
+	let ordersList: orders[] = data.ordersStuff.ordersList;
+	let ordersError = data.ordersStuff.orderError;
+
+	$: ordersList = data.ordersStuff.ordersList;
+	let filteredOrdersList: orders[] = ordersList;
 
 	let addNew = false;
 
-	let currentLocation = 'All';
-
 	// filter ordersList based on which is selected
 	let selectedLocationID = -1;
-	let filteredOrdersList = ordersList;
+	let currentLocation = 'All';
 
 	const chooseLocation = (locationID: number, locationName: string) => {
 		selectedLocationID = locationID;
@@ -49,7 +57,7 @@
 				return order.locationID?.id == selectedLocationID;
 			});
 		}
-		// console.log(filteredOrdersList);
+		sortOrders();
 	};
 
 	let sortByName = true;
@@ -65,8 +73,9 @@
 		}
 	}
 
-	afterUpdate(() => {
-		filterOrdersList();
+	import { onMount } from 'svelte';
+
+	onMount(() => {
 		sortOrders();
 	});
 
@@ -82,6 +91,7 @@
 	// }
 
 	import { RDKitSS } from '$lib/stores/rdkitstore2';
+	import { invalidateAll } from '$app/navigation';
 	const RDKitModule = $RDKitSS;
 
 	// first itiration generated all the svgs upon opening the page
@@ -105,6 +115,13 @@
 			currentSVG = RDKitModule.get_mol(smile).get_svg();
 		}
 	}
+
+	const refreshData = async () => {
+		// await invalidate('/inventory');
+		await invalidateAll();
+		filterOrdersList();
+		sortOrders();
+	};
 </script>
 
 <!-- {#await initRDKit()}
@@ -114,10 +131,14 @@
 
 	<p>Setting up RDKit</p>
 {:then} -->
-{#await ordersList}
-	<p>Loading</p>
-{:then}
-	<!-- {generateSVGs()} -->
+
+<!-- {generateSVGs()} -->
+
+{#if ordersError}
+	<p class="text-primary">
+		Error retrieving data from the database. Please try refreshing the page.
+	</p>
+{:else}
 	<div class="flex">
 		<Sidebar class="mt-9" outline>
 			<SidebarWrapper>
@@ -152,13 +173,20 @@
 			<AccordionDouble outline>
 				{#each filteredOrdersList as order (order.id)}
 					<AccordionItemDouble {order}>
-						<button slot="title" on:click={() => getSVG(order.chemicalID.smile)}>
+						<button
+							slot="title"
+							on:click={() => {
+								if (order.chemicalID.smile) {
+									getSVG(order.chemicalID.smile);
+								}
+							}}
+						>
 							<p>{order.chemicalID.chemicalName} ({order.id})</p>
 						</button>
 
 						<div slot="content" class="ml-4">
 							<Heading tag="h6" class="text-complement">MODIFY</Heading>
-							<DetailsTab {order} {locationsList} />
+							<DetailsTab {order} {locationsList} {form} on:triggerUpdateLocation={refreshData} />
 						</div>
 
 						<div slot="edit" class="ml-4">
@@ -195,5 +223,4 @@
 			</AccordionDouble>
 		</div>
 	</div>
-{/await}
-<!-- {/await} -->
+{/if}

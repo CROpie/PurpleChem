@@ -1,0 +1,24 @@
+import { json } from '@sveltejs/kit';
+
+export async function POST(event) {
+	console.log('+server.ts POST');
+
+	const { user } = await event.request.json();
+	const id = user.id;
+	const username = user.username;
+
+	// modify user database
+	const { error } = await event.locals.supabase
+		.from('profiles')
+		.update({
+			username
+		})
+		.eq('id', id);
+
+	if (error) {
+		console.log('error');
+		return json('fail');
+	}
+	console.log('success');
+	return json('success');
+}

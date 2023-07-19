@@ -10,13 +10,23 @@
 
 	const [usePopperElement, usePopperTooltip] = createPopperAction();
 
+	/* 
+	tried to make it so required would be put on the input field when required is included in the component
+	but it didn't work, so need to do a manual check
+
+	// export let required = false;
+	*/
 	export let placement = 'bottom';
 	export let outline = false;
 	setContext('outline', outline);
 
 	export let defaultText = 'Choose an option:';
 	export let label: string | null = null;
-	let value: any = null;
+
+	// changed this when messing with admin modify orders
+	// to export let value
+	export let value: any = null;
+
 	export let name: string | null = null;
 
 	let showOptions = false;

@@ -38,6 +38,14 @@ export const actions: Actions = {
 			.eq('CAS', CAS)
 			.maybeSingle();
 
+		console.log('initial CAS search: ', chemical);
+		if (chemical.error) {
+			console.log('something went wrong with initial CAS search...');
+			// See below for an error 'TypeError: fetch failed' that (often?) occurs?
+			console.log(chemical.error);
+			return fail(400, { supabaseError: true });
+		}
+
 		// adding .select() to the end retuns the newly created data
 		if (!chemical.data) {
 			console.log('Adding new chemical to database...');
@@ -55,7 +63,7 @@ export const actions: Actions = {
 				})
 				.select()
 				.maybeSingle();
-			console.log('just added chemical: ', chemical);
+			console.log('just added chemical: ', chemical.data);
 		}
 
 		// add order to database
@@ -69,8 +77,8 @@ export const actions: Actions = {
 		});
 
 		if (error) {
-			console.log(error);
-			return fail(400, { error: true });
+			console.log('Problem during ordering process: ', error);
+			return fail(400, { supabaseError: true });
 		}
 		console.log('success');
 		return { success: true };
@@ -96,3 +104,26 @@ export const load = async ({ locals: { supabase, getSession } }) => {
 
 	return { session, supplierList };
 };
+
+/*
+Occasional error with the initial CAS search
+But just doing a second time sometimes will make it work.
+Seems like a problem with Supabase
+
+something went wrong with initial CAS search...
+{
+  message: 'TypeError: fetch failed',
+  details: 'TypeError: fetch failed\n' +
+    '    at fetch (/home/chris/repos/PurpleChem/node_modules/undici/index.js:109:13)\n' +
+    '    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
+    '    at async orderChemical (/home/chris/repos/PurpleChem/src/routes/orderChemical/+page.server.ts:28:20)\n' +
+    '    at async Module.handle_action_json_request (/home/chris/repos/PurpleChem/node_modules/@sveltejs/kit/src/runtime/server/page/actions.js:57:16)\n' +
+    '    at async resolve (/home/chris/repos/PurpleChem/node_modules/@sveltejs/kit/src/runtime/server/respond.js:405:17)\n' +
+    '    at async first (/home/chris/repos/PurpleChem/src/hooks.server.ts:24:12)\n' +
+    '    at async Module.respond (/home/chris/repos/PurpleChem/node_modules/@sveltejs/kit/src/runtime/server/respond.js:274:20)\n' +
+    '    at async file:///home/chris/repos/PurpleChem/node_modules/@sveltejs/kit/src/exports/vite/dev/index.js:505:22',
+  hint: '',
+  code: ''
+}
+
+*/

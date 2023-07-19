@@ -1,12 +1,17 @@
 <script lang="ts">
 	import Button from '$lib/components/button/Button.svelte';
 	import Input from '$lib/components/form/Input.svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { enhance } from '$app/forms';
+	import { createEventDispatcher } from 'svelte';
 
 	import { DropSelect, DropSelectItem } from '$lib/components/dropdown/dropdownAll';
 
 	import type { order, location } from './orderType';
 	export let order: order;
 	export let locationsList: location[];
+	import type { ActionData } from './$types';
+	export let form: ActionData;
 
 	let currentLocation: string | null = null;
 	let currentValue: number | null = null;
@@ -16,13 +21,42 @@
 	} else {
 		currentLocation = 'Choose a storage location.';
 	}
+
+	const numbersOnly = /^[0-9]+$/;
+	let failValidation = false;
+	let saving = false;
+
+	// trigger a dispatch on save data to ensure that it updates
+	// (otherwise requires alt-f4 before the location change is registered on the page.)
+	const dispatch = createEventDispatcher();
+
+	const validateData: SubmitFunction = ({ cancel }) => {
+		failValidation = false;
+		if (!numbersOnly.test(order.amount)) {
+			failValidation = true;
+			cancel();
+			return;
+		}
+		saving = true;
+		return async ({ update }) => {
+			saving = false;
+			dispatch('triggerUpdateLocation');
+			// update();
+		};
+	};
 </script>
 
 <!-- need to fix formating for small screen sizes -->
-<form method="POST" action="?/updateData" class="flex gap-5 flex-wrap">
+<form method="POST" action="?/updateData" class="flex gap-5 flex-wrap" use:enhance={validateData}>
 	<div class="flex items-center justify-start w-64 gap-1">
 		<p>Remaining:</p>
-		<Input value={order.amount} name="amount" type="text" class="text-primary text-end" outline />
+		<Input
+			bind:value={order.amount}
+			name="amount"
+			type="text"
+			class="text-primary text-end"
+			outline
+		/>
 		<p>{order.amountUnit}</p>
 	</div>
 
@@ -42,7 +76,17 @@
 				<DropSelectItem label="No Locations!" />
 			{/each}
 		</DropSelect>
+
 		<Button type="submit" outline class="border-none text-2xl">✓</Button>
 		<input type="hidden" name="orderID" value={order.id} />
 	</div>
 </form>
+{#if failValidation}
+	<p class="text-red-500">Please enter an integer in the 'remaining' field.</p>
+{/if}
+{#if saving}
+	<p class="text-red-500">Saving...</p>
+{/if}
+{#if form?.error}
+	<p class="text-red-500">There was a problem with the database. Please try again...</p>
+{/if}

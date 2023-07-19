@@ -1,29 +1,57 @@
-export type order = {
+export type ordersList =
+	| {
+			id: number;
+			chemicalID: {
+				id: number;
+				chemicalName: string | null;
+				CAS: string | null;
+				MW: string | null;
+				MP: string | null;
+				BP: string | null;
+				density: string | null;
+				inchi: string | null;
+				smile: string | null;
+			};
+			amount: number;
+			amountUnit: string;
+			isConsumed: boolean;
+			locationID: {
+				id: number;
+				locationName: string;
+			};
+	  }[]
+	| null;
+
+export type locationsList =
+	| {
+			id: number;
+			locationName: string;
+	  }[]
+	| null;
+
+export type orders = {
 	id: number;
-	amount: number;
-	amountUnit: string | null;
 	chemicalID: {
 		id: number;
 		chemicalName: string | null;
 		CAS: string | null;
 		MW: string | null;
-		BP: string | null;
 		MP: string | null;
+		BP: string | null;
 		density: string | null;
 		inchi: string | null;
 		smile: string | null;
 	};
+	amount: number;
+	amountUnit: string;
+	isConsumed: boolean;
 	locationID: {
-		id: number | null;
+		id: number;
 		locationName: string;
-	} | null;
+	};
 };
 
-export type ordersList = order[];
-
-export type location = {
+export type locations = {
 	id: number;
 	locationName: string;
 };
-
-export type locationsList = location[];

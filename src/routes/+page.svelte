@@ -10,13 +10,17 @@
 
 	let email: string;
 	let password: string;
+
+	let waiting = false;
 	let loginError = false;
 
 	const handleSignIn = async (event: Event) => {
+		waiting = true;
 		const response = await supabase.auth.signInWithPassword({
 			email,
 			password
 		});
+		waiting = false;
 
 		console.log(response.error);
 		if (response.error) {
@@ -53,6 +57,10 @@
 		<Button type="submit" outline class="w-full">Sign In</Button>
 	</div>
 </form>
+
+{#if waiting}
+	<p class="text-red-500">Logging in...</p>
+{/if}
 
 {#if loginError}
 	<p class="text-red-500">Please check your login credentials.</p>

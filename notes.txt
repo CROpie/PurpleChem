@@ -9,3 +9,21 @@ Even worth reverse engineering at this stage to make it look like it was done in
 
 Include light-dark mode toggle
 Include option to change the colour scheme (save choice in profile ??)
+
+-----------------------------------------------
+
+Updating the page after API to tell database what to do.
+1 option: invalidateAll() to re-run the load function. requires $: ?
+
+But for something like delete, easier just to remove it from the array. Is that the case with all changes?
+2 option: both change the database and change the current data
+how does this fit with $: ?
+
+Didn't work in /inventory, because of the component, didn't have access to changing the order directly ???
+
+create
+
+update
+
+delete
+
