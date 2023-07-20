@@ -118,7 +118,7 @@
 
 	const refreshData = async () => {
 		// await invalidate('/inventory');
-		await invalidateAll();
+		// await invalidateAll();
 		filterOrdersList();
 		sortOrders();
 	};

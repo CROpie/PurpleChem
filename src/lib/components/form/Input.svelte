@@ -6,6 +6,8 @@
 	export let value: any = undefined;
 	export let outline = false;
 
+	export let type = 'text';
+
 	const defaultClass = 'block w-full rounded-lg text-lg p-2 outline-none focus:ring-0';
 	const outlineClass =
 		'border-2 text-primary border-primary bg-transparent focus:border-complement';
@@ -18,11 +20,21 @@
 	// without bind:value, can't use bind value
 	// without {...$$restProps}, can't use input attributes like name, type etc
 	// add $$props.class to inputClass allows for modifications via class="" when using the component
+
+	// you need to this to avoid 2-way binding
+	const setType = (node, _type) => {
+		node.type = _type;
+		return {
+			update(_type) {
+				node.type = _type;
+			}
+		};
+	};
 </script>
 
 <div class={divClass}>
 	<div class={labelClass}>{label}</div>
-	<input {...$$restProps} bind:value class={inputClass} />
+	<input {...$$restProps} bind:value class={inputClass} use:setType={type} />
 </div>
 
 <!--
