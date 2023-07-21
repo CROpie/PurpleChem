@@ -12,6 +12,7 @@
 	import { DropSelect, DropSelectItem } from '$lib/components/dropdown/dropdownAll';
 
 	export let form: ActionData;
+	$: console.log(form);
 
 	type phys = string | null;
 
@@ -38,9 +39,10 @@
 
 	let searching = false;
 	let ordering = false;
+	let structureInfo = false;
 
-	let notFound = false;
-	let found = false;
+	let CASnotFound = false;
+	let CASfound = false;
 	let invalidCAS = false;
 	let failValidation = false;
 
@@ -78,12 +80,12 @@
 			if (data.experimentalProperties) {
 				extractPhys(data.experimentalProperties);
 			}
-			found = true;
+			CASfound = true;
 		} else {
 			const res2 = await checkDBForCas();
 			if (!res2) {
 				toggleStructureSearch();
-				notFound = true;
+				CASnotFound = true;
 				return;
 			}
 		}
@@ -105,8 +107,9 @@
 		smile = null;
 
 		// messages
-		notFound = false;
-		found = false;
+		structureInfo = false;
+		CASnotFound = false;
+		CASfound = false;
 		invalidCAS = false;
 		failValidation = false;
 
@@ -176,7 +179,7 @@
 		// event.cancel();
 
 		ordering = true;
-		found = false;
+		CASfound = false;
 
 		// including return async () => {} means that the page doesn't get refreshed?? and form.messages don't get displayed??
 		// ** need to include update()
@@ -228,6 +231,7 @@
 			inchi = RDKitModule!.get_mol(smile).get_inchi();
 			inchiDisplay = inchi;
 		}
+		structureInfo = true;
 	}
 </script>
 
@@ -243,7 +247,7 @@
 	{#if invalidCAS}
 		<p class="text-red-500">Please enter a valid CAS number.</p>
 	{/if}
-	{#if notFound}
+	{#if CASnotFound}
 		<p class="text-red-500">No information from this CAS number was obtained.</p>
 		<p class="text-red-500">
 			<span class="text-complement">Chemical Name</span> will need to be added manually.
@@ -253,7 +257,7 @@
 			<span class="text-complement">Physical Properties</span> may be added manually.
 		</p>
 	{/if}
-	{#if found}
+	{#if CASfound}
 		<p class="text-green-500">Properties have been imported.</p>
 	{/if}
 	{#if failValidation}
@@ -277,7 +281,10 @@
 		<Button type="button" outline class="w-96" on:click={generateStructureInfo}
 			>Generate Structure Info</Button
 		>
-		<p class="text-primary">Smile: {smileDisplay} Inchi: {inchiDisplay}</p>
+		{#if structureInfo}
+			<p class="text-primary">Structure Info Generated.</p>
+			<p class="text-primary">(DEMO: Smile: {smileDisplay} Inchi: {inchiDisplay})</p>
+		{/if}
 	</div>
 
 	<div class="flex">
@@ -330,7 +337,7 @@
 		/>
 	</div>
 
-	{#if notFound}
+	{#if CASnotFound}
 		<div class="flex">
 			<Input
 				label="Molecular Weight (g/mol)"
@@ -347,18 +354,16 @@
 
 	<Button type="submit" outline class="w-full mt-8">ORDER CHEMICAL</Button>
 
+	{#if form?.error}
+		<p class="text-red-500">{form.error}</p>
+	{/if}
+
 	{#if ordering}
 		<p class="text-red-500">Ordering...</p>
 	{/if}
+
 	{#if form?.success}
-		<p class="text-green-500">Order successful.</p>
-	{:else if form?.error}
-		<p class="text-red-500">Something went wrong...</p>
-	{:else if form?.supabaseError}
-		<p class="text-red-500">
-			Problem with Supabase fetch for some reason. Try to order again, it will probably work this
-			time.
-		</p>
+		<p class="text-green-500">Order Successful.</p>
 	{/if}
 	<!-- hidden properties -->
 

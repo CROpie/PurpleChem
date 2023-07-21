@@ -1,14 +1,9 @@
-export const load = async ({ locals: { supabase } }) => {
-	// const { data: ordersList } = await supabase
-	// 	.from('orders')
-	// 	.select('id, chemicalID( id, chemicalName), statusID')
-	// 	.eq('userID', userID);
+import type { PageServerLoad } from '../$types.js';
 
-	// for some reason, can't use statusID(id, stausValue)
-	// perhaps because of the .or ?
-	const { data } = await supabase
+export const load: PageServerLoad = async ({ locals: { supabase } }) => {
+	const { data: ordersList } = await supabase
 		.from('orders')
 		.select('id, userID ( username ), chemicalID( chemicalName), statusID');
 
-	return { data };
+	return { ordersList };
 };

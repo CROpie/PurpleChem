@@ -1,6 +1,8 @@
 <script lang="ts">
 	console.log('page was just refreshed.');
 
+	import { enhance } from '$app/forms';
+
 	import { Heading } from '$lib/components/typography/Typo';
 	import {
 		Sidebar,
@@ -13,7 +15,7 @@
 		AccordionDouble,
 		AccordionItemDouble
 	} from '$lib/components/Accordion2/accordionDoubleAll';
-
+	import Button from '$lib/components/button/Button.svelte';
 	import DetailsTab from './DetailsTab.svelte';
 
 	import type { PageData } from './$types';
@@ -52,6 +54,10 @@
 	const filterOrdersList = () => {
 		if (selectedLocationID == -1) {
 			filteredOrdersList = ordersList;
+		} else if (selectedLocationID == -2) {
+			filteredOrdersList = ordersList.filter((order: order) => {
+				return order.locationID == null;
+			});
 		} else {
 			filteredOrdersList = ordersList.filter((order: order) => {
 				return order.locationID?.id == selectedLocationID;
@@ -116,11 +122,18 @@
 		}
 	}
 
+	// custom function when changing the details tab (sent from the component DetailsTab)
 	const refreshData = async () => {
-		// await invalidate('/inventory');
-		// await invalidateAll();
 		filterOrdersList();
 		sortOrders();
+	};
+
+	// use:enhance function when updating the status
+	const forceStatus = async () => {
+		return async ({ update }) => {
+			await update();
+			refreshData();
+		};
 	};
 </script>
 
@@ -144,6 +157,7 @@
 			<SidebarWrapper>
 				<SidebarGroup>
 					<SidebarItem label="All" on:click={() => chooseLocation(-1, 'All')} startSelected />
+					<SidebarItem label="Unsorted" on:click={() => chooseLocation(-2, 'Unsorted')} />
 				</SidebarGroup>
 				<SidebarGroup border>
 					{#each locationsList as location (location.id)}
@@ -181,12 +195,29 @@
 								}
 							}}
 						>
-							<p>{order.chemicalID.chemicalName} ({order.id})</p>
+							{#if order.statusID.id != 3}
+								<p>{order.chemicalID.chemicalName} ({order.id})*</p>
+							{:else}
+								<p>{order.chemicalID.chemicalName} ({order.id})</p>
+							{/if}
 						</button>
 
 						<div slot="content" class="ml-4">
 							<Heading tag="h6" class="text-complement">MODIFY</Heading>
-							<DetailsTab {order} {locationsList} {form} on:triggerUpdateLocation={refreshData} />
+							{#if order.statusID.id == 1 || order.statusID.id == 2}
+								<p class="text-primary">
+									Chemical is yet to arrive. Order Status: <span class="text-complement"
+										>{order.statusID.statusValue}</span
+									>.
+								</p>
+
+								<form method="POST" action="?/forceStatus" use:enhance={forceStatus}>
+									<input type="hidden" name="orderID" value={order.id} />
+									<Button outline type="submit">Demo: Force status = received</Button>
+								</form>
+							{:else}
+								<DetailsTab {order} {locationsList} {form} on:triggerUpdateLocation={refreshData} />
+							{/if}
 						</div>
 
 						<div slot="edit" class="ml-4">
@@ -218,7 +249,7 @@
 						</div>
 					</AccordionItemDouble>
 				{:else}
-					<p>Empty Inventory!</p>
+					<p class="text-primary">There's nothing here!</p>
 				{/each}
 			</AccordionDouble>
 		</div>

@@ -5,6 +5,7 @@
 	export let label = '';
 	export let value: any = undefined;
 	export let outline = false;
+	export let disabled = false;
 
 	export let type = 'text';
 
@@ -30,11 +31,30 @@
 			}
 		};
 	};
+	/*
+	  on:blur
+      on:change
+      on:click
+      on:contextmenu
+      on:focus
+      on:keydown
+      on:keypress
+      on:keyup
+      on:mouseover
+      on:mouseenter
+      on:mouseleave
+      on:paste
+      on:input
+	  */
 </script>
 
 <div class={divClass}>
 	<div class={labelClass}>{label}</div>
-	<input {...$$restProps} bind:value class={inputClass} use:setType={type} />
+	{#if disabled}
+		<input {...$$restProps} bind:value class={inputClass} use:setType={type} disabled />
+	{:else}
+		<input {...$$restProps} bind:value class={inputClass} use:setType={type} />
+	{/if}
 </div>
 
 <!--

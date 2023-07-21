@@ -1,49 +1,57 @@
 import { json } from '@sveltejs/kit';
+import type { RequestHandler } from '@sveltejs/kit';
 
-export async function PUT(event) {
-	console.log('+server.ts PUT');
+type FormResult = {
+	success: boolean;
+	error: string;
+};
 
-	const { chemical } = await event.request.json();
-	const id = chemical.id;
-	const chemicalName = chemical.chemicalName;
-	const MW = chemical.MW;
-	const MP = chemical.MP;
-	const BP = chemical.BP;
-	const density = chemical.density;
+export const PUT: RequestHandler = async ({ request, locals }) => {
+	const form: FormResult = {
+		success: false,
+		error: ''
+	};
 
-	// modify user database
-	const { error } = await event.locals.supabase
+	const { chemical } = await request.json();
+
+	const { error } = await locals.supabase
 		.from('chemicals')
 		.update({
-			chemicalName,
-			MW,
-			MP,
-			BP,
-			density
+			chemicalName: chemical.chemicalName,
+			MW: chemical.MW,
+			MP: chemical.MP,
+			BP: chemical.BP,
+			density: chemical.density
 		})
-		.eq('id', id);
+		.eq('id', chemical.id);
 
 	if (error) {
-		console.log('error');
-		return json('fail');
+		console.log('error', error);
+		form.error = 'Could not complete the request.';
+		return json(form, { status: 400 });
 	}
-	console.log('success');
-	return json('success');
-}
 
-export async function DELETE(event) {
-	console.log('+server.ts DELETE');
+	form.success = true;
+	return json(form);
+};
 
-	const { id } = await event.request.json();
-	console.log(id);
+export async function DELETE({ request, locals }) {
+	const form: FormResult = {
+		success: false,
+		error: ''
+	};
+
+	const { id } = await request.json();
 
 	// modify user database
-	const { error } = await event.locals.supabase.from('chemicals').delete().eq('id', id);
+	const { error } = await locals.supabase.from('chemicals').delete().eq('id', id);
 
 	if (error) {
-		console.log('error');
-		return json('fail');
+		console.log('error', error);
+		form.error = 'Could not complete the request.';
+		return json(form, { status: 400 });
 	}
-	console.log('success');
-	return json('success');
+
+	form.success = true;
+	return json(form);
 }

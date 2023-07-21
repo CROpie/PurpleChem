@@ -42,17 +42,18 @@
 		saving = true;
 		return async ({ update }) => {
 			saving = false;
-			await update();
+			// await update();
 
 			// update() moves the chemical without a hard reload
 			// it was clearing the 'remaining' input field, but that was perhaps because of a bug in my <Input/> component?
 			// tried to figure out the cause, then it just stared working with no changes -_-
+			// then stopped working the next day! Will stay with invalidateAll()
 
 			// using invalidateAll() works just fine here (without dispatch).
 			// need to run filteredOrdersList() so that eg if looking at bench, something moving from bench will disappear
 			// for that, need to dispatch.
 
-			// await invalidateAll();
+			await invalidateAll();
 			dispatch('triggerUpdateLocation');
 		};
 	};

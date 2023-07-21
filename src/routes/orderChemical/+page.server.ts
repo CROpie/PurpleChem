@@ -2,51 +2,67 @@ import { fail } from '@sveltejs/kit';
 import type { Actions } from '@sveltejs/kit';
 // import type { RequestEvent } from '../$types';
 
+type FormResult = {
+	success: boolean;
+	error: string | null;
+};
+
 export const actions: Actions = {
 	// orderChemical: async (event: RequestEvent)
 	// orderChemical: async ({ request, locals: { supabase, getSession } }) => {
 	orderChemical: async (event) => {
+		const form: FormResult = {
+			success: false,
+			error: null
+		};
+
 		const formData = await event.request.formData();
 
 		if (!formData) {
-			return fail(400, { formData, missing: true });
+			form.error = 'Request failed...';
+			return fail(400, form);
 		}
+
+		// converting to expected type so they arent type FormDataEntryValue
+		// won't give an error if .get('key') is null.
 
 		const session = await event.locals.getSession();
 		const userID = session?.user.id;
-		const CAS = formData.get('CAS');
-		const chemicalName = formData.get('chemicalName');
-		const amount = formData.get('amount');
-		const amountUnit = formData.get('amountUnit');
-		const supplierID = formData.get('supplierID');
-		const supplierPN = formData.get('supplierPN');
-		const MW = formData.get('MW');
-		const MP = formData.get('MP');
-		const BP = formData.get('BP');
-		const density = formData.get('density');
-		const inchi = formData.get('inchi');
-		const smile = formData.get('smile');
+		const CAS = String(formData.get('CAS'));
+		const chemicalName = String(formData.get('chemicalName'));
+		const amount = Number(formData.get('amount'));
+		const amountUnit = String(formData.get('amountUnit'));
+		const supplierID = Number(formData.get('supplierID'));
+		const supplierPN = String(formData.get('supplierPN'));
+		const MW = String(formData.get('MW'));
+		const MP = String(formData.get('MP'));
+		const BP = String(formData.get('BP'));
+		const density = String(formData.get('density'));
+		const inchi = String(formData.get('inchi'));
+		const smile = String(formData.get('smile'));
 
-		console.log(formData);
+		// console.log(formData);
 
 		// see if the chemical is in the database already, return object contains the ID if it exists
-		// need to use .maybeSingle() to return either one object or null
-		// without, it's an array or null
+		// maybeSingle(): return either one object or null, rather than an array or null
 		let chemical = await event.locals.supabase
 			.from('chemicals')
 			.select()
 			.eq('CAS', CAS)
 			.maybeSingle();
 
-		console.log('initial CAS search: ', chemical);
+		// console.log('initial CAS search: ', chemical);
+
+		// even if no chemical, should not return an error. Mostly checking for TypeError: fetch failed
 		if (chemical.error) {
-			console.log('something went wrong with initial CAS search...');
-			// See below for an error 'TypeError: fetch failed' that (often?) occurs?
-			console.log(chemical.error);
-			return fail(400, { supabaseError: true });
+			// See below for an error 'TypeError: fetch failed' that (often?) occurs? Based on time of day?
+			console.log('something went wrong with initial CAS search...', chemical.error);
+
+			form.error = 'Error connecting to database...';
+			return fail(400, form);
 		}
 
-		// adding .select() to the end retuns the newly created data
+		// select() at the end: retuns the newly created data
 		if (!chemical.data) {
 			console.log('Adding new chemical to database...');
 			chemical = await event.locals.supabase
@@ -78,12 +94,13 @@ export const actions: Actions = {
 
 		if (error) {
 			console.log('Problem during ordering process: ', error);
-			return fail(400, { supabaseError: true });
+
+			form.error = 'Error connecting to database...';
+			return fail(400, form);
 		}
 		console.log('success');
-		return { success: true };
-
-		// return;
+		form.success = true;
+		return form;
 	}
 };
 
@@ -97,7 +114,9 @@ export const actions: Actions = {
 
 // PostgrestSingleResponse (return object of accessing the DB)
 
-export const load = async ({ locals: { supabase, getSession } }) => {
+import type { PageServerLoad } from '../$types.js';
+
+export const load: PageServerLoad = async ({ locals: { supabase, getSession } }) => {
 	const session = await getSession();
 
 	const { data: supplierList } = await supabase.from('suppliers').select('*');

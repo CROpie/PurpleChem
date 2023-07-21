@@ -109,6 +109,10 @@
 				delete item.amountUnit;
 			});
 		}
+		if (data && data.length == 0) {
+			noHit = true;
+		}
+		// allQueryOrders = structuredClone(queryOrders);
 		allQueryOrders = queryOrders;
 		queryOrders = queryOrders?.filter((order) => order.isConsumed == false);
 		sortTable('chemicalName');
@@ -164,6 +168,7 @@
 	};
 
 	const queryByStructure = async () => {
+		queryChemicalName = '';
 		queryOrders = [];
 		structureSearch = true;
 		noHit = false;
@@ -189,7 +194,8 @@
 		if (data && data.length == 0) {
 			noHit = true;
 		}
-
+		allQueryOrders = queryOrders;
+		queryOrders = queryOrders?.filter((order) => order.isConsumed == false);
 		sortTable('chemicalName');
 		structureSearch = false;
 	};

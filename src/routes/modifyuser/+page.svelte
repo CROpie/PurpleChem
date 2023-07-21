@@ -1,15 +1,7 @@
 <script lang="ts">
 	import type { PageData } from '../$types';
-	import { enhance } from '$app/forms';
-
-	/* 
-    Display table of orders
-    Doesn't need to be the entire thing, just order, user, chemicalname, status
-    Select all or click name to add, then press (status -> ordered) or (status -> received)
-    */
 
 	import { Heading } from '$lib/components/typography/Typo';
-	import { Button } from '$lib/components/button/button';
 	import Input from '$lib/components/form/Input.svelte';
 	import {
 		Table,
@@ -21,109 +13,53 @@
 	} from '$lib/components/table/TableAll';
 
 	const tableHead = ['email', 'username', 'save'];
-	let creating = false;
-	let isUpdated = false;
-	let buttonPressed: string | null = null;
 
-	export let data: PageData;
+	type user = {
+		id: number;
+		username: string;
+		full_name: string;
+	};
 
-	let { data: usersList, supabase } = data;
-	$: usersList;
+	export let data;
+	let { usersList }: { usersList: user[] } = data;
 
-	// modify on +page.svelte using JS only
-	async function modifyUser(id: string, username: string) {
-		isUpdated = false;
-		const { data, error } = await supabase.from('profiles').update({ username }).eq('id', id);
-		if (error) {
-			console.log(error);
-		} else {
-			isUpdated = true;
-		}
-	}
+	type FormResult = {
+		success: boolean;
+		error: string;
+	} | null;
+	let form: FormResult = null;
+	let updating = false;
 
-	// modify on +page.server.ts using one form for the entire page
-	// = will send the entire page worth of {name, value} pairs
-	async function formModify(event) {
-		creating = true;
-		event.formData.append('currentID', buttonPressed);
-		buttonPressed = null;
-
-		// for some reason, username is blank after the refresh, but ID is still present ??
-		return async ({ update }) => {
-			await update();
-			creating = false;
-			usersList = usersList;
-		};
-	}
-
-	// modify on +server.ts
-	// can have +server.ts in the same folder, but can't use './' because it thinks that that is /routes
-	// therefore need to have './currentfolder'
-	// async function handleSave(id: string, username: string) {
-	// 	console.log(id, username);
-	// 	const response = await fetch('/modifyuser', {
-	// 		method: 'POST',
-	// 		body: JSON.stringify({ id, username }),
-	// 		headers: {
-	// 			'content-type': 'application/json'
-	// 		}
-	// 	});
-
-	// 	const res = await response.json();
-	// 	console.log(response, res);
-	// }
-
-	async function handleSave(user) {
-		console.log(user);
+	async function handleSave(user: user) {
+		updating = true;
 
 		const response = await fetch('/modifyuser', {
-			method: 'POST',
+			method: 'PUT',
 			body: JSON.stringify({ user }),
 			headers: {
 				'content-type': 'application/json'
 			}
 		});
 
-		const res = await response.json();
-		console.log(response, res);
+		form = await response.json();
+		updating = false;
 	}
 </script>
 
 <Heading tag="h2" class="text-center mt-3">Modify Username</Heading>
-{#if isUpdated}
-	<p class="text-primary">Updated username.</p>
-{/if}
-{#if creating}
-	<p class="text-primary">Updating...</p>
-{/if}
+<div class="h-8 ml-4 text-center">
+	{#if updating}
+		<p class="text-red-500">Updating...</p>
+	{/if}
+	{#if form?.success}
+		<p class="text-green-500">Updated.</p>
+	{/if}
+	{#if form?.error}
+		<p class="text-red-500">{form.error}</p>
+	{/if}
+</div>
 
-<!-- <form method="POST" action="?/changeUsername">
-	<div class="mx-8 mt-3">
-		<Table hoverable>
-			<TableHead>
-				{#each tableHead as heading}
-					<TableHeadCell>{heading}</TableHeadCell>
-				{/each}
-			</TableHead>
-			<TableBody>
-				{#each usersList as user (user.id)}
-					<TableBodyRow class="odd:bg-primaryLight even:bg-primaryLight border-2 border-primary">
-						<TableBodyCell>{user.id}</TableBodyCell>
-						<TableBodyCell>
-							<Input name="username" bind:value={user.username} />
-						</TableBodyCell>
-						<TableBodyCell>
-							<button type="button" on:click={() => modifyUser(user.id, user.username)}>Save</button
-							>
-						</TableBodyCell>
-					</TableBodyRow>
-				{/each}
-			</TableBody>
-		</Table>
-	</div>
-</form> -->
-
-<!-- <form method="POST" action="?/changeUsername" use:enhance={formModify}>
+{#if usersList}
 	<div class="mx-8 mt-3">
 		<Table hoverable>
 			<TableHead>
@@ -136,39 +72,17 @@
 					<TableBodyRow class="odd:bg-primaryLight even:bg-primaryLight border-2 border-primary">
 						<TableBodyCell>{user.full_name}</TableBodyCell>
 						<TableBodyCell>
-							{user.username}
 							<Input name={user.id} bind:value={user.username} class="w-6/12" />
 						</TableBodyCell>
 						<TableBodyCell>
-							<button on:click={() => (buttonPressed = user.id)} type="submit">Save</button>
+							<!-- <button type="button" on:click={() => handleSave(user.id, user.username)}>Save</button> -->
+							<button type="button" on:click={() => handleSave(user)}>Save</button>
 						</TableBodyCell>
 					</TableBodyRow>
 				{/each}
 			</TableBody>
 		</Table>
 	</div>
-</form> -->
-
-<div class="mx-8 mt-3">
-	<Table hoverable>
-		<TableHead>
-			{#each tableHead as heading}
-				<TableHeadCell>{heading}</TableHeadCell>
-			{/each}
-		</TableHead>
-		<TableBody>
-			{#each usersList as user (user.id)}
-				<TableBodyRow class="odd:bg-primaryLight even:bg-primaryLight border-2 border-primary">
-					<TableBodyCell>{user.full_name}</TableBodyCell>
-					<TableBodyCell>
-						<Input name={user.id} bind:value={user.username} class="w-6/12" />
-					</TableBodyCell>
-					<TableBodyCell>
-						<!-- <button type="button" on:click={() => handleSave(user.id, user.username)}>Save</button> -->
-						<button type="button" on:click={() => handleSave(user)}>Save</button>
-					</TableBodyCell>
-				</TableBodyRow>
-			{/each}
-		</TableBody>
-	</Table>
-</div>
+{:else}
+	<p class="text-primary">something went wrong: data not pulled form server.</p>
+{/if}

@@ -80,9 +80,9 @@ export const actions: Actions = {
 		// const session = await event.locals.getSession();
 		// const userID = session?.user.id;
 
-		const amount = formData.get('amount');
-		const locationID = formData.get('locationID');
-		const orderID = formData.get('orderID');
+		const amount = Number(formData.get('amount'));
+		const locationID = Number(formData.get('locationID'));
+		const orderID = Number(formData.get('orderID'));
 
 		let isConsumed = false;
 
@@ -116,6 +116,30 @@ export const actions: Actions = {
 		} else {
 			console.log('updated location.');
 		}
+	},
+	forceStatus: async (event) => {
+		const formData = await event.request.formData();
+
+		if (!formData) {
+			return fail(400, { formData, missing: true });
+		}
+
+		const id = Number(formData.get('orderID'));
+
+		// add order to database
+		const { error } = await event.locals.supabase
+			.from('orders')
+			.update({
+				statusID: 3
+			})
+			.eq('id', id);
+
+		if (error) {
+			console.log('error');
+			return fail(400, { error: true });
+		}
+		console.log('success');
+		return { success: true };
 	}
 };
 
@@ -168,7 +192,7 @@ export const actions: Actions = {
 // };
 
 export const load: PageServerLoad = async ({ locals: { supabase, getSession } }) => {
-	// console.log('running load');
+	console.log('running load');
 	const session = await getSession();
 	const userID = session?.user.id;
 
@@ -188,7 +212,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, getSession } })
 		let { data: ordersList, error: orderError } = await supabase
 			.from('orders')
 			.select(
-				'id, chemicalID( id, chemicalName, CAS, MW, MP, BP, density, inchi, smile ), amount, amountUnit, isConsumed, locationID( id, locationName )'
+				'id, chemicalID( id, chemicalName, CAS, MW, MP, BP, density, inchi, smile ), amount, amountUnit, isConsumed, locationID( id, locationName ), statusID (id, statusValue)'
 			)
 			.eq('userID', userID);
 
