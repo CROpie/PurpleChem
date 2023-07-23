@@ -27,7 +27,11 @@
 			loginError = true;
 		} else {
 			console.log('no error so redirecting...');
-			window.location.href = '/orderChemical';
+			if (response.data.user.app_metadata.claims_admin) {
+				window.location.href = '/admin';
+			} else {
+				window.location.href = '/orderChemical';
+			}
 		}
 	};
 </script>

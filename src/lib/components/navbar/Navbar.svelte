@@ -7,12 +7,12 @@
 	export let outline = false;
 	export let noborder = false;
 
-	let defaultNavClass = 'py-2.5 w-full';
+	let defaultNavClass = 'w-full';
 	let defaultNavDivClass =
 		'px-4 py-1 mx-auto flex flex-wrap justify-between items-center rounded-lg';
 
 	const fillClass = 'text-opNeutral bg-primary';
-	const outlineClass = 'border text-primary border-primary bg-transparent';
+	const outlineClass = 'border text-primary border-primary bg-opNeutral';
 
 	const noborderClass = 'border-none';
 

@@ -9,8 +9,8 @@ export const actions: Actions = {
 			return fail(400, { formData, missing: true });
 		}
 
-		const username = formData.get('username');
-		const email = formData.get('email');
+		const username = String(formData.get('username'));
+		const email = String(formData.get('email'));
 
 		const { data, error } = await event.locals.supabase.auth.signUp({
 			email,

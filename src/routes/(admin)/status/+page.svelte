@@ -94,26 +94,29 @@
 </script>
 
 {#if ordersList}
-	<Heading tag="h2" class="text-center mt-3">Modify Status</Heading>
-	<div class="h-8 ml-4 text-center">
-		{#if updating}
-			<p class="text-red-500">Updating...</p>
-		{/if}
-		{#if form?.success}
-			<p class="text-green-500">Updated.</p>
-		{/if}
-		{#if form?.error}
-			<p class="text-red-500">{form.error}</p>
-		{/if}
-	</div>
-	<div class="flex gap-2">
-		<Button on:click={() => filterByStatus(0)}>Display All</Button>
-		<Button on:click={() => filterByStatus(1)}>Display Submitted</Button>
-		<Button on:click={() => filterByStatus(2)}>Display Ordered</Button>
-		<Button on:click={() => filterByStatus(3)}>Display Received</Button>
+	<div class="fixed top-14 bg-opNeutral z-10 w-full">
+		<Heading tag="h2" class="text-center mt-3">Modify Status</Heading>
+		<div class="h-8 ml-4 text-center">
+			{#if updating}
+				<p class="text-red-500">Updating...</p>
+			{/if}
+			{#if form?.success}
+				<p class="text-green-500">Updated.</p>
+			{/if}
+			{#if form?.error}
+				<p class="text-red-500">{form.error}</p>
+			{/if}
+		</div>
+
+		<div class="flex gap-2 pb-4">
+			<Button on:click={() => filterByStatus(0)}>Display All</Button>
+			<Button on:click={() => filterByStatus(1)}>Display Submitted</Button>
+			<Button on:click={() => filterByStatus(2)}>Display Ordered</Button>
+			<Button on:click={() => filterByStatus(3)}>Display Received</Button>
+		</div>
 	</div>
 	<form method="POST" action="./updateStatus">
-		<div class="mx-8 mt-3">
+		<div class="mx-8 mt-36">
 			<Table hoverable color="primary" striped>
 				<TableHead>
 					{#each tableHead as heading}

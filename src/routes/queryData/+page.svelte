@@ -9,30 +9,32 @@
 		TableHead,
 		TableHeadCell
 	} from '$lib/components/table/TableAll';
-
 	import { Search } from '$lib/components/form/formAll';
-
-	import type { PageData } from './$types';
-
 	import { onMount } from 'svelte';
 
-	// Custom Type
-	// changes from { data }
-	// 		amount (added string for when combined with amountUnit)
-	// 		amountUnit (added ? because it gets deleted)
-	// 		orderDate (added undefined because that can be the return value of .slice (?) )
-	interface OrderData {
-		chemicalName: string | null;
-		CAS: string | null;
-		username: string | null;
-		amount: number | string | null;
-		amountUnit?: string | null;
-		isConsumed: boolean | null;
-		supplierName: string | null;
-		supplierPN: string | null;
-		statusValue: string | null;
-		orderDate: string | null | undefined;
-	}
+	import type { PageData } from './$types';
+	import type { OrderData } from './types';
+
+	/* STRUCTURE EDITOR */
+	import { RDKitSS } from '$lib/stores/rdkitstore2';
+	const RDKitModule = $RDKitSS;
+
+	let jsmeApplet: any;
+	let jsmeContainer: HTMLElement;
+
+	onMount(() => {
+		jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
+	});
+
+	/* VARIABLES */
+	export let data: PageData;
+	const { supabase } = data;
+
+	// messages
+	let searching = false;
+	let noHit = false;
+	let dbError = false;
+	let noStructure = false;
 
 	const tableHead = [
 		'chemicalName',
@@ -46,97 +48,17 @@
 		'orderDate'
 	];
 
-	export let data: PageData;
-	let { supabase } = data;
+	let queryChemicalName = '';
 
-	let searching = false;
-	let structureSearch = false;
-
-	let jsmeApplet: any;
-	// let RDKitModule: RDKitModule;
-	let jsmeContainer: HTMLElement | null;
-	let noHit = false;
-
-	onMount(() => {
-		jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
-	});
-
-	// initialized & saved RDKitModule into a store in layout.svelte
-	import { RDKitSS } from '$lib/stores/rdkitstore2';
-	const RDKitModule = $RDKitSS;
-
-	//let queryOrders: OrderData[] = [];
+	// List of orders
 	let queryOrders: OrderData[] = [];
 	let allQueryOrders: OrderData[] = [];
 
-	let queryChemicalName = '';
-
-	const showConsumed = () => {
-		queryOrders = allQueryOrders;
-	};
-
-	const hideConsumed = () => {
-		queryOrders = queryOrders?.filter((order) => order.isConsumed == false);
-	};
-
-	// Solved the problem of searching multiple columns on multiple tables
-	// By 1st: creating a 'view' (ordersview) which brings all the useful data into one table (ie don't need to deal with foreignkeys)
-	// 2nd: chain .or by putting the entire thing in a template string, rather than trying to split it with '', "" and ``
-	// Since no foreinkeys, don't need to use the second argument in .or, which is { foreignTable: 'tablename' }.
-	// Maybe there is some way to do it with { foreignTable: [tablename, tablename] } ?? But this is easier to read
-	const queryDatabase = async () => {
-		searching = true;
-		noHit = false;
-		queryOrders = [];
-		if (jsmeContainer?.classList.contains('flex')) {
-			jsmeContainer.classList.replace('flex', 'hidden');
-		}
-		let { data, error } = await supabase
-			.from('ordersview')
-			.select(
-				'chemicalName, CAS, username, amount, amountUnit, isConsumed, supplierName, supplierPN, statusValue, orderDate'
-			)
-			.or(
-				`chemicalName.ilike.%${queryChemicalName}%, username.ilike.%${queryChemicalName}%, CAS.ilike.%${queryChemicalName}%`
-			);
-		if (data) {
-			queryOrders = data;
-
-			// make some adjustments
-			queryOrders.forEach((item) => {
-				item.orderDate = item.orderDate?.slice(0, 10);
-				item.amount += ` ${item.amountUnit}`;
-				delete item.amountUnit;
-			});
-		}
-		if (data && data.length == 0) {
-			noHit = true;
-		}
-		// allQueryOrders = structuredClone(queryOrders);
-		allQueryOrders = queryOrders;
-		queryOrders = queryOrders?.filter((order) => order.isConsumed == false);
-		sortTable('chemicalName');
-		searching = false;
-	};
-
-	// SORTING BY CLICKING THE TABLE HEADING
+	// Table sorting
 	let sortKey = 'chemicalName'; // default sort key
 	let sortDirection = 1; // default sort direction (ascending)
 
-	const sortTable = (key: string) => {
-		// If the same key is clicked, reverse the sort direction
-		if (sortKey === key) {
-			sortDirection = -sortDirection;
-		} else {
-			sortKey = key;
-			sortDirection = 1;
-		}
-		queryOrders = queryOrders.sort((a, b) =>
-			a[sortKey] > b[sortKey] ? -sortDirection : sortDirection
-		);
-	};
-
-	// variables for choosing what to display
+	// Display toggles (currently hidden)
 	interface show {
 		[key: string]: boolean;
 	}
@@ -154,6 +76,7 @@
 		orderDate: true
 	};
 
+	/* FUNCTIONS */
 	const toggleStructureSearch = () => {
 		noHit = false;
 		if (!jsmeContainer) {
@@ -167,50 +90,104 @@
 		}
 	};
 
-	const queryByStructure = async () => {
-		queryChemicalName = '';
-		queryOrders = [];
-		structureSearch = true;
+	const queryDatabase = async (type: string) => {
+		searching = true;
 		noHit = false;
-		const inchi = getInchi();
+		dbError = false;
+		noStructure = false;
+		queryOrders = [];
 
-		let { data, error } = await supabase
-			.from('ordersview')
-			.select(
-				'chemicalName, CAS, username, amount, amountUnit, isConsumed, supplierName, supplierPN, statusValue, orderDate'
-			)
-			.eq('inchi', inchi);
+		let data;
+		let error;
+
+		if (type == 'string') {
+			if (jsmeContainer?.classList.contains('flex')) {
+				jsmeContainer.classList.replace('flex', 'hidden');
+			}
+
+			({ data, error } = await supabase
+				.from('ordersview')
+				.select(
+					'chemicalName, CAS, username, amount, amountUnit, isConsumed, supplierName, supplierPN, statusValue, orderDate'
+				)
+				.or(
+					`chemicalName.ilike.%${queryChemicalName}%, username.ilike.%${queryChemicalName}%, CAS.ilike.%${queryChemicalName}%`
+				));
+		} else if (type == 'structure') {
+			const inchi = getInchi();
+			if (!inchi) {
+				searching = false;
+				noStructure = true;
+				return;
+			}
+			({ data, error } = await supabase
+				.from('ordersview')
+				.select(
+					'chemicalName, CAS, username, amount, amountUnit, isConsumed, supplierName, supplierPN, statusValue, orderDate'
+				)
+				.eq('inchi', inchi));
+		}
+		searching = false;
+
+		if (error) {
+			dbError = true;
+			return;
+		}
+
+		if (data && data.length == 0) {
+			noHit = true;
+			return;
+		}
 
 		if (data && data.length > 0) {
 			queryOrders = data;
-
 			// make some adjustments
 			queryOrders.forEach((item) => {
 				item.orderDate = item.orderDate?.slice(0, 10);
 				item.amount += ` ${item.amountUnit}`;
 				delete item.amountUnit;
 			});
+
+			allQueryOrders = queryOrders;
+			queryOrders = queryOrders?.filter((order) => order.isConsumed == false);
+			sortTable('chemicalName');
 		}
-		if (data && data.length == 0) {
-			noHit = true;
-		}
-		allQueryOrders = queryOrders;
-		queryOrders = queryOrders?.filter((order) => order.isConsumed == false);
-		sortTable('chemicalName');
-		structureSearch = false;
 	};
 
 	function getInchi() {
 		const smiles = jsmeApplet.smiles();
-		const inchi = RDKitModule.get_mol(smiles).get_inchi();
-		return inchi;
+		if (RDKitModule) {
+			const inchi = RDKitModule.get_mol(smiles).get_inchi();
+			return inchi;
+		}
 	}
+
+	const showConsumed = () => {
+		queryOrders = allQueryOrders;
+	};
+
+	const hideConsumed = () => {
+		queryOrders = queryOrders?.filter((order) => order.isConsumed == false);
+	};
+
+	const sortTable = (key: string) => {
+		// If the same key is clicked, reverse the sort direction
+		if (sortKey === key) {
+			sortDirection = -sortDirection;
+		} else {
+			sortKey = key;
+			sortDirection = 1;
+		}
+		queryOrders = queryOrders.sort((a, b) =>
+			a[sortKey] > b[sortKey] ? -sortDirection : sortDirection
+		);
+	};
 </script>
 
 <Heading tag="h2" class="text-center mt-3">Search Database</Heading>
 
 <div class="mx-8 mt-3">
-	<form class="flex-1" on:submit={queryDatabase}>
+	<form class="flex-1" on:submit={() => queryDatabase('string')}>
 		<Search
 			bind:inputValue={queryChemicalName}
 			outline
@@ -218,20 +195,24 @@
 			divClass="my-4"
 		/>
 	</form>
-	{#if searching}
-		<p class="text-red-500">Searching Database..</p>
-	{/if}
+
 	<Button on:click={toggleStructureSearch}>Toggle Structure Search</Button>
 
 	<div bind:this={jsmeContainer} class="hidden">
 		<div id="jsme_container" />
-		<Button on:click={queryByStructure}>GO</Button>
+		<Button on:click={() => queryDatabase('structure')}>GO</Button>
 	</div>
-	{#if structureSearch}
+	{#if searching}
 		<p class="text-red-500">Searching Database..</p>
+	{/if}
+	{#if dbError}
+		<p class="text-red-500">Database error..</p>
 	{/if}
 	{#if noHit}
 		<p class="text-red-500">No Hits!</p>
+	{/if}
+	{#if noStructure}
+		<p class="text-red-500">Error while searching structure...</p>
 	{/if}
 	<!-- not sure if I can be bothered making these look better -->
 	<div class="hidden">

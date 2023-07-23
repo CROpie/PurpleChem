@@ -54,28 +54,30 @@
 	<!-- Have to do it in an await block to ensure that it is loaded before things like query database after form submission-->
 	<p>Setting up RDKit</p>
 {:then}
-	<Navbar let:hidden let:toggle outline>
-		<NavBrand href="/">
-			<img src="src/lib/images/BearbeerCrop.png" class="mr-3 h-12 sm:h-12" alt="PurpleChem" />
-			<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-				PurpleChem
-			</span>
-		</NavBrand>
-		<div class="flex ml-4 mr-auto">
-			<DarkLightTheme brightness="light" />
-			<DarkLightTheme brightness="dark" />
-		</div>
-		<!-- hamburger only appears on mobile size -->
-		<NavHamburger on:click={toggle} />
-		<NavUl {hidden}>
-			{#if isAdmin}
-				<NavLi href="/admin" class="dark:text-green-300">Admin Area</NavLi>
-			{/if}
-			<NavLi href="/orderChemical">Order Chemical</NavLi>
-			<NavLi href="inventory">Inventory</NavLi>
-			<NavLi href="/queryData">Query Database</NavLi>
-			<NavLi href="/logout" class="text-neutral underline">Log Out</NavLi>
-		</NavUl>
-	</Navbar>
+	<div class="sticky top-0 z-20">
+		<Navbar let:hidden let:toggle outline>
+			<NavBrand href="/">
+				<img src="src/lib/images/BearbeerCrop.png" class="mr-3 h-12 sm:h-12" alt="PurpleChem" />
+				<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+					PurpleChem
+				</span>
+			</NavBrand>
+			<div class="flex ml-4 mr-auto">
+				<DarkLightTheme brightness="light" />
+				<DarkLightTheme brightness="dark" />
+			</div>
+			<!-- hamburger only appears on mobile size -->
+			<NavHamburger on:click={toggle} />
+			<NavUl {hidden}>
+				{#if isAdmin}
+					<NavLi href="/admin" class="dark:text-green-300">Admin Area</NavLi>
+				{/if}
+				<NavLi href="/orderChemical">Order Chemical</NavLi>
+				<NavLi href="inventory">Inventory</NavLi>
+				<NavLi href="/queryData">Query Database</NavLi>
+				<NavLi href="/logout" class="text-neutral underline">Log Out</NavLi>
+			</NavUl>
+		</Navbar>
+	</div>
 	<slot />
 {/await}

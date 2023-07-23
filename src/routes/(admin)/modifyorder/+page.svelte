@@ -1,6 +1,4 @@
 <script lang="ts">
-	import type { PageData } from '../$types';
-
 	import { Heading } from '$lib/components/typography/Typo';
 	import Input from '$lib/components/form/Input.svelte';
 	import {
@@ -13,6 +11,8 @@
 	} from '$lib/components/table/TableAll';
 
 	import { DropSelect, DropSelectItem } from '$lib/components/dropdown/dropdownAll';
+
+	import { onMount } from 'svelte';
 
 	const tableHead = [
 		'orderID',
@@ -53,6 +53,7 @@
 
 	async function handleSave(order: order) {
 		updating = true;
+		form = null;
 
 		const response = await fetch('/modifyorder', {
 			method: 'PUT',
@@ -68,6 +69,8 @@
 
 	async function handleDelete(id: number) {
 		updating = true;
+		form = null;
+
 		const response = await fetch('/modifyorder', {
 			method: 'DELETE',
 			body: JSON.stringify({ id }),
@@ -84,23 +87,33 @@
 		}
 		updating = false;
 	}
+
+	onMount(() => {
+		sortOrders();
+	});
+
+	function sortOrders() {
+		orderList = orderList.sort((a, b) => (a.id > b.id ? 1 : -1));
+	}
 </script>
 
-<Heading tag="h2" class="text-center mt-3">Modify Orders</Heading>
-<div class="h-8 ml-4 text-center">
-	{#if updating}
-		<p class="text-red-500">Updating...</p>
-	{/if}
-	{#if form?.success}
-		<p class="text-green-500">Updated.</p>
-	{/if}
-	{#if form?.error}
-		<p class="text-red-500">{form.error}</p>
-	{/if}
+<div class="fixed top-14 bg-opNeutral z-10 w-full">
+	<Heading tag="h2" class="text-center mt-3">Modify Orders</Heading>
+	<div class="h-8 ml-4 text-center">
+		{#if updating}
+			<p class="text-red-500">Updating...</p>
+		{/if}
+		{#if form?.success}
+			<p class="text-green-500">Updated.</p>
+		{/if}
+		{#if form?.error}
+			<p class="text-red-500">{form.error}</p>
+		{/if}
+	</div>
 </div>
 
 {#if orderList && supplierList}
-	<div class="mx-8 mt-3">
+	<div class="mx-8 mt-24">
 		<Table hoverable>
 			<TableHead>
 				{#each tableHead as heading}

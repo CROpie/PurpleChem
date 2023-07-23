@@ -4,7 +4,7 @@
 	import { enhance } from '$app/forms';
 
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import type { ActionData } from '../$types.js';
+	import type { ActionData } from '../../$types.js';
 
 	export let data;
 	let { supabase } = data;

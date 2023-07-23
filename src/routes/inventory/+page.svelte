@@ -1,8 +1,4 @@
 <script lang="ts">
-	console.log('page was just refreshed.');
-
-	import { enhance } from '$app/forms';
-
 	import { Heading } from '$lib/components/typography/Typo';
 	import {
 		Sidebar,
@@ -10,42 +6,68 @@
 		SidebarGroup,
 		SidebarItem
 	} from '$lib/components/sidebar/sidebarAll';
-
 	import {
 		AccordionDouble,
 		AccordionItemDouble
 	} from '$lib/components/Accordion2/accordionDoubleAll';
 	import Button from '$lib/components/button/Button.svelte';
 	import DetailsTab from './DetailsTab.svelte';
+	import Input from '$lib/components/form/Input.svelte';
+
+	import { enhance } from '$app/forms';
+	import { onMount } from 'svelte';
+
+	import { clickOutside } from '$lib/components/dropdown/clickOutside';
 
 	import type { PageData } from './$types';
+	import type { ActionData } from './$types';
+	import type { SubmitFunction } from '@sveltejs/kit';
+
 	import type { orders, locations } from './orderType';
 
-	export let data: PageData;
-
-	import type { ActionData } from './$types';
 	export let form: ActionData;
 
-	// let locationsList: locations[] = data.locationsList;
-	// let ordersList: orders[] = data.ordersList;
+	/* STRUCTURE */
+	import { RDKitSS } from '$lib/stores/rdkitstore2';
+	const RDKitModule = $RDKitSS;
+	let currentSVG = '';
 
-	// $: ordersList = data.ordersList;
-	// let filteredOrdersList: orders[] = ordersList;
+	/* VARIABLES */
+	export let data: PageData;
 
-	let locationsList: locations[] = data.locationsList;
-	let ordersList: orders[] = data.ordersStuff.ordersList;
-	let ordersError = data.ordersStuff.orderError;
-
-	$: ordersList = data.ordersStuff.ordersList;
+	let ordersList: orders[] = data.ordersList;
+	$: ordersList = data.ordersList;
 	let filteredOrdersList: orders[] = ordersList;
 
-	let addNew = false;
+	let locationsList: locations[] = data.locationsList;
+	$: locationsList = data.locationsList;
 
-	// filter ordersList based on which is selected
+	// filter & sort options
 	let selectedLocationID = -1;
 	let currentLocation = 'All';
 
+	let sortByName = true;
+	let sortByDate = false;
+
+	let addNew = false;
+
+	/* FUNCTIONS */
+	onMount(() => {
+		sortOrders();
+	});
+
+	// Sidebar
+	function newLocationClickHandler() {
+		addNew = true;
+		form = null;
+	}
+
+	function addNewLocation() {
+		addNew = false;
+	}
+
 	const chooseLocation = (locationID: number, locationName: string) => {
+		addNew = false;
 		selectedLocationID = locationID;
 		currentLocation = locationName;
 		filterOrdersList();
@@ -55,19 +77,16 @@
 		if (selectedLocationID == -1) {
 			filteredOrdersList = ordersList;
 		} else if (selectedLocationID == -2) {
-			filteredOrdersList = ordersList.filter((order: order) => {
+			filteredOrdersList = ordersList.filter((order: orders) => {
 				return order.locationID == null;
 			});
 		} else {
-			filteredOrdersList = ordersList.filter((order: order) => {
+			filteredOrdersList = ordersList.filter((order: orders) => {
 				return order.locationID?.id == selectedLocationID;
 			});
 		}
 		sortOrders();
 	};
-
-	let sortByName = true;
-	let sortByDate = false;
 
 	function sortOrders() {
 		if (sortByName) {
@@ -79,57 +98,20 @@
 		}
 	}
 
-	import { onMount } from 'svelte';
-
-	onMount(() => {
-		sortOrders();
-	});
-
-	// structure
-
-	// possible to put this into layout?
-	// maybe save RDKitModule in a store?
-	// Yes, successful!
-	// async function initRDKit() {
-	// 	await initRDKitModule().then(function (instance) {
-	// 		RDKitModule = instance;
-	// 	});
-	// }
-
-	import { RDKitSS } from '$lib/stores/rdkitstore2';
-	import { invalidateAll } from '$app/navigation';
-	const RDKitModule = $RDKitSS;
-
-	// first itiration generated all the svgs upon opening the page
-	// really not necesary though, and slowed things down even with just ~10 entries
-	// switched to generating on click (getSVG(smile) runs when a title is clicked
-
-	// function generateSVGs() {
-	// 	ordersList.forEach((order) => {
-	// 		if (!order.chemicalID.smile) {
-	// 			return;
-	// 		}
-	// 		if (RDKitModule) {
-	// 		order.svg = RDKitModule.get_mol(order.chemicalID.smile).get_svg();
-	// 		}
-	// 	});
-	// }
-
-	let currentSVG = '';
 	function getSVG(smile: string) {
 		if (RDKitModule) {
 			currentSVG = RDKitModule.get_mol(smile).get_svg();
 		}
 	}
 
-	// custom function when changing the details tab (sent from the component DetailsTab)
+	// used from DetailsTab when updating data
 	const refreshData = async () => {
 		filterOrdersList();
 		sortOrders();
 	};
 
-	// use:enhance function when updating the status
-	const forceStatus = async () => {
+	// used when forcing order.status -> received
+	const forceStatus: SubmitFunction = async () => {
 		return async ({ update }) => {
 			await update();
 			refreshData();
@@ -137,17 +119,7 @@
 	};
 </script>
 
-<!-- {#await initRDKit()}
-	Prior to initializing and storing RDKitModule in a store,
-	needed to use this await setting to ensure that it had loaded before trying to make svg's
-	Don't need to do this anymore since it initializes when the app is opened
-
-	<p>Setting up RDKit</p>
-{:then} -->
-
-<!-- {generateSVGs()} -->
-
-{#if ordersError}
+{#if !ordersList || !locationsList}
 	<p class="text-primary">
 		Error retrieving data from the database. Please try refreshing the page.
 	</p>
@@ -168,14 +140,15 @@
 					{:else}
 						<SidebarItem label="" />
 					{/each}
+
 					{#if addNew}
-						<form method="POST" action="?/addLocation">
-							<input type="text" name="newLocation" class="w-full" />
+						<form method="POST" action="?/addLocation" use:enhance={addNewLocation}>
+							<Input type="text" name="newLocation" class="w-full" outline />
 						</form>
 					{/if}
 				</SidebarGroup>
 				<SidebarGroup border>
-					<SidebarItem label="New" class="text-neutral" on:click={() => (addNew = true)} />
+					<SidebarItem label="New" class="text-neutral" on:click={newLocationClickHandler} />
 				</SidebarGroup>
 			</SidebarWrapper>
 			<!-- <Button type="button" on:click={generateSVGs} outline>GENERATE STRUCTURES</Button> -->
@@ -190,8 +163,11 @@
 						<button
 							slot="title"
 							on:click={() => {
+								addNew = false;
 								if (order.chemicalID.smile) {
 									getSVG(order.chemicalID.smile);
+								} else {
+									currentSVG = '';
 								}
 							}}
 						>
@@ -226,11 +202,6 @@
 							<div class="flex flex-wrap gap-2">
 								<div class="border-2 border-primary">
 									{@html `${currentSVG}`}
-									<!-- {#if order.svg}
-										{@html `${order.svg}`}
-									{:else}
-										<p>NO IMAGE</p>
-									{/if} -->
 								</div>
 								<ul>
 									<li>MW: {order.chemicalID.MW}</li>
@@ -254,4 +225,7 @@
 			</AccordionDouble>
 		</div>
 	</div>
+{/if}
+{#if form?.error}
+	<p class="text-red-500">{form.error}</p>
 {/if}

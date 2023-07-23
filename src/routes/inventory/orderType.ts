@@ -49,6 +49,10 @@ export type orders = {
 		id: number;
 		locationName: string;
 	};
+	statusID: {
+		id: number;
+		statusValue: string;
+	};
 };
 
 export type locations = {

@@ -1,10 +1,18 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions } from '@sveltejs/kit';
-// import type { RequestEvent } from '../$types';
+import type { PageServerLoad } from '../$types.js';
 
 type FormResult = {
 	success: boolean;
 	error: string | null;
+};
+
+export const load: PageServerLoad = async ({ locals: { supabase, getSession } }) => {
+	const session = await getSession();
+
+	const { data: supplierList } = await supabase.from('suppliers').select('*');
+
+	return { session, supplierList };
 };
 
 export const actions: Actions = {
@@ -41,7 +49,25 @@ export const actions: Actions = {
 		const inchi = String(formData.get('inchi'));
 		const smile = String(formData.get('smile'));
 
-		// console.log(formData);
+		// validation
+		// required fields
+		if (!userID || !CAS || !chemicalName || !amount || !amountUnit || !supplierID) {
+			form.error = 'Required input not present.';
+			return fail(400, form);
+		}
+
+		// Validation regxes
+		const CASRegexPattern = /^\d{2,7}-\d{2}-\d$/;
+		const numbersOnly = /^[0-9]+$/;
+
+		if (!CASRegexPattern.test(CAS)) {
+			form.error = 'Invalid CAS numnber.';
+			return fail(400, form);
+		}
+		if (!numbersOnly.test(amount)) {
+			form.error = 'Invalid amount.';
+			return fail(400, form);
+		}
 
 		// see if the chemical is in the database already, return object contains the ID if it exists
 		// maybeSingle(): return either one object or null, rather than an array or null
@@ -51,9 +77,7 @@ export const actions: Actions = {
 			.eq('CAS', CAS)
 			.maybeSingle();
 
-		// console.log('initial CAS search: ', chemical);
-
-		// even if no chemical, should not return an error. Mostly checking for TypeError: fetch failed
+		// Mostly checking for TypeError: fetch failed. Not finding a chemical isn't considered an error.
 		if (chemical.error) {
 			// See below for an error 'TypeError: fetch failed' that (often?) occurs? Based on time of day?
 			console.log('something went wrong with initial CAS search...', chemical.error);
@@ -102,26 +126,6 @@ export const actions: Actions = {
 		form.success = true;
 		return form;
 	}
-};
-
-// import type { PageServerLoad } from './$types'
-// export const load: PageServerLoad = async ...
-
-// https://kit.svelte.dev/docs/types#public-types-requestevent
-// import type { RequestEvent } from '../$types';
-// orderChemical: async (event: RequestEvent) => {} // seems ok but an error on orderChemical for some reason ???
-// still works fine though
-
-// PostgrestSingleResponse (return object of accessing the DB)
-
-import type { PageServerLoad } from '../$types.js';
-
-export const load: PageServerLoad = async ({ locals: { supabase, getSession } }) => {
-	const session = await getSession();
-
-	const { data: supplierList } = await supabase.from('suppliers').select('*');
-
-	return { session, supplierList };
 };
 
 /*

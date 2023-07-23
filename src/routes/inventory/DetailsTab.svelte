@@ -1,36 +1,39 @@
 <script lang="ts">
 	import Button from '$lib/components/button/Button.svelte';
 	import Input from '$lib/components/form/Input.svelte';
-	//import Input from '/home/chris/repos/PurpleChem/node_modules/flowbite-svelte/dist/forms/Input.svelte';
-	import type { SubmitFunction } from '@sveltejs/kit';
-	import { enhance } from '$app/forms';
-	import { createEventDispatcher } from 'svelte';
-
 	import { DropSelect, DropSelectItem } from '$lib/components/dropdown/dropdownAll';
 
+	import { enhance } from '$app/forms';
+	import { createEventDispatcher } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
+
 	import type { order, location } from './orderType';
+
+	import type { ActionData } from './$types';
+	import type { SubmitFunction } from '@sveltejs/kit';
+
+	/* VARIABLES */
 	export let order: order;
 	export let locationsList: location[];
-	import type { ActionData } from './$types';
-	import { invalidateAll } from '$app/navigation';
 	export let form: ActionData;
 
+	const dispatch = createEventDispatcher();
+
+	// Validation / messages
+	const numbersOnly = /^[0-9]+$/;
+	let failValidation = false;
+	let saving = false;
+
+	// ser the text and value of the custom dropdown (select)
 	let currentLocation: string | null = null;
 	let currentValue: number | null = null;
+
 	if (order.locationID) {
 		currentLocation = order.locationID.locationName;
 		currentValue = order.locationID.id;
 	} else {
 		currentLocation = 'Choose a storage location.';
 	}
-
-	const numbersOnly = /^[0-9]+$/;
-	let failValidation = false;
-	let saving = false;
-
-	// trigger a dispatch on save data to ensure that it updates
-	// (otherwise requires alt-f4 before the location change is registered on the page.)
-	const dispatch = createEventDispatcher();
 
 	const validateData: SubmitFunction = ({ cancel }) => {
 		failValidation = false;
@@ -42,18 +45,11 @@
 		saving = true;
 		return async ({ update }) => {
 			saving = false;
-			// await update();
-
-			// update() moves the chemical without a hard reload
-			// it was clearing the 'remaining' input field, but that was perhaps because of a bug in my <Input/> component?
-			// tried to figure out the cause, then it just stared working with no changes -_-
-			// then stopped working the next day! Will stay with invalidateAll()
-
-			// using invalidateAll() works just fine here (without dispatch).
-			// need to run filteredOrdersList() so that eg if looking at bench, something moving from bench will disappear
-			// for that, need to dispatch.
+			// await update()
+			// update() had some problems (cleared amount field?), using invalidateAll() instead
 
 			await invalidateAll();
+			// runs filterOrdersList() to update to the new location
 			dispatch('triggerUpdateLocation');
 		};
 	};
@@ -102,5 +98,5 @@
 	<p class="text-red-500">Saving...</p>
 {/if}
 {#if form?.error}
-	<p class="text-red-500">There was a problem with the database. Please try again...</p>
+	<p class="text-red-500">{form.error}</p>
 {/if}
