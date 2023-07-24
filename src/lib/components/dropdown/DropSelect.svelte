@@ -83,3 +83,9 @@
 	{/if}
 	<input type="hidden" {name} bind:value />
 </div>
+
+<!--
+  @component
+  # PROPS
+	use popClass="w-(n)" to specify the width of the dropdown options
+-->

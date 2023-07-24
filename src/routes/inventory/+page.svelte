@@ -124,8 +124,8 @@
 		Error retrieving data from the database. Please try refreshing the page.
 	</p>
 {:else}
-	<div class="flex">
-		<Sidebar class="mt-9" outline>
+	<div class="flex flex-wrap">
+		<Sidebar class="mt-9 w-full sm:w-64" outline>
 			<SidebarWrapper>
 				<SidebarGroup>
 					<SidebarItem label="All" on:click={() => chooseLocation(-1, 'All')} startSelected />
@@ -143,7 +143,7 @@
 
 					{#if addNew}
 						<form method="POST" action="?/addLocation" use:enhance={addNewLocation}>
-							<Input type="text" name="newLocation" class="w-full" outline />
+							<Input type="text" name="newLocation" class="w-full" outline autofocus />
 						</form>
 					{/if}
 				</SidebarGroup>
@@ -159,7 +159,7 @@
 
 			<AccordionDouble outline>
 				{#each filteredOrdersList as order (order.id)}
-					<AccordionItemDouble {order}>
+					<AccordionItemDouble {order} class="text-sm sm:text-lg">
 						<button
 							slot="title"
 							on:click={() => {
@@ -172,9 +172,9 @@
 							}}
 						>
 							{#if order.statusID.id != 3}
-								<p>{order.chemicalID.chemicalName} ({order.id})*</p>
+								<p class="break-words">{order.chemicalID.chemicalName} ({order.id})*</p>
 							{:else}
-								<p>{order.chemicalID.chemicalName} ({order.id})</p>
+								<p class="break-words">{order.chemicalID.chemicalName} ({order.id})</p>
 							{/if}
 						</button>
 

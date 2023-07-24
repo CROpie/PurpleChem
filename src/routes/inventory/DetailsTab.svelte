@@ -57,7 +57,7 @@
 
 <!-- need to fix formating for small screen sizes -->
 <form method="POST" action="?/updateData" class="flex gap-5 flex-wrap" use:enhance={validateData}>
-	<div class="flex items-center justify-start w-64 gap-1">
+	<div class="flex items-center justify-start sm:w-64 w-48 gap-1 sm:nowrap flex-wrap">
 		<p>Remaining:</p>
 		<Input
 			bind:value={order.amount}
@@ -70,13 +70,14 @@
 		<p>{order.amountUnit}</p>
 	</div>
 
-	<div class="flex justify-start w-64 items-center gap-1">
-		<p class="block whitespace-nowrap">{'Change Location: '}</p>
+	<div class="flex justify-start sm:w-64 w-16 items-center gap-1 sm:flex-nowrap flex-wrap">
+		<p class="block whitespace-nowrap">Change Location:</p>
 
 		<DropSelect
 			name="locationID"
-			class="w-64 border-2 rounded-lg"
+			class="sm:w-64 w-48 border-2 rounded-lg"
 			outline
+			popClass="w-48"
 			defaultText={currentLocation}
 			bind:value={currentValue}
 		>

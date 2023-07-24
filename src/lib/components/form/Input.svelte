@@ -7,6 +7,8 @@
 	export let outline = false;
 	export let disabled = false;
 
+	export let autofocus = false;
+
 	export let type = 'text';
 
 	const defaultClass = 'block w-full rounded-lg text-lg p-2 outline-none focus:ring-0';
@@ -31,6 +33,11 @@
 			}
 		};
 	};
+
+	const focus = (node) => node.focus();
+
+	import { clickOutside } from '../dropdown/clickOutside';
+
 	/*
 	  on:blur
       on:change
@@ -48,14 +55,21 @@
 	  */
 </script>
 
-<div class={divClass}>
-	<div class={labelClass}>{label}</div>
-	{#if disabled}
-		<input {...$$restProps} bind:value class={inputClass} use:setType={type} disabled />
-	{:else}
-		<input {...$$restProps} bind:value class={inputClass} use:setType={type} />
-	{/if}
-</div>
+{#if autofocus}
+	<div class={divClass}>
+		<div class={labelClass}>{label}</div>
+		{#if disabled}
+			<input {...$$restProps} bind:value class={inputClass} use:setType={type} disabled />
+		{:else}
+			<input {...$$restProps} bind:value class={inputClass} use:setType={type} use:focus />
+		{/if}
+	</div>
+{:else}
+	<div class={divClass}>
+		<div class={labelClass}>{label}</div>
+		<input {...$$restProps} bind:value class={inputClass} use:setType={type} use:focus />
+	</div>
+{/if}
 
 <!--
   @component
