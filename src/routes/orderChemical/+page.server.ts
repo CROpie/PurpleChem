@@ -8,11 +8,11 @@ type FormResult = {
 };
 
 export const load: PageServerLoad = async ({ locals: { supabase, getSession } }) => {
-	const session = await getSession();
+	// const session = await getSession();
 
 	const { data: supplierList } = await supabase.from('suppliers').select('*');
 
-	return { session, supplierList };
+	return { supplierList };
 };
 
 export const actions: Actions = {
