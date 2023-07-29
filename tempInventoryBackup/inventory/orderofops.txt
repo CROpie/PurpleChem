@@ -1,0 +1,50 @@
+<script>
+console.log('page was just refreshed.')
+
+onMount
+    console.log('onMount triggered.')
+
+afterUpdate
+    console.log('afterUpdate triggered.')
+
+
+altF4/refresh page
+server: running load
+page
+onMount
+afterUpdate
+
+click any button ??
+afterUpdate
+
+formAction updateData in DetailsTab component without return update()
+
+
+DetailsTab sends event dispatch to +page.svelte, function runs invalidateAll()
+server: running load
+afterUpdate
+
+Solved
+requires invalidateAll() (invalidate(/inventory) appeared to work at the start? then didnt.)
+
+	export let data: PageData;
+
+	let { locationsList, ordersList }: { locationsList: location[]; ordersList: order[] } = data;
+
+	$: ordersList // doesn't do anything
+    $: ordersList = data.ordersList // auto-updated
+
+cleaner version:
+	let locationsList: location[] = data.locationsList;
+	let ordersList: order[] = data.ordersList;
+
+	$: ordersList = data.ordersList;
+
+    doesn't work if just let ordersList: order[]
+
+cleanest version, but doesn't allow typescript
+    $: ({ locationsList, ordersList } = data)
+
+"Types don't need to be specified for object properties because they are inferred from the desructured object"
+
+Also didn't work for same reason as cleaner version

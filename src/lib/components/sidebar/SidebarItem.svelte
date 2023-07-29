@@ -41,17 +41,18 @@
 	);
 </script>
 
-<li on:click={setActive}>
+<li>
 	<svelte:element
-		this={href ? 'a' : 'div'}
+		this={href ? 'a' : 'button'}
 		{...$$restProps}
+		on:click={setActive}
 		role={href ? undefined : 'link'}
 		class={elementClass}
 		on:click
 	>
 		<slot name="icon" />
 
-		<span class={spanClass}>{label}</span>
+		<span role="button" class={spanClass}>{label}</span>
 
 		{#if $$slots.subtext}
 			<slot name="subtext" />

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Heading } from '$lib/components/typography/Typo';
-	import OrderForm from './OrderForm.svelte';
+	import OrderForm from '$lib/Major/OrderChemical/OrderForm.svelte';
 
 	import type { PageData } from './$types';
 

@@ -2,7 +2,7 @@
 	/* want to replicate the Input component from flowbite */
 	import { twMerge } from 'tailwind-merge';
 
-	export let label = '';
+	export let label: string | null = null;
 	export let value: any = undefined;
 	export let outline = false;
 	export let disabled = false;
@@ -57,7 +57,9 @@
 
 {#if autofocus}
 	<div class={divClass}>
-		<div class={labelClass}>{label}</div>
+		{#if label}
+			<div class={labelClass}>{label}</div>
+		{/if}
 		{#if disabled}
 			<input {...$$restProps} bind:value class={inputClass} use:setType={type} disabled />
 		{:else}
@@ -66,8 +68,10 @@
 	</div>
 {:else}
 	<div class={divClass}>
-		<div class={labelClass}>{label}</div>
-		<input {...$$restProps} bind:value class={inputClass} use:setType={type} use:focus />
+		{#if label}
+			<div class={labelClass}>{label}</div>
+		{/if}
+		<input {...$$restProps} bind:value class={inputClass} use:setType={type} />
 	</div>
 {/if}
 

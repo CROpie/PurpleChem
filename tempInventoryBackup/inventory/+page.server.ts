@@ -3,7 +3,6 @@ import type { Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../$types';
 
 export const load: PageServerLoad = async ({ locals: { supabase, getSession } }) => {
-	console.log('running load function');
 	const session = await getSession();
 	const userID = session?.user.id;
 
@@ -52,7 +51,35 @@ type FormResult = {
 };
 
 export const actions: Actions = {
-	/*
+	addLocation: async (event) => {
+		const form: FormResult = {
+			success: false,
+			error: null
+		};
+
+		const formData = await event.request.formData();
+		if (!formData) {
+			form.error = 'Request failed...';
+			return fail(400, form);
+		}
+
+		const session = await event.locals.getSession();
+		const userID = session?.user.id;
+		const newLocation = String(formData.get('newLocation'));
+
+		// add order to database
+		const { error } = await event.locals.supabase.from('locations').insert({
+			userID,
+			locationName: newLocation
+		});
+
+		if (error) {
+			form.error = 'Error connecting to database...';
+			return fail(400, form);
+		}
+		form.success = true;
+		return form;
+	},
 	updateData: async (event) => {
 		const form: FormResult = {
 			success: false,
@@ -107,7 +134,6 @@ export const actions: Actions = {
 		form.success = true;
 		return form;
 	},
-	*/
 	forceStatus: async (event) => {
 		const form: FormResult = {
 			success: false,

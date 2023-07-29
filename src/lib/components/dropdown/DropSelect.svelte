@@ -70,6 +70,7 @@
 		<div class={labelClass}>{label}</div>
 	{/if}
 	<button
+		data-testid="dropSelect"
 		type="button"
 		class={elementClass}
 		on:click={() => (showOptions = !showOptions)}

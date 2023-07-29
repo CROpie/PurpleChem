@@ -23,7 +23,7 @@
 	this={tag}
 	{...$$restProps}
 	on:click
-	role={$$props.onclick ? 'button' : undefined}
+	role={$$props.onclick ? 'button' : 'heading'}
 	class={headingClass}
 >
 	<slot />

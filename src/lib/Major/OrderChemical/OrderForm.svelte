@@ -265,7 +265,7 @@
 </script>
 
 <form method="POST" action="?/orderChemical" use:enhance={validateData} class="m-8">
-	<Input label="CAS number" name="CAS" type="text" bind:value={CAS} outline required />
+	<Input label="CAS number" name="CAS" type="text" bind:value={CAS} outline required autofocus />
 
 	<div class="flex items-center gap-4 mt-2">
 		<Button type="button" on:click={() => getProperties()} outline>SEARCH</Button>
