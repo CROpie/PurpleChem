@@ -61,16 +61,13 @@
 		});
 
 		form = await response.json();
+		waiting = false;
 
-		if (!form?.success) {
-			waiting = false;
-			return;
-		}
 		if (form?.success) {
 			await invalidateAll();
-			waiting = false;
+
 			console.log('dispatch trigger');
-			dispatch('triggerUpdateLocation');
+			dispatch('triggerUpdate');
 		}
 	}
 </script>
@@ -87,7 +84,7 @@
 			data-testid="amount"
 			bind:value={order.amount}
 			name="amount"
-			type="text"
+			type="number"
 			class="text-primary text-end"
 			outline
 		/>
@@ -123,6 +120,9 @@
 {/if}
 {#if waiting}
 	<p class="text-red-500">Saving...</p>
+{/if}
+{#if form?.success}
+	<p class="text-green-500">Saved.</p>
 {/if}
 {#if form?.error}
 	<p class="text-red-500">{form.error}</p>

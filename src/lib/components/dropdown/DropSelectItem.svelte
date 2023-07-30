@@ -32,7 +32,7 @@
 	// }
 </script>
 
-<button class={buttonClass} on:click={clickHandler} type="button">
+<button class={buttonClass} on:click={clickHandler} type="button" role="option">
 	{label}
 </button>
 <!-- <div use:clickOutside on:click_outside={handleClickOutside}>Click outside me!</div> -->

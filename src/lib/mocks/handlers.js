@@ -19,5 +19,22 @@ export const handlers = [
 				ctx.json({ success: false, error: 'Error connecting to database...' })
 			);
 		}
+	}),
+	rest.put('http://localhost:5173/inventory', async (req, res, ctx) => {
+		return res(ctx.delay(100), ctx.json({ success: true, error: null }));
 	})
 ];
+
+/*
+	rest.put('http://localhost:5173/inventory', async (req, res, ctx) => {
+		if (req.body?.newLocation == 'successfulModification') {
+			return res(ctx.delay(100), ctx.json({ success: true, error: null }));
+		}
+		if (req.body?.newLocation == 'failModification') {
+			return res(
+				ctx.delay(100),
+				ctx.json({ success: false, error: 'Error connecting to database...' })
+			);
+		}
+	})
+	*/

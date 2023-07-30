@@ -25,7 +25,7 @@
 		{#each filteredOrdersList as order (order.id)}
 			<AccordionItemDouble class="text-sm sm:text-lg">
 				<TitleTab slot="title" {order} bind:currentSVG />
-				<ModifyTab slot="content" {order} {locationsList} on:triggerUpdateLocation />
+				<ModifyTab slot="content" {order} {locationsList} on:triggerUpdate />
 				<PropertiesTab slot="edit" {order} {currentSVG} />
 			</AccordionItemDouble>
 		{:else}

@@ -16,7 +16,7 @@
 	const forceStatus: SubmitFunction = async () => {
 		return async ({ update }) => {
 			await update();
-			dispatch('triggerUpdateLocation');
+			dispatch('triggerUpdate');
 		};
 	};
 </script>

@@ -13,8 +13,8 @@
 <div class="ml-4">
 	<Heading tag="h6" class="text-complement">MODIFY</Heading>
 	{#if order.statusID.id == 1 || order.statusID.id == 2}
-		<ModifyForceStatus {order} on:triggerUpdateLocation />
+		<ModifyForceStatus {order} on:triggerUpdate />
 	{:else}
-		<ModifyForm {order} {locationsList} on:triggerUpdateLocation />
+		<ModifyForm {order} {locationsList} on:triggerUpdate />
 	{/if}
 </div>

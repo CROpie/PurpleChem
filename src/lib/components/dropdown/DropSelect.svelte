@@ -73,6 +73,7 @@
 		data-testid="dropSelect"
 		type="button"
 		class={elementClass}
+		role="select"
 		on:click={() => (showOptions = !showOptions)}
 		use:usePopperElement>{defaultText}</button
 	>
@@ -82,7 +83,7 @@
 			<slot />
 		</div>
 	{/if}
-	<input type="hidden" {name} bind:value />
+	<input type="hidden" {name} bind:value placeholder={name} />
 </div>
 
 <!--

@@ -56,10 +56,6 @@
 	<LocationSidebar {locationsList} bind:selectedLocationID bind:currentLocation />
 	<div class="flex-1">
 		<Heading tag="h3">{currentLocation}</Heading>
-		<InventoryAccordion
-			{locationsList}
-			{filteredOrdersList}
-			on:triggerUpdateLocation={refreshData}
-		/>
+		<InventoryAccordion {locationsList} {filteredOrdersList} on:triggerUpdate={refreshData} />
 	</div>
 </div>

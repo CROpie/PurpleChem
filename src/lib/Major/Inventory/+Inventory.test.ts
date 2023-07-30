@@ -16,6 +16,8 @@ const form: FormResult = {
 	error: null
 };
 
+import type { orders } from './orderType';
+
 const locationsList = [
 	{
 		id: 1,
@@ -84,6 +86,21 @@ const ordersList = [
 	}
 ];
 
+async function openAccordionItem(order: orders) {
+	const orderAccordionTitle = screen.getByText(`${order.chemicalID.chemicalName} (${order.id})`);
+	await userEvent.click(orderAccordionTitle);
+}
+
+async function changeAmountTo(newAmount: string) {
+	const amountInput = screen.getByTestId('amount');
+
+	await userEvent.click(amountInput);
+	while (amountInput.value > 0) {
+		await userEvent.keyboard('{Backspace}');
+	}
+	await userEvent.type(amountInput, newAmount);
+}
+
 describe('Initial Render', () => {
 	test('If props are empty lists it should give a nothing here message', async () => {
 		const locationsList: any[] = [];
@@ -102,7 +119,7 @@ describe('Initial Render', () => {
 		screen.getByRole('heading', { name: 'All' });
 	});
 
-	test('Sidebar All starts as selected, unsorted does not.', async () => {
+	test('Sidebar All starts as selected, unsorted does not. ** neither do locations in the list, need to add this **', async () => {
 		render(Inventory, { locationsList, ordersList });
 		const sidebarAll = screen.getByRole('button', { name: 'All' });
 		const sidebarAllDiv = sidebarAll.parentElement;
@@ -113,6 +130,8 @@ describe('Initial Render', () => {
 		expect(sidebarAllDiv?.classList.contains('text-complement')).toBe(true);
 		expect(sidebarUnsortedDiv?.classList.contains('text-complement')).toBe(false);
 		expect(sidebarUnsortedDiv?.classList.contains('text-primary')).toBe(true);
+
+		// loop for all locations in the list, check not text-complement
 	});
 
 	test('Check that every location in locationsList is rendered.', async () => {
@@ -253,79 +272,226 @@ describe('Sidebar Tests', () => {
 
 		expect(await screen.findByText(/Error connecting to database.../i)).toBeInTheDocument();
 	});
+});
 
-	describe('Accordion Tests', () => {
-		test('Clicking an order opens the first stage of the accordion.', async () => {
-			render(Inventory, { locationsList, ordersList });
+describe('Accordion Tests', () => {
+	test('Clicking an order opens the first stage of the accordion.', async () => {
+		render(Inventory, { locationsList, ordersList });
 
-			const order = ordersList[0];
-			const orderAccordionTitle = screen.getByText(
-				`${order.chemicalID.chemicalName} (${order.id})`
-			);
-			await userEvent.click(orderAccordionTitle);
-			// opens, but what do I want to look for? Everything I guess..
-			screen.debug();
+		const order = ordersList[0];
+
+		await openAccordionItem(order);
+		screen.getByText(/MODIFY/i);
+
+		screen.getByText(/Remaining:/i);
+		const amountInput = screen.getByTestId('amount');
+		expect(amountInput).toHaveValue(order.amount);
+
+		screen.getByText(order.amountUnit);
+
+		screen.getByText(/Change Location:/i);
+		if (!order.locationID) {
+			screen.getByText(/Choose a storage location./i);
+		} else {
+			expect(screen.getByTestId('dropSelect').innerHTML).toBe(order.locationID.locationName);
+			const locationIDInput = screen.getByPlaceholderText('locationID');
+			expect(locationIDInput).toHaveValue(String(order.locationID.id));
+		}
+	});
+
+	test('Clicking the title of an open order will close the accordion', async () => {
+		render(Inventory, { locationsList, ordersList });
+		const order = ordersList[0];
+
+		await openAccordionItem(order);
+		screen.getByText(/MODIFY/i);
+
+		await openAccordionItem(order);
+		expect(screen.queryByText(/MODIFY/i)).not.toBeInTheDocument();
+	});
+
+	test('Clicking an order while a different one is open will close the open one and open the closed one', async () => {
+		render(Inventory, { locationsList, ordersList });
+		const order = ordersList[0];
+
+		await openAccordionItem(order);
+		screen.getByText(/MODIFY/i);
+
+		// but MODIFY will still be present! Need a different way to prove...
+	});
+
+	test('Clicking the location dropdown menu will provide the list of options.', async () => {
+		render(Inventory, { locationsList, ordersList });
+
+		const order = ordersList[0];
+		await openAccordionItem(order);
+
+		const locationDropdown = screen.getByTestId('dropSelect');
+		await userEvent.click(locationDropdown);
+
+		locationsList.forEach((location) => {
+			screen.getByRole('option', { name: location.locationName });
 		});
 	});
 
-	/*
-	test('Clicking a chemical opens the first stage of the accordion', async () => {
+	test('Able to modify the value of the order amount.', async () => {
 		render(Inventory, { locationsList, ordersList });
-		server.use(
-			rest.put('http://localhost:5173/inventory', async (req, res, ctx) => {
-				console.log(req.body);
-				return res(
-					ctx.delay(0.1),
-					// ctx.json({ success: true, error: null })
-					ctx.json({ success: false, error: 'Error connecting to database...' })
-				);
-			})
-		);
-		screen.debug();
-		const alcl = screen.getByText(/aluminum chloride/i);
-		await userEvent.click(alcl);
-		screen.debug();
 
-		const dropSelect = screen.getByTestId(/dropSelect/i);
-		await userEvent.click(dropSelect);
-		screen.debug();
+		const order = ordersList[0];
+		await openAccordionItem(order);
 
-		const drawer = screen.getByText(/Drawer/i, { selector: 'button' });
-		await userEvent.click(drawer);
-		screen.debug();
+		const amountInput = screen.getByTestId('amount');
+		expect(amountInput).toHaveValue(order.amount);
 
-		const inputAmount = screen.getByTestId(/amount/i);
-		await userEvent.click(inputAmount);
-		await userEvent.keyboard('{Backspace}');
-		await userEvent.keyboard('{Backspace}');
-		await userEvent.type(inputAmount, '50');
-		screen.debug(); // no way to know if anything has changed unless print {order.amount}?
-		// values don't show up on input fields for some reason
+		await changeAmountTo('47');
 
-		// but can still use expectvalue or something on the input field.. just not debug()
+		expect(amountInput).toHaveValue(47);
+	});
+
+	test('Selecting a different item from the locations dropdown menu will change the parent text and locationID.', async () => {
+		render(Inventory, { locationsList, ordersList });
+
+		const order = ordersList[0];
+		await openAccordionItem(order);
+
+		const locationDropdown = screen.getByTestId('dropSelect');
+		expect(locationDropdown.innerHTML).toBe('Freezer');
+		const locationIDInput = screen.getByPlaceholderText('locationID');
+		expect(locationIDInput).toHaveValue('1');
+
+		await userEvent.click(locationDropdown);
+
+		const drawerOption = screen.getByRole('option', { name: 'Drawer' });
+		await userEvent.click(drawerOption);
+
+		expect(locationDropdown.innerHTML).toBe('Drawer');
+		expect(locationIDInput).toHaveValue('2');
+	});
+
+	test('Able to modify an order by changing the amount.', async () => {
+		render(Inventory, { locationsList, ordersList });
+
+		const order = ordersList[0];
+		await openAccordionItem(order);
+
+		await changeAmountTo('47');
 
 		const submit = screen.getByText('✓');
 		await userEvent.click(submit);
 
-		screen.debug(); // Saving...
+		screen.getByText(/Saving.../i);
 
-		await waitFor(() => {
-			screen.getByText(/Error connecting to database.../i);
-			// screen.getByText(/New Location Added/i);
-		});
-		screen.debug();
+		expect(await screen.findByText(/Saved./i)).toBeInTheDocument();
 	});
-    */
-	/*
-	test('Clicking a chemical opens the first stage of the accordion', async () => {
+
+	test('Entering a string instead of an amount results in a validation error.', async () => {
 		render(Inventory, { locationsList, ordersList });
 
-		const alcl = screen.getByText(/aluminum chloride/i);
-		await userEvent.click(alcl);
+		const order = ordersList[0];
+		await openAccordionItem(order);
+
+		await changeAmountTo('not_a_number');
+
+		const submit = screen.getByText('✓');
+		await userEvent.click(submit);
+
+		// expect(screen.queryByText(/Saving.../i)).not.toBeInTheDocument();
+		screen.getByText(/Please enter an integer in the 'remaining' field./i);
+		screen.debug();
+	});
+
+	test('An error message appears if the request fails when updating the order', async () => {
+		server.use(
+			rest.put('http://localhost:5173/inventory', async (req, res, ctx) => {
+				return res(
+					ctx.delay(100),
+					ctx.json({ success: false, error: 'Error connecting to database...' })
+				);
+			})
+		);
+
+		render(Inventory, { locationsList, ordersList });
+
+		const order = ordersList[0];
+		await openAccordionItem(order);
+
+		await changeAmountTo('47');
+
+		const submit = screen.getByText('✓');
+		await userEvent.click(submit);
+
+		screen.getByText(/Saving.../i);
+
+		expect(await screen.findByText(/Error connecting to database.../i)).toBeInTheDocument();
+	});
+
+	test('Able to modify an order by changing the location.', async () => {
+		render(Inventory, { locationsList, ordersList });
+
+		const order = ordersList[0];
+		await openAccordionItem(order);
+
+		const locationDropdown = screen.getByTestId('dropSelect');
+
+		await userEvent.click(locationDropdown);
+
+		const drawerOption = screen.getByRole('option', { name: 'Drawer' });
+		await userEvent.click(drawerOption);
+
+		const submit = screen.getByText('✓');
+		await userEvent.click(submit);
+
+		screen.getByText(/Saving.../i);
+
+		expect(await screen.findByText(/Saved./i)).toBeInTheDocument();
+	});
+
+	test('Clicking the triangle opens the second stage of the accordion', async () => {
+		render(Inventory, { locationsList, ordersList });
+
+		const order = ordersList[0];
+		await openAccordionItem(order);
 
 		const triangle = screen.getByText(/▽/i);
 		await userEvent.click(triangle);
-		screen.debug();
+
+		screen.getByText(/PROPERTIES/i);
+		screen.getByText(`MW: ${order.chemicalID.MW}`);
+		screen.getByText(`BP: ${order.chemicalID.BP}`);
+		screen.getByText(`MP: ${order.chemicalID.MP}`);
+		screen.getByText(`Density: ${order.chemicalID.density}`);
+		screen.getByText(`CAS: ${order.chemicalID.CAS}`);
 	});
-*/
+
+	test('Clicking the triangle a second time closes the second stage of the accordion', async () => {
+		render(Inventory, { locationsList, ordersList });
+
+		const order = ordersList[0];
+		await openAccordionItem(order);
+
+		const triangle = screen.getByText(/▽/i);
+		await userEvent.click(triangle);
+
+		screen.getByText(/PROPERTIES/i);
+
+		await userEvent.click(triangle);
+		expect(screen.queryByText(/PROPERTIES/i)).not.toBeInTheDocument();
+	});
+
+	test('Clicking an order opens the first stage of the accordion and will close both first and second stage of an order open to the second stage.', async () => {
+		render(Inventory, { locationsList, ordersList });
+
+		const order = ordersList[0];
+		await openAccordionItem(order);
+
+		const triangle = screen.getByText(/▽/i);
+		await userEvent.click(triangle);
+
+		screen.getByText(/PROPERTIES/i);
+
+		const order2 = ordersList[1];
+		await openAccordionItem(order2);
+
+		expect(screen.queryByText(/PROPERTIES/i)).not.toBeInTheDocument();
+	});
 });
