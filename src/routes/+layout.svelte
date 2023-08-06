@@ -46,8 +46,12 @@
 <!-- B. Bienfait and P. Ertl, JSME: a free molecule editor in JavaScript, J. Cheminformatics 5:24 (2013) -->
 <svelte:head>
 	<title>Chem Database</title>
-	<script src="/node_modules/jsme-editor/jsme.nocache.js"></script>
-	<script src="/node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
+	<!-- <script src="/node_modules/jsme-editor/jsme.nocache.js"></script>
+	<script src="/node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script> -->
+	<!-- <script src="/node_modules/jsme-editor/jsme.nocache.js"></script>
+	<script src="/node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script> -->
+	<script src="https://jsme.cloud.douglasconnect.com/JSME_2017-02-26/jsme/jsme.nocache.js"></script>
+	<script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
 </svelte:head>
 
 {#await initRDKit()}

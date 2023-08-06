@@ -239,7 +239,7 @@ const Layout = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     $$bindings.data(data);
   isAdmin = false;
   $$unsubscribe_RDKitSS();
-  return ` ${$$result.head += `<!-- HEAD_svelte-wb07ed_START -->${$$result.title = `<title>Chem Database</title>`, ""}<script src="/node_modules/jsme-editor/jsme.nocache.js" data-svelte-h="svelte-3q621a"><\/script><script src="/node_modules/@rdkit/rdkit/dist/RDKit_minimal.js" data-svelte-h="svelte-obh4gx"><\/script><!-- HEAD_svelte-wb07ed_END -->`, ""} ${function(__value) {
+  return ` ${$$result.head += `<!-- HEAD_svelte-j41hkq_START -->${$$result.title = `<title>Chem Database</title>`, ""}<script src="https://jsme.cloud.douglasconnect.com/JSME_2017-02-26/jsme/jsme.nocache.js" data-svelte-h="svelte-1a7e78b"><\/script><script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js" data-svelte-h="svelte-14bd2oj"><\/script><!-- HEAD_svelte-j41hkq_END -->`, ""} ${function(__value) {
     if (is_promise(__value)) {
       __value.then(null, noop);
       return `  <p data-svelte-h="svelte-1vy8d51">Setting up RDKit</p> `;
