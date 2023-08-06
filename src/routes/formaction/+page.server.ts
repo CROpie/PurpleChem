@@ -1,12 +1,13 @@
 import type { Actions } from '@sveltejs/kit';
 
 export const actions: Actions = {
-	test: async ({ url, request }) => {
-		console.log(request);
-		const formData = await request.formData();
+	// test: async ({ url, request }) => {
+	test: async (event) => {
+		console.log(event);
+		const formData = await event.request.formData();
 		const fruit = String(formData.get('fruit'));
 		console.log('fruit: ', fruit);
-		console.log('url: ', url);
+		console.log('url: ', event.url);
 		return { fruit };
 	}
 };

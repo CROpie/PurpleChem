@@ -6,10 +6,14 @@ import { server } from '$lib/mocks/server';
 import { rest } from 'msw';
 import FormComponent from './FormComponent.svelte';
 
+let a;
 describe('Test', () => {
+	const baseUrl = window.location.href;
+	console.log('base url: ', baseUrl);
 	test('Writing an Email will change the value of the input field', async () => {
-		rest.post('http://localhost:3000/undefined', async (req, res, ctx) => {
-			console.log(req);
+		rest.post(`${baseUrl}?test`, async (req, res, ctx) => {
+			// console.log('req2: ', req);
+			req.passthrough();
 			return res(
 				ctx.delay(100),
 				ctx.json({ type: 'success', status: 200, data: '[{"fruit":1},"abcde"]' })

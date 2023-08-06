@@ -35,6 +35,9 @@ const typeInEmailPasswordAndSubmit = async (email: string | null, password: stri
 };
 
 describe('Test', () => {
+	const baseUrl = window.location.href;
+	// console.log(window.location.href);
+	// console.log(location.href);
 	test('Writing an Email will change the value of the input field', async () => {
 		render(LoginForm);
 
@@ -80,7 +83,9 @@ describe('Test', () => {
 	test('Fail message appears after an unsuccessful login attempt', async () => {
 		render(LoginForm);
 		server.use(
-			rest.post('http://localhost:5173/', async (req, res, ctx) => {
+			// rest.post('http://localhost:5173/', async (req, res, ctx) => {
+			rest.post(`${baseUrl}`, async (req, res, ctx) => {
+				// console.log(req, res, ctx);
 				return res(ctx.delay(0.1), ctx.json({ success: false, error: 'Request failed...' }));
 			})
 		);
@@ -98,7 +103,7 @@ describe('Test', () => {
 		render(LoginForm);
 
 		server.use(
-			rest.post('http://localhost:5173/', async (req, res, ctx) => {
+			rest.post(`${baseUrl}`, async (req, res, ctx) => {
 				return res(ctx.delay(0.1), ctx.json({ success: false, error: 'Request failed...' }));
 			})
 		);
@@ -115,7 +120,7 @@ describe('Test', () => {
 		render(LoginForm);
 
 		server.use(
-			rest.post('http://localhost:5173/', async (req, res, ctx) => {
+			rest.post(`${baseUrl}`, async (req, res, ctx) => {
 				return res(ctx.delay(0.1), ctx.json({ success: false, error: 'Request failed...' }));
 			})
 		);
@@ -129,7 +134,7 @@ describe('Test', () => {
 		render(LoginForm);
 
 		server.use(
-			rest.post('http://localhost:5173/', async (req, res, ctx) => {
+			rest.post(`${baseUrl}`, async (req, res, ctx) => {
 				return res(ctx.delay(0.1), ctx.json({ success: false, error: 'Request failed...' }));
 			})
 		);

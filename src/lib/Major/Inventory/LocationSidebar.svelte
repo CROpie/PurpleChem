@@ -9,6 +9,7 @@
 
 	import type { locations } from './orderType';
 	import { invalidateAll } from '$app/navigation';
+	import { createEventDispatcher } from 'svelte';
 
 	// variables
 	export let locationsList: locations[];
@@ -17,6 +18,8 @@
 	export let selectedLocationID;
 	export let currentLocation;
 
+	console.log(window.location);
+
 	// form submission
 	type FormResult = {
 		success: boolean;
@@ -24,27 +27,30 @@
 	} | null;
 
 	let form: FormResult = null;
+	let newLocationData: locations;
 
 	let newLocation: string | null = null;
 	let waiting = false;
 	let addNew = false;
 
+	const dispatch = createEventDispatcher();
+
 	// functions
 
 	function newLocationClickHandler() {
+		// bug: clicking 'New' causes 'selected' to disappear from All (or whatever it was on).
+		// the selectedLocationID doesn't change, so the displayed orders doesn't change. Just the hightlight on the text.
 		addNew = true;
 		form = null;
 	}
 
 	const chooseLocation = (locationID: number, locationName: string) => {
-		console.log('choosing location');
 		addNew = false;
 		selectedLocationID = locationID;
 		currentLocation = locationName;
 	};
 
 	async function handleSubmit() {
-		console.log('adding new location');
 		form = null;
 		addNew = false;
 		waiting = false;
@@ -54,7 +60,8 @@
 		}
 
 		waiting = true;
-		const response = await fetch('http://localhost:5173/inventory', {
+		const origin = window.location.origin;
+		const response = await fetch(`${origin}/inventory`, {
 			method: 'POST',
 			body: JSON.stringify({ newLocation }),
 			headers: {
@@ -62,13 +69,16 @@
 			}
 		});
 
-		form = await response.json();
+		const jsonResponse = await response.json();
+		form = jsonResponse.form;
+		newLocationData = jsonResponse.newLocationData;
+
 		waiting = false;
 		if (!form?.success) {
 			return;
 		}
 		if (form?.success) {
-			invalidateAll();
+			dispatch('triggerAddLocation', newLocationData);
 		}
 	}
 </script>

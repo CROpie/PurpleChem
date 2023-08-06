@@ -1,6 +1,13 @@
 import '@testing-library/jest-dom';
 import { describe, expect } from 'vitest';
-import { render, waitFor, screen, fireEvent } from '@testing-library/svelte';
+import {
+	render,
+	waitFor,
+	screen,
+	fireEvent,
+	cleanup,
+	waitForElementToBeRemoved
+} from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { server } from '$lib/mocks/server';
 import { rest } from 'msw';
@@ -16,75 +23,75 @@ const form: FormResult = {
 	error: null
 };
 
-import type { orders } from './orderType';
+import type { orders, locations } from './orderType';
 
-const locationsList = [
-	{
-		id: 1,
-		locationName: 'Freezer'
-	},
-	{
-		id: 2,
-		locationName: 'Drawer'
-	},
-	{
-		id: 3,
-		locationName: 'Fridge'
-	}
-];
+// const locationsList = [
+// 	{
+// 		id: 1,
+// 		locationName: 'Freezer'
+// 	},
+// 	{
+// 		id: 2,
+// 		locationName: 'Drawer'
+// 	},
+// 	{
+// 		id: 3,
+// 		locationName: 'Fridge'
+// 	}
+// ];
 
-const ordersList = [
-	{
-		id: 72,
-		amount: 10,
-		amountUnit: 'mL',
-		isConsumed: false,
-		chemicalID: {
-			id: 39,
-			chemicalName: 'Ethanol',
-			CAS: '64-17-5',
-			MW: '46.07',
-			MP: '-114.1 °C',
-			BP: '78.5 °C',
-			density: '0.789 g/cm<sup>3</sup> @ Temp: 20 °C',
-			inchi: 'InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3',
-			smile: 'C(C)O'
-		},
-		locationID: {
-			id: 2,
-			locationName: 'Drawer'
-		},
-		statusID: {
-			id: 3,
-			statusValue: 'received'
-		}
-	},
-	{
-		id: 64,
-		amount: 64,
-		amountUnit: 'g',
-		isConsumed: false,
-		chemicalID: {
-			id: 28,
-			chemicalName: 'Aluminum chloride',
-			CAS: '7446-70-0',
-			MW: '133.3',
-			MP: '192.6 °C',
-			BP: '182.7 °C @ Press: 752 Torr',
-			density: '2.48 g/cm3',
-			inchi: 'InChI=1S/Al.3ClH/h;3*1H/q+3;;;/p-3',
-			smile: '[Al](Cl)(Cl)Cl'
-		},
-		locationID: {
-			id: 1,
-			locationName: 'Freezer'
-		},
-		statusID: {
-			id: 3,
-			statusValue: 'received'
-		}
-	}
-];
+// const ordersList = [
+// 	{
+// 		id: 72,
+// 		amount: 10,
+// 		amountUnit: 'mL',
+// 		isConsumed: false,
+// 		chemicalID: {
+// 			id: 39,
+// 			chemicalName: 'Ethanol',
+// 			CAS: '64-17-5',
+// 			MW: '46.07',
+// 			MP: '-114.1 °C',
+// 			BP: '78.5 °C',
+// 			density: '0.789 g/cm<sup>3</sup> @ Temp: 20 °C',
+// 			inchi: 'InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3',
+// 			smile: 'C(C)O'
+// 		},
+// 		locationID: {
+// 			id: 2,
+// 			locationName: 'Drawer'
+// 		},
+// 		statusID: {
+// 			id: 3,
+// 			statusValue: 'received'
+// 		}
+// 	},
+// 	{
+// 		id: 64,
+// 		amount: 64,
+// 		amountUnit: 'g',
+// 		isConsumed: false,
+// 		chemicalID: {
+// 			id: 28,
+// 			chemicalName: 'Aluminum chloride',
+// 			CAS: '7446-70-0',
+// 			MW: '133.3',
+// 			MP: '192.6 °C',
+// 			BP: '182.7 °C @ Press: 752 Torr',
+// 			density: '2.48 g/cm3',
+// 			inchi: 'InChI=1S/Al.3ClH/h;3*1H/q+3;;;/p-3',
+// 			smile: '[Al](Cl)(Cl)Cl'
+// 		},
+// 		locationID: {
+// 			id: 1,
+// 			locationName: 'Freezer'
+// 		},
+// 		statusID: {
+// 			id: 3,
+// 			statusValue: 'received'
+// 		}
+// 	}
+// ];
 
 async function openAccordionItem(order: orders) {
 	const orderAccordionTitle = screen.getByText(`${order.chemicalID.chemicalName} (${order.id})`);
@@ -101,7 +108,82 @@ async function changeAmountTo(newAmount: string) {
 	await userEvent.type(amountInput, newAmount);
 }
 
+const origin = window.location.origin;
+console.log('origin: ', origin);
+
 describe('Initial Render', () => {
+	let locationsList: locations[];
+	let ordersList: orders[];
+	beforeEach(() => {
+		locationsList = [
+			{
+				id: 1,
+				locationName: 'Freezer'
+			},
+			{
+				id: 2,
+				locationName: 'Drawer'
+			},
+			{
+				id: 3,
+				locationName: 'Fridge'
+			}
+		];
+
+		ordersList = [
+			{
+				id: 72,
+				amount: 10,
+				amountUnit: 'mL',
+				isConsumed: false,
+				chemicalID: {
+					id: 39,
+					chemicalName: 'Ethanol',
+					CAS: '64-17-5',
+					MW: '46.07',
+					MP: '-114.1 °C',
+					BP: '78.5 °C',
+					density: '0.789 g/cm<sup>3</sup> @ Temp: 20 °C',
+					inchi: 'InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3',
+					smile: 'C(C)O'
+				},
+				locationID: {
+					id: 2,
+					locationName: 'Drawer'
+				},
+				statusID: {
+					id: 3,
+					statusValue: 'received'
+				}
+			},
+			{
+				id: 64,
+				amount: 64,
+				amountUnit: 'g',
+				isConsumed: false,
+				chemicalID: {
+					id: 28,
+					chemicalName: 'Aluminum chloride',
+					CAS: '7446-70-0',
+					MW: '133.3',
+					MP: '192.6 °C',
+					BP: '182.7 °C @ Press: 752 Torr',
+					density: '2.48 g/cm3',
+					inchi: 'InChI=1S/Al.3ClH/h;3*1H/q+3;;;/p-3',
+					smile: '[Al](Cl)(Cl)Cl'
+				},
+				locationID: {
+					id: 1,
+					locationName: 'Freezer'
+				},
+				statusID: {
+					id: 3,
+					statusValue: 'received'
+				}
+			}
+		];
+	});
+
 	test('If props are empty lists it should give a nothing here message', async () => {
 		const locationsList: any[] = [];
 		const ordersList: any[] = [];
@@ -154,6 +236,77 @@ describe('Initial Render', () => {
 });
 
 describe('Sidebar Tests', () => {
+	let locationsList: locations[];
+	let ordersList: orders[];
+	beforeEach(() => {
+		locationsList = [
+			{
+				id: 1,
+				locationName: 'Freezer'
+			},
+			{
+				id: 2,
+				locationName: 'Drawer'
+			},
+			{
+				id: 3,
+				locationName: 'Fridge'
+			}
+		];
+
+		ordersList = [
+			{
+				id: 72,
+				amount: 10,
+				amountUnit: 'mL',
+				isConsumed: false,
+				chemicalID: {
+					id: 39,
+					chemicalName: 'Ethanol',
+					CAS: '64-17-5',
+					MW: '46.07',
+					MP: '-114.1 °C',
+					BP: '78.5 °C',
+					density: '0.789 g/cm<sup>3</sup> @ Temp: 20 °C',
+					inchi: 'InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3',
+					smile: 'C(C)O'
+				},
+				locationID: {
+					id: 2,
+					locationName: 'Drawer'
+				},
+				statusID: {
+					id: 3,
+					statusValue: 'received'
+				}
+			},
+			{
+				id: 64,
+				amount: 64,
+				amountUnit: 'g',
+				isConsumed: false,
+				chemicalID: {
+					id: 28,
+					chemicalName: 'Aluminum chloride',
+					CAS: '7446-70-0',
+					MW: '133.3',
+					MP: '192.6 °C',
+					BP: '182.7 °C @ Press: 752 Torr',
+					density: '2.48 g/cm3',
+					inchi: 'InChI=1S/Al.3ClH/h;3*1H/q+3;;;/p-3',
+					smile: '[Al](Cl)(Cl)Cl'
+				},
+				locationID: {
+					id: 1,
+					locationName: 'Freezer'
+				},
+				statusID: {
+					id: 3,
+					statusValue: 'received'
+				}
+			}
+		];
+	});
 	test('Clicking a location causes the ~selected class (text-complement) and accordion title to change. Clicking All reverts the changes.', async () => {
 		render(Inventory, { locationsList, ordersList });
 
@@ -231,7 +384,7 @@ describe('Sidebar Tests', () => {
 		screen.getByRole('textbox', { name: '' });
 	});
 
-	/* Attempting to submit nothing in the new location input box has no effect ?? */
+	/* Attempting to submit nothing in the new location input box has no effect ? how to prove ? */
 
 	test('Attempting to submit nothing in the new location input box has no effect.', async () => {
 		render(Inventory, { locationsList, ordersList });
@@ -259,6 +412,22 @@ describe('Sidebar Tests', () => {
 		expect(await screen.findByText(/New Location Added/i)).toBeInTheDocument();
 	});
 
+	/*After removing invalidateAll() and updating locationList by javascript: */
+	test('Submitting a new location, getting success from the server, displays the new location.', async () => {
+		render(Inventory, { locationsList, ordersList });
+
+		const sidebarNew = screen.getByRole('button', { name: 'New' });
+		await userEvent.click(sidebarNew);
+		const inputNewLocation = screen.getByRole('textbox', { name: '' });
+		await userEvent.type(inputNewLocation, 'successfulLocation');
+		await userEvent.keyboard('{Enter}');
+
+		screen.getByText(/Connecting to server.../i);
+
+		expect(await screen.findByText(/New Location Added/i)).toBeInTheDocument();
+		expect(await screen.findByText(/successfulLocation/i)).toBeInTheDocument();
+	});
+
 	test('Submitting a new location, getting an error from the server, provides an error message.', async () => {
 		render(Inventory, { locationsList, ordersList });
 
@@ -275,6 +444,77 @@ describe('Sidebar Tests', () => {
 });
 
 describe('Accordion Tests', () => {
+	let locationsList: locations[];
+	let ordersList: orders[];
+	beforeEach(() => {
+		locationsList = [
+			{
+				id: 1,
+				locationName: 'Freezer'
+			},
+			{
+				id: 2,
+				locationName: 'Drawer'
+			},
+			{
+				id: 3,
+				locationName: 'Fridge'
+			}
+		];
+
+		ordersList = [
+			{
+				id: 72,
+				amount: 10,
+				amountUnit: 'mL',
+				isConsumed: false,
+				chemicalID: {
+					id: 39,
+					chemicalName: 'Ethanol',
+					CAS: '64-17-5',
+					MW: '46.07',
+					MP: '-114.1 °C',
+					BP: '78.5 °C',
+					density: '0.789 g/cm<sup>3</sup> @ Temp: 20 °C',
+					inchi: 'InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3',
+					smile: 'C(C)O'
+				},
+				locationID: {
+					id: 2,
+					locationName: 'Drawer'
+				},
+				statusID: {
+					id: 3,
+					statusValue: 'received'
+				}
+			},
+			{
+				id: 64,
+				amount: 64,
+				amountUnit: 'g',
+				isConsumed: false,
+				chemicalID: {
+					id: 28,
+					chemicalName: 'Aluminum chloride',
+					CAS: '7446-70-0',
+					MW: '133.3',
+					MP: '192.6 °C',
+					BP: '182.7 °C @ Press: 752 Torr',
+					density: '2.48 g/cm3',
+					inchi: 'InChI=1S/Al.3ClH/h;3*1H/q+3;;;/p-3',
+					smile: '[Al](Cl)(Cl)Cl'
+				},
+				locationID: {
+					id: 1,
+					locationName: 'Freezer'
+				},
+				statusID: {
+					id: 3,
+					statusValue: 'received'
+				}
+			}
+		];
+	});
 	test('Clicking an order opens the first stage of the accordion.', async () => {
 		render(Inventory, { locationsList, ordersList });
 
@@ -334,9 +574,9 @@ describe('Accordion Tests', () => {
 		});
 	});
 
-	test('Able to modify the value of the order amount.', async () => {
+	test('Able to modify the value of the order amount input field.', async () => {
+		// console.log('before 47', ordersList[0]);
 		render(Inventory, { locationsList, ordersList });
-
 		const order = ordersList[0];
 		await openAccordionItem(order);
 
@@ -346,11 +586,12 @@ describe('Accordion Tests', () => {
 		await changeAmountTo('47');
 
 		expect(amountInput).toHaveValue(47);
+		// console.log('after 47', ordersList[0]);
 	});
 
 	test('Selecting a different item from the locations dropdown menu will change the parent text and locationID.', async () => {
+		// console.log('next 47', ordersList[0]);
 		render(Inventory, { locationsList, ordersList });
-
 		const order = ordersList[0];
 		await openAccordionItem(order);
 
@@ -368,8 +609,24 @@ describe('Accordion Tests', () => {
 		expect(locationIDInput).toHaveValue('2');
 	});
 
-	test('Able to modify an order by changing the amount.', async () => {
+	test('Able to modify an order by changing the amount.', async (event) => {
+		// console.log(event);
 		render(Inventory, { locationsList, ordersList });
+
+		server.use(
+			rest.put(`${origin}/inventory`, async (req, res, ctx) => {
+				// rest.put('/inventory', async (req, res, ctx) => {
+				// console.log('req: ', req.url);
+				return res(
+					ctx.delay(100),
+					ctx.json({
+						locationObject: { id: 1, locationName: 'Freezer' },
+						form: { success: true, error: null }
+					})
+				);
+			})
+		);
+		// console.log('server: ', server);
 
 		const order = ordersList[0];
 		await openAccordionItem(order);
@@ -397,15 +654,15 @@ describe('Accordion Tests', () => {
 
 		// expect(screen.queryByText(/Saving.../i)).not.toBeInTheDocument();
 		screen.getByText(/Please enter an integer in the 'remaining' field./i);
-		screen.debug();
 	});
 
 	test('An error message appears if the request fails when updating the order', async () => {
 		server.use(
-			rest.put('http://localhost:5173/inventory', async (req, res, ctx) => {
+			rest.put(`${origin}/inventory`, async (req, res, ctx) => {
+				// console.log('req: ', req.body);
 				return res(
 					ctx.delay(100),
-					ctx.json({ success: false, error: 'Error connecting to database...' })
+					ctx.json({ form: { success: false, error: 'Error connecting to database...' } })
 				);
 			})
 		);
@@ -425,7 +682,20 @@ describe('Accordion Tests', () => {
 		expect(await screen.findByText(/Error connecting to database.../i)).toBeInTheDocument();
 	});
 
+	/* *** this actually changes ordersList !? */
 	test('Able to modify an order by changing the location.', async () => {
+		server.use(
+			rest.put(`${origin}/inventory`, async (req, res, ctx) => {
+				// console.log('req: ', req);
+				return res(
+					ctx.delay(100),
+					ctx.json({
+						locationObject: { id: 2, locationName: 'Drawer' },
+						form: { success: true, error: null }
+					})
+				);
+			})
+		);
 		render(Inventory, { locationsList, ordersList });
 
 		const order = ordersList[0];
@@ -444,6 +714,45 @@ describe('Accordion Tests', () => {
 		screen.getByText(/Saving.../i);
 
 		expect(await screen.findByText(/Saved./i)).toBeInTheDocument();
+	});
+
+	test('When in a partiular inventory location, chaning the location to something else will make it dissappear', async () => {
+		server.use(
+			rest.put(`${origin}/inventory`, async (req, res, ctx) => {
+				return res(
+					ctx.delay(100),
+					ctx.json({
+						locationObject: { id: 2, locationName: 'Drawer' },
+						form: { success: true, error: null }
+					})
+				);
+			})
+		);
+		render(Inventory, { locationsList, ordersList });
+
+		const sidebarFreezer = screen.getByRole('button', { name: 'Freezer' });
+		await userEvent.click(sidebarFreezer);
+
+		screen.getByText(/Aluminum chloride/i);
+
+		const order = ordersList[0];
+		await openAccordionItem(order);
+
+		const locationDropdown = screen.getByTestId('dropSelect');
+
+		await userEvent.click(locationDropdown);
+
+		const drawerOption = screen.getByRole('option', { name: 'Drawer' });
+		await userEvent.click(drawerOption);
+
+		const submit = screen.getByText('✓');
+		await userEvent.click(submit);
+
+		await waitForElementToBeRemoved(submit);
+
+		expect(screen.queryByText(/Aluminum chloride/i)).not.toBeInTheDocument();
+		expect(screen.queryByText(/MODIFY/i)).not.toBeInTheDocument();
+		screen.getByText(/There's nothing here!/i);
 	});
 
 	test('Clicking the triangle opens the second stage of the accordion', async () => {

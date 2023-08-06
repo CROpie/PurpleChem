@@ -44,7 +44,9 @@
 
 		let orderID = order.id;
 		let locationID = currentValue;
+
 		let amount = order.amount;
+		let statusID = order.statusID;
 
 		if (!numbersOnly.test(String(order.amount))) {
 			failValidation = true;
@@ -52,7 +54,8 @@
 		}
 		waiting = true;
 
-		const response = await fetch('http://localhost:5173/inventory', {
+		const origin = window.location.origin;
+		const response = await fetch(`${origin}/inventory`, {
 			method: 'PUT',
 			body: JSON.stringify({ orderID, locationID, amount }),
 			headers: {
@@ -60,14 +63,24 @@
 			}
 		});
 
-		form = await response.json();
+		const jsonResponse = await response.json();
+
+		form = jsonResponse.form;
+
+		const locationObject = jsonResponse.locationObject;
 		waiting = false;
 
-		if (form?.success) {
-			await invalidateAll();
+		const modifiedData = {
+			orderID,
+			locationID: locationObject,
+			amount,
+			statusID
+		};
 
-			console.log('dispatch trigger');
-			dispatch('triggerUpdate');
+		if (form?.success) {
+			// await invalidateAll();
+
+			dispatch('triggerUpdate', modifiedData);
 		}
 	}
 </script>

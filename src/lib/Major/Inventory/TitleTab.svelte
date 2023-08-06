@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { orders } from './orderType';
 	export let order: orders;
+	// $: console.log('Title: ', order);
 
 	/* STRUCTURE */
 	import { RDKitSS } from '$lib/stores/rdkitstore2';

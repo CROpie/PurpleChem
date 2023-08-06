@@ -6,6 +6,7 @@
 	let waiting = false;
 
 	function handleSubmit() {
+		console.log('window location: ', window.location.href);
 		return async ({ result, update }) => {
 			form = result.data;
 			update();

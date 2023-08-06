@@ -1,5 +1,7 @@
 import { json } from '@sveltejs/kit';
 
+import type { locations } from './orderType.js';
+
 type FormResult = {
 	success: boolean;
 	error: string | null;
@@ -21,18 +23,34 @@ export const POST = async ({ request, locals }) => {
 		return json(form);
 	}
 
-	// add order to database
-	const { error } = await locals.supabase.from('locations').insert({
-		userID,
-		locationName: newLocation
-	});
+	// add new location to database, user .select() to return the data so that the created id can be used
+	// without .maybeSingle() an array of one item will be returned
+	const { data, error } = await locals.supabase
+		.from('locations')
+		.insert({
+			userID,
+			locationName: newLocation
+		})
+		.select()
+		.maybeSingle();
 
 	if (error) {
 		form.error = 'Error connecting to database...';
 		return json(form);
 	}
+
+	if (!data) {
+		form.error = 'Error connecting to database...';
+		return json(form);
+	}
+
+	const newLocationData: locations = {
+		id: data.id,
+		locationName: data.locationName
+	};
+
 	form.success = true;
-	return json(form);
+	return json({ newLocationData, form });
 };
 
 export const PUT = async ({ request, locals }) => {
@@ -42,7 +60,6 @@ export const PUT = async ({ request, locals }) => {
 	};
 
 	const { orderID, locationID, amount } = await request.json();
-	console.log(orderID, locationID, amount);
 
 	if (!orderID || !amount) {
 		form.error = 'Somehow invalid data made it to the server';
@@ -78,9 +95,35 @@ export const PUT = async ({ request, locals }) => {
 		return json(form);
 	}
 
+	// need to get location name from locationID, because this is done in the +page.server load function
+	// possibly the same issue with updating status...
+
+	const { data, error: getLocationName } = await locals.supabase
+		.from('locations')
+		.select()
+		.eq('id', locationID)
+		.maybeSingle();
+
+	if (getLocationName) {
+		console.log(errorLocation);
+		form.error = 'Error connecting to database...';
+		return json(form);
+	}
+
+	if (!data) {
+		form.error = 'Error connecting to database...';
+		return json(form);
+	}
+
+	const locationObject = {
+		id: data.id,
+		locationName: data.locationName
+	};
+
 	form.success = true;
 	console.log('success');
-	return json(form);
+
+	return json({ locationObject, form });
 };
 
 // updateData: async (event) => {

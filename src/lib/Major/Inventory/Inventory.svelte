@@ -8,15 +8,16 @@
 
 	export let locationsList: locations[];
 	export let ordersList: orders[];
+	$: ordersList;
 	let filteredOrdersList: orders[] = ordersList;
-	$: filteredOrdersList = ordersList;
+	$: filteredOrdersList;
 
 	// filter & sort options
 	let selectedLocationID = -1;
 
 	let currentLocation = 'All';
 
-	$: selectedLocationID && refreshData();
+	$: selectedLocationID && filterOrdersList();
 
 	let sortByName = true;
 	let sortByDate = false;
@@ -46,16 +47,40 @@
 		}
 	}
 
-	const refreshData = async () => {
+	// const refreshData = async () => {
+	// 	console.log('refreshing');
+	// 	filterOrdersList();
+	// };
+
+	const addLocation = async ({ detail }) => {
+		const newLocationData: locations = detail;
+		locationsList = [...locationsList, newLocationData];
+	};
+
+	const modifyData = async ({ detail }) => {
+		const modifiedData = detail;
+
+		ordersList.forEach((order) => {
+			if (order.id == modifiedData.orderID) {
+				order.amount = Number(modifiedData.amount);
+				order.statusID = modifiedData.statusID;
+				order.locationID = modifiedData.locationID;
+			}
+		});
+
 		filterOrdersList();
-		sortOrders();
 	};
 </script>
 
 <div class="flex flex-wrap">
-	<LocationSidebar {locationsList} bind:selectedLocationID bind:currentLocation />
+	<LocationSidebar
+		{locationsList}
+		bind:selectedLocationID
+		bind:currentLocation
+		on:triggerAddLocation={addLocation}
+	/>
 	<div class="flex-1">
 		<Heading tag="h3">{currentLocation}</Heading>
-		<InventoryAccordion {locationsList} {filteredOrdersList} on:triggerUpdate={refreshData} />
+		<InventoryAccordion {locationsList} {filteredOrdersList} on:triggerUpdate={modifyData} />
 	</div>
 </div>

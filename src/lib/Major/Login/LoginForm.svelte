@@ -38,13 +38,17 @@
 
 	// Manual JS fetch version
 	const handleSubmit = async () => {
+		// console.log('actual: ', window.location.href);
+		// console.log('actual: ', location.href);
 		form = null;
 		if (!email || !password) {
 			return;
 		}
 
 		waiting = true;
-		const response = await fetch('http://localhost:5173/', {
+		const baseUrl = window.location.href;
+		// const response = await fetch('http://localhost:5173/', {
+		const response = await fetch(`${baseUrl}`, {
 			method: 'POST',
 			body: JSON.stringify({ email, password }),
 			headers: {

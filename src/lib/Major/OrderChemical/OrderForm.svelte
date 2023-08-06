@@ -97,9 +97,12 @@
 		const res = await fetch(uri);
 		searching = false;
 
+		console.log(res);
+
 		// found
 		if (res.ok) {
 			const data = await res.json();
+			console.log('data: ', data);
 			chemicalName = data.name;
 			MW = data.molecularMass;
 			inchi = data.inchi;
@@ -164,6 +167,7 @@
 	}
 
 	function extractPhys(propertyArray: any[]) {
+		console.log('extracting...');
 		propertyArray.forEach((item) => {
 			if (item.name == 'Boiling Point') {
 				BP = item.property;
@@ -265,7 +269,16 @@
 </script>
 
 <form method="POST" action="?/orderChemical" use:enhance={validateData} class="m-8">
-	<Input label="CAS number" name="CAS" type="text" bind:value={CAS} outline required autofocus />
+	<Input
+		label="CAS number"
+		name="CAS"
+		type="text"
+		data-testID="CASInput"
+		bind:value={CAS}
+		outline
+		required
+		autofocus
+	/>
 
 	<div class="flex items-center gap-4 mt-2">
 		<Button type="button" on:click={() => getProperties()} outline>SEARCH</Button>
@@ -396,11 +409,11 @@
 	{/if}
 	<!-- hidden properties: physical / structure -->
 
-	<input name="MW" type="hidden" bind:value={MW} />
-	<input name="MP" type="hidden" bind:value={MP} />
-	<input name="BP" type="hidden" bind:value={BP} />
-	<input name="density" type="hidden" bind:value={density} />
+	<input name="MW" type="hidden" bind:value={MW} placeholder="MW" />
+	<input name="MP" type="hidden" bind:value={MP} placeholder="MP" />
+	<input name="BP" type="hidden" bind:value={BP} placeholder="BP" />
+	<input name="density" type="hidden" bind:value={density} placeholder="density" />
 
-	<input name="inchi" type="hidden" bind:value={inchi} />
-	<input name="smile" type="hidden" bind:value={smile} />
+	<input name="inchi" type="hidden" bind:value={inchi} placeholder="inchi" />
+	<input name="smile" type="hidden" bind:value={smile} placeholder="smile" />
 </form>

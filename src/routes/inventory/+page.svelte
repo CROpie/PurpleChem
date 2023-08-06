@@ -17,7 +17,6 @@
 
 	let locationsList: locations[] = data.locationsList;
 	$: locationsList = data.locationsList;
-	$: console.log(ordersList, locationsList);
 </script>
 
 {#if !ordersList || !locationsList}
