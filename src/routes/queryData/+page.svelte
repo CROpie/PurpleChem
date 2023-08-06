@@ -8,6 +8,6 @@
 	const { supabase } = data;
 </script>
 
-<Heading tag="h2" class="text-center mt-3">Search Database</Heading>
+<Heading tag="h2" class="text-center mt-3">Query Database</Heading>
 
 <QueryDataTable {supabase} />
