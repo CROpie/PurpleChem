@@ -10,7 +10,6 @@
 
 	/* STRUCTURE EDITOR */
 	import { RDKitSS } from '$lib/stores/rdkitstore2';
-	const RDKitModule = $RDKitSS;
 
 	let jsmeApplet: any;
 	let jsmeContainer: HTMLElement;
@@ -53,17 +52,13 @@
 	let inchi: string | null;
 	let smile: string | null;
 
-	$: console.log('inchi: ', inchi, 'smile: ', smile);
-
 	// variables relating to error/progress messages
 	// API search
 	let searching = false;
 	let invalidCAS = false;
 	let CASfound = false;
 	let CASnotFound = false;
-
-	// user input structure
-	let structureInfo = false;
+	let manualStructure = false;
 
 	// press order
 	let ordering = false;
@@ -99,8 +94,6 @@
 		const res = await fetch(uri);
 		searching = false;
 
-		console.log(res);
-
 		// found
 		if (res.ok) {
 			const data = await res.json();
@@ -129,6 +122,7 @@
 				// need to input info manually
 				toggleStructureSearch();
 				CASnotFound = true;
+				manualStructure = true;
 			}
 		}
 	};
@@ -150,7 +144,6 @@
 		smile = null;
 
 		// messages
-		structureInfo = false;
 		CASnotFound = false;
 		CASfound = false;
 		invalidCAS = false;
@@ -169,7 +162,6 @@
 	}
 
 	function extractPhys(propertyArray: any[]) {
-		console.log('extracting...');
 		propertyArray.forEach((item) => {
 			if (item.name == 'Boiling Point') {
 				BP = item.property;
@@ -212,34 +204,46 @@
 		}
 	}
 
-	const validateData: SubmitFunction = async (event) => {
+	const validateData: SubmitFunction = async ({ cancel }) => {
+		failValidation = false;
 		if (!CASRegexPattern.test(CAS)) {
 			failValidation = true;
-			event.cancel();
 		}
 		if (!numbersOnly.test(String(amount))) {
 			failValidation = true;
-			event.cancel();
 		}
 		if (!supplierID) {
 			failValidation = true;
-			event.cancel();
 		}
 		if (!amountUnit) {
 			failValidation = true;
-			event.cancel();
+		}
+
+		if (manualStructure) {
+			const newInchi = generateStructureInfo();
+			CASnotFound = false;
+			if (!newInchi) {
+				failValidation = true;
+			}
 		}
 
 		ordering = true;
+
+		if (failValidation) {
+			ordering = false;
+			cancel();
+			return;
+		}
+
 		CASfound = false;
 
 		return async ({ result, update }) => {
 			ordering = false;
-			structureInfo = false;
 			CASnotFound = false;
 			CASfound = false;
 			invalidCAS = false;
 			failValidation = false;
+			manualStructure = false;
 
 			if (jsmeContainer.classList.contains('flex')) {
 				jsmeContainer.classList.replace('flex', 'hidden');
@@ -264,9 +268,9 @@
 	function generateStructureInfo() {
 		smile = jsmeApplet.smiles();
 		if (smile) {
-			inchi = RDKitModule!.get_mol(smile).get_inchi();
+			inchi = $RDKitSS!.get_mol(smile).get_inchi();
 		}
-		structureInfo = true;
+		return inchi;
 	}
 </script>
 
@@ -304,11 +308,6 @@
 		{#if CASfound}
 			<p class="text-green-500">Properties have been imported.</p>
 		{/if}
-		{#if failValidation}
-			<p class="text-red-500">
-				Please check that all the necessary fields have been entered correctly.
-			</p>
-		{/if}
 	</div>
 	<Input
 		label="Chemical Name"
@@ -322,13 +321,6 @@
 	<div bind:this={jsmeContainer} class="hidden flex-col">
 		<div class="text-primary">Chemical Structure</div>
 		<div id="jsme_container" />
-		<Button type="button" outline class="w-96" on:click={generateStructureInfo}
-			>Generate Structure Info</Button
-		>
-		{#if structureInfo}
-			<p class="text-primary">Structure Info Generated.</p>
-			<!-- <p class="text-primary">(DEMO: Smile: {smile} Inchi: {inchi})</p> -->
-		{/if}
 	</div>
 
 	<div class="flex">
@@ -410,6 +402,11 @@
 		<p class="text-green-500">Order Successful.</p>
 	{/if}
 	<!-- hidden properties: physical / structure -->
+	{#if failValidation}
+		<p class="text-red-500">
+			Please check that all the necessary fields have been entered correctly.
+		</p>
+	{/if}
 
 	<input name="MW" type="hidden" bind:value={MW} placeholder="MW" />
 	<input name="MP" type="hidden" bind:value={MP} placeholder="MP" />

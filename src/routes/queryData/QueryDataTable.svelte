@@ -16,7 +16,6 @@
 
 	/* STRUCTURE EDITOR */
 	import { RDKitSS } from '$lib/stores/rdkitstore2';
-	const RDKitModule = $RDKitSS;
 
 	let jsmeApplet: any;
 	let jsmeContainer: HTMLElement;
@@ -154,10 +153,8 @@
 
 	function getInchi() {
 		const smiles = jsmeApplet.smiles();
-		if (RDKitModule) {
-			const inchi = RDKitModule.get_mol(smiles).get_inchi();
-			return inchi;
-		}
+		const inchi = $RDKitSS!.get_mol(smiles).get_inchi();
+		return inchi;
 	}
 
 	const showConsumed = () => {
