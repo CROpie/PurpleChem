@@ -1,0 +1,2 @@
+Make it so clicking order chemical generates the structure info automatically. Don't need a separate button
+Fix force status button

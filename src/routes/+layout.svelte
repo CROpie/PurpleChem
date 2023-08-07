@@ -50,8 +50,14 @@
 	<script src="/node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script> -->
 	<!-- <script src="/node_modules/jsme-editor/jsme.nocache.js"></script>
 	<script src="/node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script> -->
-	<script src="https://jsme.cloud.douglasconnect.com/JSME_2017-02-26/jsme/jsme.nocache.js"></script>
-	<script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
+	<!-- <script src="/node_modules/jsme-editor/jsme.nocache.js"></script>
+	<script src="/node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script> -->
+	<!-- <script src="/node_modules/jsme-editor/jsme.nocache.js"></script>
+	<script src="/node_modules/@rdkit/rdkit/dist/RDKit_minimal.js"></script> -->
+	<script src="/jsme-editor/jsme.nocache.js"></script>
+	<script src="/@rdkit/rdkit/dist/RDKit_minimal.js"></script>
+	<!-- <script src="https://jsme.cloud.douglasconnect.com/JSME_2017-02-26/jsme/jsme.nocache.js"></script>
+	<script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script> -->
 </svelte:head>
 
 {#await initRDKit()}
@@ -61,7 +67,7 @@
 	<div class="sticky top-0 z-20">
 		<Navbar let:hidden let:toggle outline>
 			<NavBrand href="/">
-				<img src="src/lib/images/BearbeerCrop.png" class="mr-3 h-12 sm:h-12" alt="PurpleChem" />
+				<img src="BearbeerCrop.png" class="mr-3 h-12 sm:h-12" alt="PurpleChem" />
 				<span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
 					PurpleChem
 				</span>

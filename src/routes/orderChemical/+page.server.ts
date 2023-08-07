@@ -49,6 +49,8 @@ export const actions: Actions = {
 		const inchi = String(formData.get('inchi'));
 		const smile = String(formData.get('smile'));
 
+		console.log('inchi: ', inchi, 'smile: ', smile);
+
 		// validation
 		// required fields
 		if (!userID || !CAS || !chemicalName || !amount || !amountUnit || !supplierID) {

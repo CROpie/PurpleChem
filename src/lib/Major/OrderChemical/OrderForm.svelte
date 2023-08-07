@@ -53,6 +53,8 @@
 	let inchi: string | null;
 	let smile: string | null;
 
+	$: console.log('inchi: ', inchi, 'smile: ', smile);
+
 	// variables relating to error/progress messages
 	// API search
 	let searching = false;
