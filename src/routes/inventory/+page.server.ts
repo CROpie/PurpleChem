@@ -3,7 +3,6 @@ import type { Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../$types';
 
 export const load: PageServerLoad = async ({ locals: { supabase, getSession } }) => {
-	console.log('running load function');
 	const session = await getSession();
 	const userID = session?.user.id;
 

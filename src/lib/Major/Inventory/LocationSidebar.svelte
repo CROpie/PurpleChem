@@ -18,8 +18,6 @@
 	export let selectedLocationID;
 	export let currentLocation;
 
-	console.log(window.location);
-
 	// form submission
 	type FormResult = {
 		success: boolean;

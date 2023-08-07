@@ -6,14 +6,12 @@
 	/* STRUCTURE */
 	import { RDKitSS } from '$lib/stores/rdkitstore2';
 
-	const RDKitModule = $RDKitSS;
-
 	export let currentSVG;
 
 	function getSVG(smile: string | null) {
-		if (RDKitModule) {
+		if ($RDKitSS) {
 			if (smile) {
-				currentSVG = RDKitModule.get_mol(smile).get_svg();
+				currentSVG = $RDKitSS.get_mol(smile).get_svg();
 			}
 		}
 	}
