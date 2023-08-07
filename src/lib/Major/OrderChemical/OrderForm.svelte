@@ -59,6 +59,7 @@
 	// press order
 	let ordering = false;
 	let failValidation = false;
+	let failStructure = false;
 
 	// Validation regxes
 	const CASRegexPattern = /^\d{2,7}-\d{2}-\d$/;
@@ -144,6 +145,7 @@
 		CASfound = false;
 		invalidCAS = false;
 		failValidation = false;
+		failStructure = false;
 
 		if (jsmeContainer.classList.contains('flex')) {
 			jsmeContainer.classList.replace('flex', 'hidden');
@@ -171,17 +173,6 @@
 		});
 	}
 
-	// CAS not found by commonchem API but need to check if already input into database
-	// Move this to +server.ts ...
-	// async function checkDBForCas() {
-	// 	let { data: chemical } = await supabase.from('chemicals').select().eq('CAS', CAS).maybeSingle();
-	// 	if (chemical) {
-	// 		return chemical;
-	// 	} else {
-	// 		return false;
-	// 	}
-	// }
-
 	async function checkDBForCas() {
 		const response = await fetch('/orderChemical', {
 			method: 'POST',
@@ -202,6 +193,7 @@
 
 	const validateData: SubmitFunction = async ({ cancel }) => {
 		failValidation = false;
+		failStructure = false;
 		if (!CASRegexPattern.test(CAS)) {
 			failValidation = true;
 		}
@@ -215,18 +207,17 @@
 			failValidation = true;
 		}
 
+		// make the user generate a structure if one wasn't obtained from CAS
 		if (manualStructure) {
-			console.log('generating...');
-			const newInchi = generateStructureInfo();
 			CASnotFound = false;
-			if (!newInchi) {
-				failValidation = true;
+			if (!inchi) {
+				failStructure = true;
 			}
 		}
 
 		ordering = true;
 
-		if (failValidation) {
+		if (failValidation || failStructure) {
 			ordering = false;
 			cancel();
 			return;
@@ -240,6 +231,7 @@
 			CASfound = false;
 			invalidCAS = false;
 			failValidation = false;
+			failStructure = false;
 			manualStructure = false;
 
 			if (jsmeContainer.classList.contains('flex')) {
@@ -263,12 +255,12 @@
 	}
 
 	function generateStructureInfo() {
+		failStructure = false;
 		smile = jsmeApplet.smiles();
 		if (smile) {
 			inchi = $RDKitSS!.get_mol(smile).get_inchi();
 			console.log('inchi generated: ', inchi);
 		}
-		return inchi;
 	}
 </script>
 
@@ -319,6 +311,12 @@
 	<div bind:this={jsmeContainer} class="hidden flex-col">
 		<div class="text-primary">Chemical Structure</div>
 		<div id="jsme_container" />
+		<Button type="button" on:click={generateStructureInfo} class="w-96" outline
+			>Generate Structure Info</Button
+		>
+		{#if inchi}
+			<p class="text-green-500">Structure has been stored as a string.</p>
+		{/if}
 	</div>
 
 	<div class="flex">
@@ -404,6 +402,9 @@
 		<p class="text-red-500">
 			Please check that all the necessary fields have been entered correctly.
 		</p>
+	{/if}
+	{#if failStructure}
+		<p class="text-red-500">Please generate the structure info before placing the order.</p>
 	{/if}
 
 	<input name="MW" type="hidden" bind:value={MW} placeholder="MW" />
