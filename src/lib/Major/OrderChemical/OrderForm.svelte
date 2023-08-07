@@ -14,10 +14,6 @@
 	let jsmeApplet: any;
 	let jsmeContainer: HTMLElement;
 
-	// onMount(() => {
-	// 	jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
-	// });
-
 	/* VARIABLES */
 	type Supplier = {
 		id: number;
@@ -255,15 +251,14 @@
 	};
 
 	function toggleStructureSearch() {
-		jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
-		if (!jsmeContainer) {
-			console.log('something has gone wrong with jsme.');
-		} else {
-			if (jsmeContainer.classList.contains('hidden')) {
-				jsmeContainer.classList.replace('hidden', 'flex');
-			} else if (jsmeContainer.classList.contains('flex')) {
-				jsmeContainer.classList.replace('flex', 'hidden');
-			}
+		if (!jsmeApplet) {
+			jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
+		}
+
+		if (jsmeContainer.classList.contains('hidden')) {
+			jsmeContainer.classList.replace('hidden', 'flex');
+		} else if (jsmeContainer.classList.contains('flex')) {
+			jsmeContainer.classList.replace('flex', 'hidden');
 		}
 	}
 
