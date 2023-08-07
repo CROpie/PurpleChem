@@ -1,11 +1,7 @@
 import { json } from '@sveltejs/kit';
 
-import type { locations } from './orderType.js';
-
-type FormResult = {
-	success: boolean;
-	error: string | null;
-};
+import type { locations } from '$lib/types/orderType.js';
+import type { FormResult } from '$lib/types/formTypes.js';
 
 export const POST = async ({ request, locals }) => {
 	const form: FormResult = {

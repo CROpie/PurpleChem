@@ -20,13 +20,11 @@
 		TableHeadCell
 	} from '$lib/components/table/TableAll';
 
+	import type { FormResult } from '$lib/types/formTypes';
+
 	export let data: PageData;
 	let { ordersList } = data;
 
-	type FormResult = {
-		success: boolean;
-		error: string;
-	} | null;
 	let form: FormResult = null;
 	let updating = false;
 

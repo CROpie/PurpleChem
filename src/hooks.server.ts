@@ -4,7 +4,7 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 import { createSupabaseServerClient } from '@supabase/auth-helpers-sveltekit';
 import type { Handle } from '@sveltejs/kit';
-import type { Database } from '$lib/db_types';
+import type { Database } from '$lib/types/db_types';
 
 const first: Handle = async ({ event, resolve }) => {
 	let theme: string | null = null;
@@ -24,6 +24,8 @@ const first: Handle = async ({ event, resolve }) => {
 		theme = newTheme;
 	} else if (cookieTheme) {
 		theme = cookieTheme;
+	} else {
+		theme = 'theme-dark theme-purple';
 	}
 
 	// change the part of the app.html file which gives a global class <html lang="en class="">

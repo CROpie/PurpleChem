@@ -10,7 +10,7 @@
 	const defaultClass = 'rounded-lg';
 	const fillClass = 'text-neutral bg-primary hover:text-opNeutral hover:bg-complement';
 	const outlineClass =
-		'border text-primary border-primary bg-transparent hover:text-complement hover:border-complement';
+		'border-2 text-primary border-primary bg-transparent hover:text-complement hover:border-complement';
 
 	const sizeClasses: colorChoice = {
 		xs: 'px-3 py-2 text-xs',

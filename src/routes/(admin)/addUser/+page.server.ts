@@ -31,7 +31,7 @@ export const actions: Actions = {
 				username,
 				full_name: email
 			})
-			.eq('id', data.user.id);
+			.eq('id', data.user?.id);
 
 		if (error2) {
 			console.log(error2);

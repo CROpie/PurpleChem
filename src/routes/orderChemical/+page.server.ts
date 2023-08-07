@@ -1,23 +1,15 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../$types.js';
+import type { FormResult } from '$lib/types/formTypes.js';
 
-type FormResult = {
-	success: boolean;
-	error: string | null;
-};
-
-export const load: PageServerLoad = async ({ locals: { supabase, getSession } }) => {
-	// const session = await getSession();
-
+export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 	const { data: supplierList } = await supabase.from('suppliers').select('*');
 
 	return { supplierList };
 };
 
 export const actions: Actions = {
-	// orderChemical: async (event: RequestEvent)
-	// orderChemical: async ({ request, locals: { supabase, getSession } }) => {
 	orderChemical: async (event) => {
 		const form: FormResult = {
 			success: false,
@@ -30,9 +22,6 @@ export const actions: Actions = {
 			form.error = 'Request failed...';
 			return fail(400, form);
 		}
-
-		// converting to expected type so they arent type FormDataEntryValue
-		// won't give an error if .get('key') is null.
 
 		const session = await event.locals.getSession();
 		const userID = session?.user.id;
@@ -129,26 +118,3 @@ export const actions: Actions = {
 		return form;
 	}
 };
-
-/*
-Occasional error with the initial CAS search
-But just doing a second time sometimes will make it work.
-Seems like a problem with Supabase
-
-something went wrong with initial CAS search...
-{
-  message: 'TypeError: fetch failed',
-  details: 'TypeError: fetch failed\n' +
-    '    at fetch (/home/chris/repos/PurpleChem/node_modules/undici/index.js:109:13)\n' +
-    '    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n' +
-    '    at async orderChemical (/home/chris/repos/PurpleChem/src/routes/orderChemical/+page.server.ts:28:20)\n' +
-    '    at async Module.handle_action_json_request (/home/chris/repos/PurpleChem/node_modules/@sveltejs/kit/src/runtime/server/page/actions.js:57:16)\n' +
-    '    at async resolve (/home/chris/repos/PurpleChem/node_modules/@sveltejs/kit/src/runtime/server/respond.js:405:17)\n' +
-    '    at async first (/home/chris/repos/PurpleChem/src/hooks.server.ts:24:12)\n' +
-    '    at async Module.respond (/home/chris/repos/PurpleChem/node_modules/@sveltejs/kit/src/runtime/server/respond.js:274:20)\n' +
-    '    at async file:///home/chris/repos/PurpleChem/node_modules/@sveltejs/kit/src/exports/vite/dev/index.js:505:22',
-  hint: '',
-  code: ''
-}
-
-*/

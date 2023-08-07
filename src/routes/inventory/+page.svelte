@@ -1,11 +1,11 @@
 <script lang="ts">
 	// major components
-	import Inventory from '$lib/Major/Inventory/Inventory.svelte';
+	import Inventory from './components/Inventory.svelte';
 
 	import type { PageData } from './$types';
 	import type { ActionData } from './$types';
 
-	import type { orders, locations } from './orderType';
+	import type { orders, locations } from '$lib/types/orderType';
 
 	export let form: ActionData;
 

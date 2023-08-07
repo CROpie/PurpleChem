@@ -7,7 +7,7 @@
 	import { Navbar, NavUl, NavBrand, NavLi, NavHamburger } from '$lib/components/navbar/Nav';
 	import { DarkLightTheme } from '$lib/components/theme/themePick';
 
-	import { RDKitSS } from '$lib/stores/rdkitstore2';
+	import { RDKitSS } from '$lib/stores/rdkitstore';
 
 	import type { PageData } from './$types';
 
@@ -35,8 +35,6 @@
 	});
 
 	// init RDKit in +layout so then store in a store so it can be accessed anywhere on the app
-	// initRDKitModule() comes from RDKit_minimal.js imported in svelte:head below
-	// need to run it before things have been mounted, or else errors in cases like Inventory which requires (required??) it to be up and running
 	async function initRDKit() {
 		await initRDKitModule().then(function (instance) {
 			$RDKitSS = instance;
@@ -48,17 +46,11 @@
 <svelte:head>
 	<title>Chem Database</title>
 	<!-- <script src="/jsme-editor/jsme.nocache.js"></script> -->
-	<!-- <script src="/jsme-editor/jsme.nocache.js"></script> -->
 	<!-- <script src="/@rdkit/rdkit/dist/RDKit_minimal.js"></script> -->
 	<!-- <script src="https://jsme.cloud.douglasconnect.com/JSME_2017-02-26/jsme/jsme.nocache.js"></script>
 	<script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script> -->
 </svelte:head>
 
-<!-- {#await initRDKit()} -->
-<!-- Have to do it in an await block to ensure that it is loaded before things like query database after form submission-->
-<!-- Don't have to do this any more since no longer using page refreshing after subimssion -->
-<!-- <p>Setting up RDKit</p>
-{:then} -->
 <div class="sticky top-0 z-20">
 	<Navbar let:hidden let:toggle outline>
 		<NavBrand href="/">
@@ -79,11 +71,9 @@
 			{/if}
 			<NavLi href="/orderChemical">Order Chemical</NavLi>
 			<NavLi href="inventory">Inventory</NavLi>
-			<NavLi href="/queryData">Query Database</NavLi>
+			<NavLi href="/queryDatabase">Query Database</NavLi>
 			<NavLi href="/logout" class="text-neutral underline">Log Out</NavLi>
 		</NavUl>
 	</Navbar>
 </div>
 <slot />
-
-<!-- {/await} -->

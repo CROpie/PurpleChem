@@ -4,52 +4,18 @@
 	import { enhance } from '$app/forms';
 
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import type { ActionData } from '../../$types.js';
-
-	export let data;
-	let { supabase } = data;
+	import type { ActionData } from './$types';
 
 	export let form: ActionData;
 
 	let email = '';
 	let username: string | null = null;
 
-	/*
-
-	Putting options: { data: { username: "nick" } } here added {"username":"nick"} to raw_user_meta_data in Auth/users
-
-			const { data, error } = await supabase.auth.signUp({
-			email,
-			password: 'default',
-			options: {
-				data: {
-					username
-					// age: 29,
-					// role: 'admin'
-				}
-			}
-		});
-
-		*/
-
 	// for some stupid reason, using supabase.auth.signUp automatically changes the session to the newly created user
 	// therefore loging out of admin
 	const addUser: SubmitFunction = async ({ formData, cancel }) => {
-		// const { data, error } = await supabase.auth.signUp({
-		// 	email,
-		// 	password: 'default'
-		// });
-		// if (error) {
-		// 	console.log(error);
-		// 	cancel();
-		// } else {
-		// 	console.log(data);
-		// 	formData.append('userID', data.user.id);
-		// 	console.log('sending to server...');
-		// }
 		console.log('sending to sever...');
 	};
-	$: console.log(username);
 </script>
 
 <form method="POST" action="?/addUser" use:enhance={addUser}>

@@ -1,14 +1,9 @@
 import { json } from '@sveltejs/kit';
-
-type FormResult = {
-	success: boolean;
-	error: string | null;
-	admin: boolean | null;
-};
+import type { FormResultLogin } from '$lib/types/formTypes.js';
 
 export const POST = async ({ request, locals }) => {
 	console.log('logging in user');
-	const form: FormResult = {
+	const form: FormResultLogin = {
 		success: false,
 		error: null,
 		admin: null
@@ -45,9 +40,3 @@ export const POST = async ({ request, locals }) => {
 		return json(form);
 	}
 };
-
-/*
-
-
-
-*/

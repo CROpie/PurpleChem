@@ -1,10 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-
-type FormResult = {
-	success: boolean;
-	error: string;
-};
+import type { FormResult } from '$lib/types/formTypes';
 
 export const PUT: RequestHandler = async ({ request, locals }) => {
 	const form: FormResult = {

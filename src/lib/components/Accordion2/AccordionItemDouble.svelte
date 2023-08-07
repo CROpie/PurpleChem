@@ -40,9 +40,9 @@
 
 	// styling
 	let outline = getContext('outline');
-	let defaultAccordion = 'w-full flex flex-col gap-2 justify-between rounded-lg py-1';
+	let defaultAccordion = 'w-full flex flex-col gap-2 justify-between rounded-lg py-1 ';
 
-	const outlineClass = 'border-2 text-complement border-primary bg-transparent';
+	const outlineClass = 'border text-complement border-primary bg-transparent';
 	const fillClass = 'text-complement bg-primary';
 
 	// removed odd/even (striped)

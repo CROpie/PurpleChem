@@ -5,7 +5,6 @@ import { redirect } from '@sveltejs/kit';
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
 	const session = await locals.getSession();
-	// console.log('layout session: ', session?.user);
 
 	if (url.pathname != '/' && !session) {
 		console.log('Access denied.');
@@ -14,5 +13,3 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		return { session };
 	}
 };
-
-// Is it possible to pass data via the redirect to say something like 'please log in' ??
