@@ -20,9 +20,19 @@
 	let jsmeApplet: any;
 	let jsmeContainer: HTMLElement;
 
-	onMount(() => {
-		jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
-	});
+	// onMount(() => {
+	// 	const script = document.createElement('script');
+	// 	script.onload = () => {
+	// 		if (JSApplet) {
+	// 			console.log('JSApplet is available!');
+	// 			jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
+	// 		} else {
+	// 			console.log('error!');
+	// 		}
+	// 	};
+	// 	script.src = '/jsme-editor/jsme.nocache.js';
+	// 	document.head.appendChild(script);
+	// });
 
 	/* VARIABLES */
 	export let supabase: any;
@@ -75,6 +85,7 @@
 
 	/* FUNCTIONS */
 	const toggleStructureSearch = () => {
+		jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
 		noHit = false;
 		if (!jsmeContainer) {
 			console.log('something has gone wrong with jsme.');

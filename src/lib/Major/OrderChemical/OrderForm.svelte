@@ -14,9 +14,9 @@
 	let jsmeApplet: any;
 	let jsmeContainer: HTMLElement;
 
-	onMount(() => {
-		jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
-	});
+	// onMount(() => {
+	// 	jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
+	// });
 
 	/* VARIABLES */
 	type Supplier = {
@@ -220,6 +220,7 @@
 		}
 
 		if (manualStructure) {
+			console.log('generating...');
 			const newInchi = generateStructureInfo();
 			CASnotFound = false;
 			if (!newInchi) {
@@ -254,6 +255,7 @@
 	};
 
 	function toggleStructureSearch() {
+		jsmeApplet = new JSApplet.JSME('jsme_container', '380px', '340px');
 		if (!jsmeContainer) {
 			console.log('something has gone wrong with jsme.');
 		} else {
@@ -269,6 +271,7 @@
 		smile = jsmeApplet.smiles();
 		if (smile) {
 			inchi = $RDKitSS!.get_mol(smile).get_inchi();
+			console.log('inchi generated: ', inchi);
 		}
 		return inchi;
 	}
