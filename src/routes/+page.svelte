@@ -10,5 +10,5 @@
 <div class="ml-4">
 	<p class="text-complement">[Demo] To sign in use:</p>
 	<p class="text-neutral">chris@purplechem.com // default</p>
-	<p class="text-neutral">admin@purlechem.com // default</p>
+	<p class="text-neutral">admin@purplechem.com // default</p>
 </div>

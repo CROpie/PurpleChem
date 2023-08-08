@@ -12,6 +12,7 @@
 
 	let jsmeApplet: any;
 	let jsmeContainer: HTMLElement;
+	let afterCASContainer: HTMLElement;
 
 	/* VARIABLES */
 	type Supplier = {
@@ -86,6 +87,7 @@
 			return;
 		}
 		resetAll();
+
 		searching = true;
 		let uri = `https://commonchemistry.cas.org/api/detail?cas_rn=${CAS}`;
 
@@ -124,6 +126,10 @@
 				manualStructure = true;
 			}
 		}
+
+		if (afterCASContainer.classList.contains('hidden')) {
+			afterCASContainer.classList.replace('hidden', 'block');
+		}
 	};
 
 	// most of all need to erase data in hidden input fields in the case that a second search has taken place
@@ -151,6 +157,10 @@
 
 		if (jsmeContainer.classList.contains('flex')) {
 			jsmeContainer.classList.replace('flex', 'hidden');
+		}
+
+		if (afterCASContainer.classList.contains('block')) {
+			afterCASContainer.classList.replace('block', 'hidden');
 		}
 
 		if (form?.success) {
@@ -310,128 +320,130 @@
 			</p>
 		{/if}
 	</div>
-	<Input
-		label="Chemical Name"
-		name="chemicalName"
-		type="text"
-		bind:value={chemicalName}
-		outline
-		required
-	/>
-
-	<div bind:this={jsmeContainer} class="hidden flex-col">
-		<div class="text-primary">Chemical Structure</div>
-		<div id="jsme_container" />
-		<Button type="button" on:click={generateStructureInfo} class="w-96" outline
-			>Generate Structure Info</Button
-		>
-		{#if inchi}
-			<p class="text-green-500">Structure has been stored as a string.</p>
-		{/if}
-	</div>
-
-	<div class="flex">
+	<div bind:this={afterCASContainer} class="hidden">
 		<Input
-			label="Amount"
-			name="amount"
+			label="Chemical Name"
+			name="chemicalName"
 			type="text"
-			required
-			divClass="w-9/12"
-			bind:value={amount}
+			bind:value={chemicalName}
 			outline
-		/>
-		<DropSelect
-			name="amountUnit"
-			outline
-			label="Unit"
-			class="rounded-lg border-2"
-			divClass="w-3/12"
-			bind:value={amountUnit}
-		>
-			{#each items as item}
-				<DropSelectItem value={item.value} label={item.name} />
-			{:else}
-				<DropSelectItem label="No options!" class="bg-neutral text-opNeutral" />
-			{/each}
-		</DropSelect>
-	</div>
-
-	<div class="flex">
-		<DropSelect
-			label="Supplier"
-			name="supplierID"
-			outline
-			class="rounded-lg border-2"
-			bind:value={supplierID}
-		>
-			{#each supplierList as supplier}
-				<DropSelectItem value={supplier.id} label={supplier.supplierName} />
-			{:else}
-				<DropSelectItem label="No options!" class="bg-neutral text-opNeutral" />
-			{/each}
-		</DropSelect>
-		<Input
-			label="Product Code"
-			name="supplierPN"
-			type="text"
-			outline
-			bind:value={supplierPN}
 			required
 		/>
-	</div>
 
-	{#if CASnotFound}
+		<div bind:this={jsmeContainer} class="hidden flex-col">
+			<div class="text-primary">Chemical Structure</div>
+			<div id="jsme_container" />
+			<Button type="button" on:click={generateStructureInfo} class="w-96" outline
+				>Generate Structure Info</Button
+			>
+			{#if inchi}
+				<p class="text-green-500">Structure has been stored as a string.</p>
+			{/if}
+		</div>
+
 		<div class="flex">
 			<Input
-				label="Molecular Weight (g/mol)"
+				label="Amount"
+				name="amount"
 				type="text"
-				divClass="w-3/12"
+				required
+				divClass="w-9/12"
+				bind:value={amount}
 				outline
-				bind:value={MW}
 			/>
-			<Input label="Melting Point (°C)" type="text" divClass="w-3/12" outline bind:value={MP} />
-			<Input label="Boiling Point (°C)" type="text" divClass="w-3/12" outline bind:value={BP} />
-			<Input label="Density (g/mL)" type="text" divClass="w-3/12" outline bind:value={density} />
+			<DropSelect
+				name="amountUnit"
+				outline
+				label="Unit"
+				class="rounded-lg border-2"
+				divClass="w-3/12"
+				bind:value={amountUnit}
+			>
+				{#each items as item}
+					<DropSelectItem value={item.value} label={item.name} />
+				{:else}
+					<DropSelectItem label="No options!" class="bg-neutral text-opNeutral" />
+				{/each}
+			</DropSelect>
 		</div>
-	{/if}
 
-	<!-- hidden properties from CAS search -->
-	<input name="MW" type="hidden" bind:value={MW} placeholder="MW" />
-	<input name="MP" type="hidden" bind:value={MP} placeholder="MP" />
-	<input name="BP" type="hidden" bind:value={BP} placeholder="BP" />
-	<input name="density" type="hidden" bind:value={density} placeholder="density" />
+		<div class="flex">
+			<DropSelect
+				label="Supplier"
+				name="supplierID"
+				outline
+				class="rounded-lg border-2"
+				bind:value={supplierID}
+			>
+				{#each supplierList as supplier}
+					<DropSelectItem value={supplier.id} label={supplier.supplierName} />
+				{:else}
+					<DropSelectItem label="No options!" class="bg-neutral text-opNeutral" />
+				{/each}
+			</DropSelect>
+			<Input
+				label="Product Code"
+				name="supplierPN"
+				type="text"
+				outline
+				bind:value={supplierPN}
+				required
+			/>
+		</div>
 
-	<input name="inchi" type="hidden" bind:value={inchi} placeholder="inchi" />
-	<input name="smile" type="hidden" bind:value={smile} placeholder="smile" />
+		{#if CASnotFound}
+			<div class="flex">
+				<Input
+					label="Molecular Weight (g/mol)"
+					type="text"
+					divClass="w-3/12"
+					outline
+					bind:value={MW}
+				/>
+				<Input label="Melting Point (°C)" type="text" divClass="w-3/12" outline bind:value={MP} />
+				<Input label="Boiling Point (°C)" type="text" divClass="w-3/12" outline bind:value={BP} />
+				<Input label="Density (g/mL)" type="text" divClass="w-3/12" outline bind:value={density} />
+			</div>
+		{/if}
 
-	<Button type="submit" outline class="w-full mt-8">ORDER CHEMICAL</Button>
+		<!-- hidden properties from CAS search -->
+		<input name="MW" type="hidden" bind:value={MW} placeholder="MW" />
+		<input name="MP" type="hidden" bind:value={MP} placeholder="MP" />
+		<input name="BP" type="hidden" bind:value={BP} placeholder="BP" />
+		<input name="density" type="hidden" bind:value={density} placeholder="density" />
 
-	<!-- validation messages -->
-	{#if failValidation}
-		<p class="text-red-500">
-			Please check that all the necessary fields have been entered correctly.
-		</p>
-	{/if}
-	{#if failStructure}
-		<p class="text-red-500">Please generate the structure info before placing the order.</p>
-	{/if}
-	{#if failAmount}
-		<p class="text-red-500">Please enter a whole number amount.</p>
-	{/if}
-	{#if failAmountUnit}
-		<p class="text-red-500">Please select a unit.</p>
-	{/if}
-	{#if failSupplierID}
-		<p class="text-red-500">Please select a supplier.</p>
-	{/if}
-	<!-- form messages -->
-	{#if ordering}
-		<p class="text-orange-500">Ordering...</p>
-	{/if}
-	{#if form?.error}
-		<p class="text-red-500">{form.error}</p>
-	{/if}
-	{#if form?.success}
-		<p class="text-green-500">Order Successful.</p>
-	{/if}
+		<input name="inchi" type="hidden" bind:value={inchi} placeholder="inchi" />
+		<input name="smile" type="hidden" bind:value={smile} placeholder="smile" />
+
+		<Button type="submit" outline class="w-full mt-8">ORDER CHEMICAL</Button>
+
+		<!-- validation messages -->
+		{#if failValidation}
+			<p class="text-red-500">
+				Please check that all the necessary fields have been entered correctly.
+			</p>
+		{/if}
+		{#if failStructure}
+			<p class="text-red-500">Please generate the structure info before placing the order.</p>
+		{/if}
+		{#if failAmount}
+			<p class="text-red-500">Please enter a whole number amount.</p>
+		{/if}
+		{#if failAmountUnit}
+			<p class="text-red-500">Please select a unit.</p>
+		{/if}
+		{#if failSupplierID}
+			<p class="text-red-500">Please select a supplier.</p>
+		{/if}
+		<!-- form messages -->
+		{#if ordering}
+			<p class="text-orange-500">Ordering...</p>
+		{/if}
+		{#if form?.error}
+			<p class="text-red-500">{form.error}</p>
+		{/if}
+		{#if form?.success}
+			<p class="text-green-500">Order Successful.</p>
+		{/if}
+	</div>
 </form>
