@@ -45,6 +45,8 @@
 	let queryOrders: OrderData[] = [];
 	let allQueryOrders: OrderData[] = [];
 
+	let showingConsumed = false;
+
 	// Table sorting
 	let sortKey = 'chemicalName'; // default sort key
 	let sortDirection = 1; // default sort direction (ascending)
@@ -87,8 +89,6 @@
 		dbError = false;
 		noStructure = false;
 		queryOrders = [];
-
-		let error;
 
 		let query = {
 			type,
@@ -154,6 +154,7 @@
 
 			allQueryOrders = queryOrders;
 			queryOrders = queryOrders?.filter((order) => order.isConsumed == false);
+			sortDirection = 1;
 			sortTable('chemicalName');
 		}
 	};
@@ -165,11 +166,17 @@
 	}
 
 	const showConsumed = () => {
+		showingConsumed = true;
 		queryOrders = allQueryOrders;
+		sortDirection = 1;
+		sortTable('chemicalName');
 	};
 
 	const hideConsumed = () => {
+		showingConsumed = false;
 		queryOrders = queryOrders?.filter((order) => order.isConsumed == false);
+		sortDirection = 1;
+		sortTable('chemicalName');
 	};
 
 	const sortTable = (key: string) => {
@@ -181,7 +188,7 @@
 			sortDirection = 1;
 		}
 		queryOrders = queryOrders.sort((a, b) =>
-			a[sortKey] > b[sortKey] ? -sortDirection : sortDirection
+			a[sortKey].toLowerCase() > b[sortKey].toLowerCase() ? -sortDirection : sortDirection
 		);
 	};
 </script>
@@ -226,8 +233,11 @@
 		</div>
 	</div>
 	<div class="flex my-3">
-		<Button type="button" outline on:click={showConsumed}>Show Consumed</Button>
-		<Button type="button" outline on:click={hideConsumed}>Hide Consumed</Button>
+		{#if showingConsumed}
+			<Button type="button" outline on:click={hideConsumed}>Hide Consumed</Button>
+		{:else}
+			<Button type="button" outline on:click={showConsumed}>Show Consumed</Button>
+		{/if}
 	</div>
 
 	<Table hoverable color="primary" striped>

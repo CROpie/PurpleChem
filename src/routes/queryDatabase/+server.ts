@@ -11,7 +11,6 @@ export const POST = async ({ request, locals }) => {
 	};
 
 	const { query } = await request.json();
-	console.log(query);
 
 	if (!query) {
 		form.error = 'Somehow invalid data made it to the server';
@@ -37,7 +36,7 @@ export const POST = async ({ request, locals }) => {
 			)
 			.eq('inchi', query.queryInchi));
 	}
-	console.log(data, error);
+
 	if (error) {
 		form.error = 'Error connecting to database...';
 		return json({ form });

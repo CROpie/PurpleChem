@@ -40,7 +40,7 @@
 	function sortOrders() {
 		if (sortByName) {
 			filteredOrdersList = filteredOrdersList.sort((a, b) =>
-				a.chemicalID.chemicalName > b.chemicalID.chemicalName ? 1 : -1
+				a.chemicalID.chemicalName?.toLowerCase() > b.chemicalID.chemicalName.toLowerCase() ? 1 : -1
 			);
 		} else if (sortByDate) {
 			filteredOrdersList = filteredOrdersList.sort((a, b) => (a.id > b.id ? 1 : -1));
@@ -80,7 +80,7 @@
 		on:triggerAddLocation={addLocation}
 	/>
 	<div class="flex-1">
-		<Heading tag="h3">{currentLocation}</Heading>
+		<Heading tag="h3" class="ml-5 mt-2">{currentLocation}</Heading>
 		<InventoryAccordion {locationsList} {filteredOrdersList} on:triggerUpdate={modifyData} />
 	</div>
 </div>

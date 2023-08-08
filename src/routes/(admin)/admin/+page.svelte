@@ -5,7 +5,7 @@
 
 <Heading tag="h2" class="text-center mt-3">Secret Admin Area</Heading>
 
-<div class="flex flex-col gap-2 w-3/12">
+<div class="flex flex-col gap-2 mx-8 mt-4">
 	<Button href="addUser">Add a New User</Button>
 	<Button href="modifyuser">Modify Users</Button>
 	<Button href="modifychemical">Modify Chemical Data</Button>

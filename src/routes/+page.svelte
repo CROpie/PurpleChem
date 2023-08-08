@@ -4,6 +4,7 @@
 </script>
 
 <Heading tag="h2" class="text-center mt-3">Welcome to purplechem.com</Heading>
+<Heading tag="h4" class="text-center mt-3">Please log in to continue.</Heading>
 
 <LoginForm />
 <div class="ml-4">

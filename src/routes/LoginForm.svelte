@@ -34,7 +34,7 @@
 		if (form.admin) {
 			window.location.href = '/admin';
 		} else {
-			window.location.href = '/orderChemical';
+			window.location.href = '/inventory';
 		}
 	};
 </script>

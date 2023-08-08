@@ -39,7 +39,8 @@
 </form>
 
 {#if form?.success}
-	<p class="text-green-500">User Added.</p>
+	<p class="text-green-500">User Added!</p>
+	<p class="text-red-500">**Note: supabase has automatically logged them in for some reson...?**</p>
 {:else if form?.error}
 	<p class="text-red-500">Something went wrong...</p>
 {/if}

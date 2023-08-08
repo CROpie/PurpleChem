@@ -15,6 +15,7 @@
 
 	let { supabase, session } = data;
 	$: ({ supabase, session } = data);
+	$: console.log('current user: ', data.session?.user.email);
 
 	$: isAdmin = false;
 
@@ -69,8 +70,8 @@
 			{#if isAdmin}
 				<NavLi href="/admin" class="dark:text-green-300">Admin Area</NavLi>
 			{/if}
-			<NavLi href="/orderChemical">Order Chemical</NavLi>
 			<NavLi href="inventory">Inventory</NavLi>
+			<NavLi href="/orderChemical">Order Chemical</NavLi>
 			<NavLi href="/queryDatabase">Query Database</NavLi>
 			<NavLi href="/logout" class="text-neutral underline">Log Out</NavLi>
 		</NavUl>

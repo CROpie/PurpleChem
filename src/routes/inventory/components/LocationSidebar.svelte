@@ -76,7 +76,7 @@
 	}
 </script>
 
-<Sidebar class="mt-9 w-full sm:w-64" outline>
+<Sidebar class="mt-12 w-full sm:w-64" outline>
 	<SidebarWrapper>
 		<SidebarGroup>
 			<SidebarItem label="All" on:click={() => chooseLocation(-1, 'All')} startSelected />

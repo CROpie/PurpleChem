@@ -87,13 +87,12 @@
 >
 	<div class="flex items-center justify-start gap-1">
 		<p>Remaining:</p>
-		{order.amount}
 		<Input
 			data-testid="amount"
 			bind:value={order.amount}
 			name="amount"
 			type="number"
-			class="text-primary text-end"
+			class="text-primary text-end [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
 			outline
 		/>
 		<p>{order.amountUnit}</p>
