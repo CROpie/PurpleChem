@@ -3,6 +3,7 @@
 https://purple-chem.vercel.app/
 
 An inventory management system for chemistry researchers built using SvelteKit, using Supabase for the backend (Auth & Database).
+
 Integration tests via vitest, the [@testing-library](https://testing-library.com/) and [msw](https://mswjs.io/) have been incorporated to ensure the intregrity of the application.
 
 Some features have been replicated using [React.js](https://github.com/CROpie/PurpleChemReact)
@@ -11,7 +12,7 @@ Some features have been replicated using [React.js](https://github.com/CROpie/Pu
 
 ## Features
 
-- Ordering a chemical incorporates an api call to [commonchemistry](https://commonchemistry.cas.org/), retrieving strucutral and physical properties of the chemical to be ordered, which are stored on the database when the order is placed.
+- The process of ordering a chemical incorporates an api call to [commonchemistry](https://commonchemistry.cas.org/), retrieving strucutral and physical properties of the chemical to be ordered, which are stored on the database when the order is placed.
 - A personal inventory allows for a user-friendly way for researchers to keep track of where their chemicals are located in their personal space, as well as how how much material remains, and easy access to physicals properties.
 - The entire database of orders can be searched by researcher name, CAS number, chemical name and by **structure**.
 - Logging in as an admin provides extra features such as adding users, modifying users, chemicals and orders, and importing orders via a .csv file.
