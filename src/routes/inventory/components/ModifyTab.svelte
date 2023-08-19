@@ -12,7 +12,7 @@
 
 <div class="ml-4">
 	<Heading tag="h6" class="text-complement">MODIFY</Heading>
-	{#if order.statusID.id == 1 || order.statusID.id == 2}
+	{#if order.status == 'submitted' || order.status == 'ordered'}
 		<ModifyForceStatus {order} on:triggerUpdate />
 	{:else}
 		<ModifyForm {order} {locationsList} on:triggerUpdate />

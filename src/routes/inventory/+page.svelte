@@ -2,21 +2,15 @@
 	// major components
 	import Inventory from './components/Inventory.svelte';
 
-	import type { PageData } from './$types';
 	import type { ActionData } from './$types';
-
-	import type { orders, locations } from '$lib/types/orderType';
 
 	export let form: ActionData;
 
 	/* VARIABLES */
-	export let data: PageData;
-
-	let ordersList: orders[] = data.ordersList;
-	$: ordersList = data.ordersList;
-
-	let locationsList: locations[] = data.locationsList;
-	$: locationsList = data.locationsList;
+	export let data;
+	$: data;
+	const ordersList = data.ordersList;
+	const locationsList = data.locationsList;
 </script>
 
 {#if !ordersList || !locationsList}

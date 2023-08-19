@@ -40,7 +40,7 @@
 	function sortOrders() {
 		if (sortByName) {
 			filteredOrdersList = filteredOrdersList.sort((a, b) =>
-				a.chemicalID.chemicalName?.toLowerCase() > b.chemicalID.chemicalName.toLowerCase() ? 1 : -1
+				a.chemical.chemicalName?.toLowerCase() > b.chemical.chemicalName.toLowerCase() ? 1 : -1
 			);
 		} else if (sortByDate) {
 			filteredOrdersList = filteredOrdersList.sort((a, b) => (a.id > b.id ? 1 : -1));

@@ -2,10 +2,16 @@
 	import { enhance } from '$app/forms';
 
 	import type { SubmitFunction } from '@sveltejs/kit';
+	import type { FetchOutcome } from '$lib/types/formTypes';
 
 	import { Input } from '$lib/components/form/formAll';
 	import { Button } from '$lib/components/button/button';
 	import { DropSelect, DropSelectItem } from '$lib/components/dropdown/dropdownAll';
+
+	// import FetchResult from '$lib/components/FetchResult.svelte';
+	import ClientSideApiClient from '$lib/apiClient/PurpleChemClientAPI.js';
+
+	const ClientAPI = new ClientSideApiClient();
 
 	/* STRUCTURE EDITOR */
 	import { RDKitSS } from '$lib/stores/rdkitstore';
@@ -19,12 +25,10 @@
 		id: number;
 		supplierName: string;
 	};
-	type FormResult = {
-		success: boolean;
-		error: string | null;
-	};
+
+	let outcome: FetchOutcome = null;
+
 	export let supplierList: Supplier[];
-	export let form: FormResult;
 
 	// ordering variables
 	type phys = string | null;
@@ -35,7 +39,7 @@
 	let supplierPN: string | null = null;
 
 	// dropdown items for validation
-	let supplierID: number | null = null;
+	let supplier_id: number | null = null;
 	let amountUnit: string | null = null;
 
 	// physical properties
@@ -92,12 +96,12 @@
 		let uri = `https://commonchemistry.cas.org/api/detail?cas_rn=${CAS}`;
 
 		// need to use try/catch here? 404 error if CAS isn't in their DB
-		const res = await fetch(uri);
+		const response = await fetch(uri);
 		searching = false;
 
 		// found
-		if (res.ok) {
-			const data = await res.json();
+		if (response.ok) {
+			const data = await response.json();
 			console.log('data: ', data);
 			chemicalName = data.name;
 			MW = data.molecularMass;
@@ -163,12 +167,12 @@
 			afterCASContainer.classList.replace('block', 'hidden');
 		}
 
-		if (form?.success) {
-			form.success = false;
-		}
-		if (form?.error) {
-			form.error = null;
-		}
+		// if (form?.success) {
+		// 	form.success = false;
+		// }
+		// if (form?.error) {
+		// 	form.error = null;
+		// }
 	}
 
 	function extractPhys(propertyArray: any[]) {
@@ -219,7 +223,7 @@
 		if (!numbersOnly.test(String(amount))) {
 			failAmount = true;
 		}
-		if (!supplierID) {
+		if (!supplier_id) {
 			failSupplierID = true;
 		}
 		if (!amountUnit) {
@@ -281,9 +285,31 @@
 			console.log('inchi generated: ', inchi);
 		}
 	}
+
+	async function orderChemical() {
+		const response = await ClientAPI.post('/orderchemical', null, {
+			body: {
+				CAS,
+				chemicalName,
+				MW,
+				MP,
+				BP,
+				density,
+				smile,
+				inchi,
+				supplier_id,
+				amount,
+				amountUnit,
+				supplierPN
+			}
+		});
+		outcome = response.outcome;
+		const data = response.data;
+		console.log('+page.svelte: ', data, outcome);
+	}
 </script>
 
-<form method="POST" action="?/orderChemical" use:enhance={validateData} class="m-8">
+<form on:submit|preventDefault={orderChemical} class="m-8">
 	<Input
 		label="CAS number [eg 6674-22-2]"
 		name="CAS"
@@ -373,7 +399,7 @@
 				name="supplierID"
 				outline
 				class="rounded-lg border-2"
-				bind:value={supplierID}
+				bind:value={supplier_id}
 			>
 				{#each supplierList as supplier}
 					<DropSelectItem value={supplier.id} label={supplier.supplierName} />
@@ -439,11 +465,11 @@
 		{#if ordering}
 			<p class="text-orange-500">Ordering...</p>
 		{/if}
-		{#if form?.error}
+		<!-- {#if form?.error}
 			<p class="text-red-500">{form.error}</p>
 		{/if}
 		{#if form?.success}
 			<p class="text-green-500">Order Successful.</p>
-		{/if}
+		{/if} -->
 	</div>
 </form>

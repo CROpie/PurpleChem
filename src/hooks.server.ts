@@ -1,10 +1,9 @@
 // src/hooks.server.ts
 // https://dev.to/kudadam/sveltekit-hooks-everything-you-need-to-know-3l39
 import { sequence } from '@sveltejs/kit/hooks';
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
-import { createSupabaseServerClient } from '@supabase/auth-helpers-sveltekit';
 import type { Handle } from '@sveltejs/kit';
-import type { Database } from '$lib/types/db_types';
+
+import PurpleChemServerApi from '$lib/apiClient/PurpleChemServerAPI';
 
 const first: Handle = async ({ event, resolve }) => {
 	let theme: string | null = null;
@@ -40,25 +39,17 @@ const first: Handle = async ({ event, resolve }) => {
 };
 
 const second: Handle = async ({ event, resolve }) => {
-	// SUPABASE
-	event.locals.supabase = createSupabaseServerClient<Database>({
-		supabaseUrl: PUBLIC_SUPABASE_URL,
-		supabaseKey: PUBLIC_SUPABASE_ANON_KEY,
-		event
-	});
+	// SERVER-SIDE API CLIENT
+	const session = event.cookies.get('session');
+	if (!session) {
+		console.log('Oh dear, not logged in.');
 
-	event.locals.getSession = async () => {
-		const {
-			data: { session }
-		} = await event.locals.supabase.auth.getSession();
-		return session;
-	};
+		return await resolve(event);
+	}
+	const apiclient = new PurpleChemServerApi(session);
+	event.locals.apiclient = apiclient;
 
-	return resolve(event, {
-		filterSerializedResponseHeaders(name) {
-			return name === 'content-range';
-		}
-	});
+	return await resolve(event);
 };
 
 export const handle = sequence(first, second);

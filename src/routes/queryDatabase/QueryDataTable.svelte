@@ -13,6 +13,13 @@
 	import type { OrderData } from './types';
 	import type { FormResult } from '$lib/types/formTypes';
 
+	import ClientSideApiClient from '$lib/apiClient/PurpleChemClientAPI.js';
+	import type { FetchOutcome } from '$lib/types/formTypes';
+
+	const ClientAPI = new ClientSideApiClient();
+
+	let outcome: FetchOutcome = null;
+
 	/* STRUCTURE EDITOR */
 	import { RDKitSS } from '$lib/stores/rdkitstore';
 
@@ -28,12 +35,12 @@
 	const tableHead = [
 		'chemicalName',
 		'CAS',
-		'username',
+		'fullname',
 		'amount',
 		'isConsumed',
 		'supplierName',
 		'supplierPN',
-		'statusValue',
+		'status',
 		'orderDate'
 	];
 
@@ -59,13 +66,13 @@
 	$: showObj = {
 		chemicalName: true,
 		CAS: true,
-		username: true,
+		fullname: true,
 		amount: true,
 		amountUnit: true,
 		isConsumed: true,
 		supplierName: true,
 		supplierPN: true,
-		statusValue: true,
+		status: true,
 		orderDate: true
 	};
 
@@ -115,28 +122,23 @@
 			}
 		}
 
-		const origin = window.location.origin;
-		const response = await fetch(`${origin}/queryDatabase`, {
-			method: 'POST',
-			body: JSON.stringify({ query }),
-			headers: {
-				'content-type': 'application/json'
+		const response = await ClientAPI.post('/querydatabase', null, {
+			body: {
+				query
 			}
 		});
-
-		const jsonResponse = await response.json();
-		form = jsonResponse.form;
-		const data = jsonResponse.data;
-
-		console.log('form: ', form, 'data: ', data);
+		outcome = response.outcome;
+		const data = response.data;
+		console.log('+page.svelte: ', data, outcome);
+		/* end */
 
 		searching = false;
 
-		if (form?.error) {
-			dbError = true;
-			console.log('problem with connecting to the database...');
-			return;
-		}
+		// if (form?.error) {
+		// 	dbError = true;
+		// 	console.log('problem with connecting to the database...');
+		// 	return;
+		// }
 
 		if (data && data.length == 0) {
 			noHit = true;
@@ -251,10 +253,8 @@
 		<TableBody>
 			{#each queryOrders as order}
 				<TableBodyRow>
-					{#each Object.entries(order) as [key, value]}
-						{#if showObj[key]}
-							<TableBodyCell>{value}</TableBodyCell>
-						{/if}
+					{#each tableHead as heading}
+						<TableBodyCell>{order[heading]}</TableBodyCell>
 					{/each}
 				</TableBodyRow>
 			{/each}
@@ -283,3 +283,24 @@
 	{/if}
 </TableBodyRow>
 -->
+
+<!-- <Table hoverable color="primary" striped>
+	<TableHead>
+		{#each tableHead as heading}
+			{#if showObj[heading]}
+				<TableHeadCell on:click={() => sortTable(heading)}>{heading}</TableHeadCell>
+			{/if}
+		{/each}
+	</TableHead>
+	<TableBody>
+		{#each queryOrders as order}
+			<TableBodyRow>
+				{#each Object.entries(order) as [key, value]}
+					{#if showObj[key]}
+						<TableBodyCell>{value}</TableBodyCell>
+					{/if}
+				{/each}
+			</TableBodyRow>
+		{/each}
+	</TableBody>
+</Table> -->

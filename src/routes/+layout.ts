@@ -1,22 +1,15 @@
 // src/routes/+layout.ts
-import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
-import { createSupabaseLoadClient } from '@supabase/auth-helpers-sveltekit';
-import type { LayoutLoad } from './$types';
-import type { Database } from '$lib/types/db_types';
 
-export const load: LayoutLoad = async ({ fetch, data, depends }) => {
-	depends('supabase:auth');
+// Not sure if it is worth the effort to do this, seeing as
+// the client will have to be passed from +page.svelte down via props
+// or contextAPI
+// maybe put into a store ?
 
-	const supabase = createSupabaseLoadClient<Database>({
-		supabaseUrl: PUBLIC_SUPABASE_URL,
-		supabaseKey: PUBLIC_SUPABASE_ANON_KEY,
-		event: { fetch },
-		serverSession: data.session
-	});
+// import PurpleChemClientApi from '$lib/apiClient/PurpleChemClientAPI';
+// import type { LayoutLoad } from './$types';
 
-	const {
-		data: { session }
-	} = await supabase.auth.getSession();
+// export const load: LayoutLoad = async () => {
+// 	const ClientAPI = new PurpleChemClientApi();
 
-	return { supabase, session };
-};
+// 	return { ClientAPI };
+// };

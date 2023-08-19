@@ -16,10 +16,10 @@
 	}
 </script>
 
-<button on:click={() => getSVG(order.chemicalID.smile)}>
-	{#if order.statusID.id != 3}
-		<button class="break-words">{order.chemicalID.chemicalName} ({order.id})*</button>
+<button on:click={() => getSVG(order.chemical.smile)}>
+	{#if order.status != 'received'}
+		<button class="break-words">{order.chemical.chemicalName} ({order.id})*</button>
 	{:else}
-		<button class="break-words">{order.chemicalID.chemicalName} ({order.id})</button>
+		<button class="break-words">{order.chemical.chemicalName} ({order.id})</button>
 	{/if}
 </button>

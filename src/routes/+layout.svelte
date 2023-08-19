@@ -1,7 +1,6 @@
 <script lang="ts">
 	import '../app.css';
 
-	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 
 	import { Navbar, NavUl, NavBrand, NavLi, NavHamburger } from '$lib/components/navbar/Nav';
@@ -9,30 +8,10 @@
 
 	import { RDKitSS } from '$lib/stores/rdkitstore';
 
-	import type { PageData } from './$types';
-
-	export let data: PageData;
-
-	let { supabase, session } = data;
-	$: ({ supabase, session } = data);
-	$: console.log('current user: ', data.session?.user.email);
-
-	$: isAdmin = false;
+	const isAdmin = true;
 
 	onMount(() => {
 		initRDKit();
-		const { data } = supabase.auth.onAuthStateChange((event, _session) => {
-			if (_session?.user.app_metadata.claims_admin) {
-				isAdmin = true;
-			} else {
-				isAdmin = false;
-			}
-			if (_session?.expires_at !== session?.expires_at) {
-				invalidate('supabase:auth');
-			}
-		});
-
-		return () => data.subscription.unsubscribe();
 	});
 
 	// init RDKit in +layout so then store in a store so it can be accessed anywhere on the app
@@ -40,6 +19,10 @@
 		await initRDKitModule().then(function (instance) {
 			$RDKitSS = instance;
 		});
+	}
+
+	async function logOut() {
+		const response = await fetch('api/logout');
 	}
 </script>
 
@@ -73,7 +56,9 @@
 			<NavLi href="inventory">Inventory</NavLi>
 			<NavLi href="/orderChemical">Order Chemical</NavLi>
 			<NavLi href="/queryDatabase">Query Database</NavLi>
-			<NavLi href="/logout" class="text-neutral underline">Log Out</NavLi>
+			<NavLi class="text-neutral underline">
+				<button class="logout" type="button" on:click={logOut}>Log Out</button></NavLi
+			>
 		</NavUl>
 	</Navbar>
 </div>

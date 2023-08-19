@@ -2,50 +2,50 @@
 	import { Input } from '$lib/components/form/formAll';
 	import { Button } from '$lib/components/button/button';
 	import type { FormResultLogin } from '$lib/types/formTypes';
+	import type { FetchOutcome } from '$lib/types/formTypestypes';
 
-	let email: string;
-	let password: string;
+	import PurpleChemClientAPI from '$lib/apiClient/PurpleChemClientAPI';
+	const ClientAPI = new PurpleChemClientAPI();
+
+	let email = '';
+	let password = '';
 
 	let waiting = false;
 
+	let outcome: FetchOutcome = null;
 	let form: FormResultLogin = null;
 
-	const handleSubmit = async () => {
-		form = null;
+	async function logIn() {
+		outcome = null;
+
 		if (!email || !password) {
 			return;
 		}
 
 		waiting = true;
-		const baseUrl = window.location.href;
-		const response = await fetch(`${baseUrl}`, {
-			method: 'POST',
-			body: JSON.stringify({ email, password }),
-			headers: {
-				'content-type': 'application/json'
-			}
+
+		const response = await ClientAPI.post('/login', null, {
+			body: { email, password }
 		});
 
-		form = await response.json();
 		waiting = false;
-		if (!form?.success) {
-			return;
-		}
-		if (form.admin) {
-			window.location.href = '/admin';
-		} else {
+
+		outcome = response.outcome;
+
+		// different path for admin?
+
+		if (outcome?.success) {
 			window.location.href = '/inventory';
 		}
-	};
+	}
 </script>
 
-<form class="m-6" on:submit|preventDefault={handleSubmit}>
+<form class="m-6" on:submit|preventDefault={logIn}>
 	<div class="mb-6">
 		<Input
 			data-testid="inputEmail"
 			label="Please enter your work email address."
 			type="email"
-			name="email"
 			bind:value={email}
 			class="mb-3"
 			autocomplete="off"
@@ -56,7 +56,6 @@
 			data-testid="inputPassword"
 			label="Please enter your password."
 			type="password"
-			name="password"
 			bind:value={password}
 			class="mb-6"
 			outline

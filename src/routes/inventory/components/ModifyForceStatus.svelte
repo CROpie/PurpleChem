@@ -22,9 +22,7 @@
 </script>
 
 <p class="text-primary">
-	Chemical is yet to arrive. Order Status: <span class="text-complement"
-		>{order.statusID.statusValue}</span
-	>.
+	Chemical is yet to arrive. Order Status: <span class="text-complement">{order.status}</span>.
 </p>
 
 <form method="POST" action="?/forceStatus" use:enhance={forceStatus}>

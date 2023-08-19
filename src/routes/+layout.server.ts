@@ -3,8 +3,8 @@ import type { LayoutServerLoad } from './$types';
 
 import { redirect } from '@sveltejs/kit';
 
-export const load: LayoutServerLoad = async ({ locals, url }) => {
-	const session = await locals.getSession();
+export const load: LayoutServerLoad = async ({ cookies, url }) => {
+	const session = cookies.get('session');
 
 	if (url.pathname != '/' && !session) {
 		console.log('Access denied.');

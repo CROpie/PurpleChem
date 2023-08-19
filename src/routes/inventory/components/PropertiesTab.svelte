@@ -15,11 +15,11 @@
 			{@html `${currentSVG}`}
 		</div>
 		<ul>
-			<li>CAS: {order.chemicalID.CAS}</li>
-			<li>MW: {order.chemicalID.MW}</li>
-			<li>BP: {order.chemicalID.BP}</li>
-			<li>MP: {order.chemicalID.MP}</li>
-			<li>Density: {order.chemicalID.density}</li>
+			<li>CAS: {order.chemical.CAS}</li>
+			<li>MW: {order.chemical.MW}</li>
+			<li>BP: {order.chemical.BP}</li>
+			<li>MP: {order.chemical.MP}</li>
+			<li>Density: {order.chemical.density}</li>
 		</ul>
 
 		<ul>
