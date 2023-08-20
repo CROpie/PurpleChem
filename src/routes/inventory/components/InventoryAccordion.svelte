@@ -10,12 +10,11 @@
 		AccordionItemDouble
 	} from '$lib/components/Accordion2/accordionDoubleAll';
 
-	import type { orders, locations } from '$lib/types/orderType';
+	import type { DBOrder, DBLocation } from '$lib/types/inventory';
 
 	/* DATA */
-	// export let currentLocation;
-	export let locationsList: locations[];
-	export let filteredOrdersList: orders[];
+	export let locationsList: DBLocation[];
+	export let filteredOrdersList: DBOrder[];
 
 	let currentSVG = '';
 </script>
@@ -25,7 +24,7 @@
 		{#each filteredOrdersList as order (order.id)}
 			<AccordionItemDouble class="text-sm sm:text-lg">
 				<TitleTab slot="title" {order} bind:currentSVG />
-				<ModifyTab slot="content" {order} {locationsList} on:triggerUpdate />
+				<ModifyTab slot="content" {order} {locationsList} on:triggerUpdate on:triggerForceStatus />
 				<PropertiesTab slot="edit" {order} {currentSVG} />
 			</AccordionItemDouble>
 		{:else}

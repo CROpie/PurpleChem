@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { orders } from './orderType';
-	export let order: orders;
+	import type { DBOrder } from '$lib/types/inventory';
+	export let order: DBOrder;
 
 	/* STRUCTURE */
 	import { RDKitSS } from '$lib/stores/rdkitstore';

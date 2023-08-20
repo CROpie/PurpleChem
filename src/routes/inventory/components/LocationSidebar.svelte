@@ -11,6 +11,14 @@
 	import type { FormResult } from '$lib/types/formTypes';
 	import { createEventDispatcher } from 'svelte';
 
+	import type { FetchOutcome } from '$lib/types/formTypes';
+
+	import LocationMessages from './LocationMessages.svelte';
+
+	import ClientSideApiClient from '$lib/apiClient/PurpleChemClientAPI';
+
+	const TestClient = new ClientSideApiClient();
+
 	// variables
 	export let locationsList: locations[];
 
@@ -43,34 +51,24 @@
 		currentLocation = locationName;
 	};
 
-	async function handleSubmit() {
-		form = null;
-		addNew = false;
-		waiting = false;
+	let outcome: FetchOutcome = null;
 
+	async function handleSubmit() {
 		if (!newLocation) {
 			return;
 		}
-
 		waiting = true;
-		const origin = window.location.origin;
-		const response = await fetch(`${origin}/inventory`, {
-			method: 'POST',
-			body: JSON.stringify({ newLocation }),
-			headers: {
-				'content-type': 'application/json'
-			}
+		const response = await TestClient.post('/addnewlocation', null, {
+			body: { newLocation }
 		});
-
-		const jsonResponse = await response.json();
-		form = jsonResponse.form;
-		newLocationData = jsonResponse.newLocationData;
-
 		waiting = false;
-		if (!form?.success) {
-			return;
-		}
-		if (form?.success) {
+
+		addNew = false;
+
+		outcome = response.outcome;
+		const newLocationData = response.data;
+
+		if (outcome?.success) {
 			dispatch('triggerAddLocation', newLocationData);
 		}
 	}
@@ -109,13 +107,5 @@
 			<SidebarItem label="New" class="text-neutral" on:click={newLocationClickHandler} />
 		</SidebarGroup>
 	</SidebarWrapper>
-	{#if waiting}
-		<p class="text-red-500">Connecting to server...</p>
-	{/if}
-	{#if form?.error}
-		<p class="text-red-500">{form.error}</p>
-	{/if}
-	{#if form?.success}
-		<p class="text-complement">New Location Added</p>
-	{/if}
+	<LocationMessages bind:outcome bind:waiting />
 </Sidebar>

@@ -4,7 +4,7 @@ import { render, waitFor, screen, fireEvent, getByTestId } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import { server } from '$lib/mocks/server';
 import { rest } from 'msw';
-import OrderForm from './OrderForm.svelte';
+import OrderForm from './OrderChemical.svelte';
 
 type FormResult = {
 	success: boolean;

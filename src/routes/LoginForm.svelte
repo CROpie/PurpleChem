@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { Input } from '$lib/components/form/formAll';
 	import { Button } from '$lib/components/button/button';
-	import type { FormResultLogin } from '$lib/types/formTypes';
-	import type { FetchOutcome } from '$lib/types/formTypestypes';
+	import type { FetchOutcome } from '$lib/types/formTypes';
+
+	import LoginMessages from './LoginMessages.svelte';
 
 	import PurpleChemClientAPI from '$lib/apiClient/PurpleChemClientAPI';
 	const ClientAPI = new PurpleChemClientAPI();
@@ -13,7 +14,6 @@
 	let waiting = false;
 
 	let outcome: FetchOutcome = null;
-	let form: FormResultLogin = null;
 
 	async function logIn() {
 		outcome = null;
@@ -64,14 +64,4 @@
 	</div>
 </form>
 
-<div data-testid="message">
-	{#if waiting}
-		<p class="text-orange-500">Connecting to server...</p>
-	{/if}
-	{#if form?.error}
-		<p class="text-red-500">{form.error}</p>
-	{/if}
-	{#if form?.success}
-		<p class="text-green-500">Redirecting..</p>
-	{/if}
-</div>
+<LoginMessages {waiting} {outcome} />

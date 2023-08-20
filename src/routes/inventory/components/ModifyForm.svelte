@@ -5,12 +5,20 @@
 
 	import { createEventDispatcher } from 'svelte';
 
-	import type { orders, locations } from '$lib/types/orderType';
-	import type { FormResult } from '$lib/types/formTypes';
+	import type { DBOrder, DBLocation, ModifyOrder } from '$lib/types/inventory';
+	import type { FetchOutcome, FormResult } from '$lib/types/formTypes';
+
+	import ModifyMessages from './ModifyMessages.svelte';
+
+	import ClientSideApiClient from '$lib/apiClient/PurpleChemClientAPI.js';
+
+	const ClientAPI = new ClientSideApiClient();
 
 	/* VARIABLES */
-	export let order: orders;
-	export let locationsList: locations[];
+	export let order: DBOrder;
+	export let locationsList: DBLocation[];
+
+	let outcome: FetchOutcome = null;
 
 	const dispatch = createEventDispatcher();
 
@@ -21,9 +29,10 @@
 	let currentLocation = 'Choose a storage location.';
 	let currentValue: number | null = null;
 
-	if (order.locationID) {
-		currentLocation = order.locationID.locationName;
-		currentValue = order.locationID.id;
+	console.log(order);
+	if (order.location) {
+		currentLocation = order.location.locationName;
+		currentValue = order.location_id;
 	}
 
 	// form variables
@@ -37,45 +46,30 @@
 		failValidation = false;
 		waiting = false;
 
-		let orderID = order.id;
-		let locationID = currentValue;
-
-		let amount = order.amount;
-		let statusID = order.statusID;
-
 		if (!numbersOnly.test(String(order.amount))) {
 			failValidation = true;
 			return;
 		}
+
 		waiting = true;
 
-		const origin = window.location.origin;
-		const response = await fetch(`${origin}/inventory`, {
-			method: 'PUT',
-			body: JSON.stringify({ orderID, locationID, amount }),
-			headers: {
-				'content-type': 'application/json'
+		console.log(order.id, order.amount, currentValue);
+
+		const response = await ClientAPI.post('/patchamountlocation', null, {
+			body: {
+				orderID: order.id,
+				amount: order.amount,
+				locationID: currentValue
 			}
 		});
 
-		const jsonResponse = await response.json();
-
-		form = jsonResponse.form;
-
-		const locationObject = jsonResponse.locationObject;
 		waiting = false;
 
-		const modifiedData = {
-			orderID,
-			locationID: locationObject,
-			amount,
-			statusID
-		};
+		outcome = response.outcome;
+		const data: ModifyOrder = response.data;
 
-		if (form?.success) {
-			// await invalidateAll();
-
-			dispatch('triggerUpdate', modifiedData);
+		if (outcome?.success) {
+			dispatch('triggerUpdate', data);
 		}
 	}
 </script>
@@ -122,15 +116,4 @@
 		<Button type="submit" outline class="border-none text-2xl">✓</Button>
 	</div>
 </form>
-{#if failValidation}
-	<p class="text-red-500">Please enter an integer in the 'remaining' field.</p>
-{/if}
-{#if waiting}
-	<p class="text-red-500">Saving...</p>
-{/if}
-{#if form?.success}
-	<p class="text-green-500">Saved.</p>
-{/if}
-{#if form?.error}
-	<p class="text-red-500">{form.error}</p>
-{/if}
+<ModifyMessages {outcome} {waiting} {failValidation} />

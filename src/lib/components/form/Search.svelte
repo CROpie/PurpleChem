@@ -33,6 +33,7 @@
 		<Input
 			{...$$restProps}
 			bind:value={inputValue}
+			on:click
 			type="text"
 			{placeholder}
 			class={twMerge('pl-10', $$props.class)}

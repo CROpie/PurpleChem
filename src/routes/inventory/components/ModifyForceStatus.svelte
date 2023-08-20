@@ -1,23 +1,30 @@
 <script lang="ts">
 	import Button from '$lib/components/button/Button.svelte';
 
-	import { enhance } from '$app/forms';
 	import { createEventDispatcher } from 'svelte';
 
-	import type { orders } from '$lib/types/orderType';
+	import type { DBOrder } from '$lib/types/inventory';
 
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import ClientSideApiClient from '$lib/apiClient/PurpleChemClientAPI.js';
 
-	export let order: orders;
+	const ClientAPI = new ClientSideApiClient();
+
+	export let order: DBOrder;
 
 	const dispatch = createEventDispatcher();
 
 	// used when forcing order.status -> received
-	const forceStatus: SubmitFunction = async () => {
-		return async ({ update }) => {
-			await update();
-			dispatch('triggerUpdate');
-		};
+	const forceStatus = async () => {
+		const response = await ClientAPI.post('/forcereceived', null, {
+			body: {
+				query: order.id
+			}
+		});
+		const outcome = response.outcome;
+
+		if (outcome.success) {
+			dispatch('triggerForceStatus', order.id);
+		}
 	};
 </script>
 
@@ -25,7 +32,7 @@
 	Chemical is yet to arrive. Order Status: <span class="text-complement">{order.status}</span>.
 </p>
 
-<form method="POST" action="?/forceStatus" use:enhance={forceStatus}>
+<div>
 	<input type="hidden" name="orderID" value={order.id} />
-	<Button outline type="submit">Demo: Force status = received</Button>
-</form>
+	<Button outline type="button" on:click={forceStatus}>Demo: Force status = received</Button>
+</div>

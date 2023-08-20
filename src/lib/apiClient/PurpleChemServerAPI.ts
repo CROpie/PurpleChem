@@ -57,7 +57,7 @@ export default class PurpleChemServerApi {
 
 		outcome.success = true;
 
-		console.log('ServerSide: ', data, outcome);
+		// console.log('ServerSide: ', data, outcome);
 		return { outcome, data };
 	}
 
@@ -71,6 +71,10 @@ export default class PurpleChemServerApi {
 
 	async put(url: string, query?: Record<string, string>, options?: any) {
 		return this.request({ method: 'PUT', url, query, ...options });
+	}
+
+	async patch(url: string, query?: Record<string, string>, options?: any) {
+		return this.request({ method: 'PATCH', url, query, ...options });
 	}
 
 	async delete(url: string, query?: Record<string, string>, options?: any) {

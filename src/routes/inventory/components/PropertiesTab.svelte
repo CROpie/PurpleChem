@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Heading from '$lib/components/typography/Heading.svelte';
 
-	import type { orders } from '$lib/types/orderType';
+	import type { DBOrder } from '$lib/types/inventory';
 
-	export let order: orders;
+	export let order: DBOrder;
 	export let currentSVG: string;
 </script>
 
@@ -16,10 +16,12 @@
 		</div>
 		<ul>
 			<li>CAS: {order.chemical.CAS}</li>
-			<li>MW: {order.chemical.MW}</li>
-			<li>BP: {order.chemical.BP}</li>
-			<li>MP: {order.chemical.MP}</li>
-			<li>Density: {order.chemical.density}</li>
+			<li>MW: {order.chemical.MW ? order.chemical.MW : '-'}</li>
+			<li>BP: {order.chemical.BP ? order.chemical.BP : '-'}</li>
+			<li>MP: {order.chemical.MP ? order.chemical.MP : '-'}</li>
+			<li>Density: {order.chemical.density ? order.chemical.density : '-'}</li>
+			<li>Date Ordered: {order.orderDate.substring(0, 10)}</li>
+			<li>Supplier: {order.supplier.supplierName}</li>
 		</ul>
 
 		<ul>
