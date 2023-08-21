@@ -6,6 +6,7 @@
 
 	// COMPONENTS
 	import CASSearch from './CASSearch.svelte';
+	import StructureDisplay from './StructureDisplay.svelte';
 	import StructureSearch from './StructureSearch.svelte';
 	import OrderForm from './OrderForm.svelte';
 	import ManualPhys from './ManualPhys.svelte';
@@ -45,6 +46,7 @@
 	let CASnotFound = false;
 	let manualStructure = false;
 	let showCASDisplayMessage = true;
+	let showStructure = false;
 
 	// message variables
 	let ordering = false;
@@ -71,6 +73,7 @@
 		showStructureEditor = false;
 		CASnotFound = false;
 		manualStructure = false;
+		showStructure = false;
 	}
 
 	function resetOrderDetail() {
@@ -159,10 +162,15 @@
 		bind:CASnotFound
 		bind:showCASDisplayMessage
 		bind:outcome
+		bind:showStructure
 	/>
 
 	{#if showStructureEditor}
 		<StructureSearch bind:chemicalInfo />
+	{/if}
+
+	{#if showStructure}
+		<StructureDisplay smile={chemicalInfo.smile} />
 	{/if}
 
 	{#if showOrderForm}

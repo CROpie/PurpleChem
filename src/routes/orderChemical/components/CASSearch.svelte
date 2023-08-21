@@ -36,6 +36,7 @@
 	export let showStructureEditor: boolean;
 	export let CASnotFound: boolean;
 	export let showCASDisplayMessage: boolean;
+	export let showStructure: boolean;
 
 	// message variables
 	export let outcome: FetchOutcome;
@@ -64,6 +65,7 @@
 		showOrderForm = false;
 		showStructureEditor = false;
 		CASnotFound = true;
+		showStructure = false;
 	}
 
 	function clearMessages() {
@@ -215,6 +217,7 @@
 				// need to input info manually
 				CASnotFound = true;
 				showStructureEditor = true;
+				showOrderForm = true;
 				return;
 			}
 		}
@@ -234,6 +237,8 @@
 				extractPhys(data.experimentalProperties);
 			}
 		}
+		console.log('showing the form');
+		showStructure = true;
 		showOrderForm = true;
 	};
 </script>
