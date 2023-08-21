@@ -42,9 +42,16 @@
 	let invalidCAS = false;
 	let searchingCAS = false;
 	let CASfound = false;
+	let chemNameNotFound = false;
 
 	// validation variables
 	const CASRegexPattern = /^\d{2,7}-\d{2}-\d$/;
+
+	function clearAll() {
+		resetPreviousSearch();
+		resetComponents();
+		clearMessages();
+	}
 
 	function resetPreviousSearch() {
 		const CAS = chemicalInfo.CAS;
@@ -68,6 +75,7 @@
 		CASfound = false;
 		showOrderForm = false;
 		showStructureEditor = false;
+		chemNameNotFound = false;
 	}
 
 	function extractPhys(propertyArray: any[]) {
@@ -84,20 +92,114 @@
 		});
 	}
 
-	const getProperties = async () => {
-		showCASDisplayMessage = true;
-
-		resetPreviousSearch();
-		resetComponents();
-		clearMessages();
-
+	function validateCAS() {
 		if (!chemicalInfo.CAS) {
-			return;
+			return false;
 		}
 		if (!CASRegexPattern.test(chemicalInfo.CAS)) {
 			invalidCAS = true;
-			return;
+			return false;
 		}
+		return true;
+	}
+
+	function validateChemName() {
+		if (!chemicalInfo.chemicalName) {
+			return false;
+		}
+		return true;
+	}
+
+	async function getCASFromChemName() {
+		// query AWS Lambda function that commonchemistry uses to get the CAS rn
+		// it always returns status code 200, even if not found. But will give: {"count": 0, "results": []}
+		let uri = `https://rboq1qukh0.execute-api.us-east-2.amazonaws.com/default/search?q=${chemicalInfo.chemicalName}&offset=0&size=30`;
+
+		const response = await fetch(uri);
+		if (!response.ok) {
+			outcome = { success: false, error: 'Something went wrong when retrieving the CAS number...' };
+			return false;
+		}
+
+		const { count, results } = await response.json();
+
+		if (count == 0) {
+			// not found
+			return false;
+		}
+		chemicalInfo.CAS = results[0].rn;
+		return true;
+	}
+
+	const getPropertiesFromOwnDatabaseChemName = async () => {
+		const { outcome: getByChemNameOutcome, data } = await ClientAPI.post(
+			'/getchemicalbychemname',
+			null,
+			{
+				body: { chemicalName: chemicalInfo.chemicalName }
+			}
+		);
+		if (!getByChemNameOutcome.success) {
+			return false;
+		}
+		chemicalInfo.CAS = data.CAS;
+		chemicalInfo.MW = data.MW;
+		chemicalInfo.MP = data.MP;
+		chemicalInfo.BP = data.BP;
+		chemicalInfo.density = data.density;
+		chemicalInfo.smile = data.smile;
+		chemicalInfo.inchi = data.inchi;
+		return true;
+	};
+
+	const getPropertiesFromOwnDatabaseCAS = async () => {
+		const { outcome: getByCASOutcome, data } = await ClientAPI.post('/getchemicalbycas', null, {
+			body: { CAS: chemicalInfo.CAS }
+		});
+		if (!getByCASOutcome.success) {
+			return false;
+		}
+		CASfound = true;
+
+		chemicalInfo.chemicalName = data.chemicalName;
+		chemicalInfo.MW = data.MW;
+		chemicalInfo.MP = data.MP;
+		chemicalInfo.BP = data.BP;
+		chemicalInfo.density = data.density;
+		chemicalInfo.smile = data.smile;
+		chemicalInfo.inchi = data.inchi;
+		return true;
+	};
+
+	const getProperties = async (queryType: string) => {
+		if (queryType == 'chemicalName') {
+			if (!validateChemName()) return;
+
+			const success = await getCASFromChemName();
+
+			if (!success) {
+				// see if someone has ordered this particular chemical name already
+
+				const success2 = await getPropertiesFromOwnDatabaseChemName();
+
+				if (!success2) {
+					clearAll();
+					chemicalInfo.CAS = null;
+					chemNameNotFound = true;
+					showOrderForm = true;
+					showStructureEditor = true;
+					return;
+				}
+			}
+		}
+
+		if (queryType == 'CAS') {
+			if (!validateCAS()) return;
+		}
+
+		showCASDisplayMessage = true;
+
+		clearAll();
 
 		let uri = `https://commonchemistry.cas.org/api/detail?cas_rn=${chemicalInfo.CAS}`;
 
@@ -105,11 +207,24 @@
 		const response = await fetch(uri);
 		searchingCAS = false;
 
+		// not found, check if someone has added this CAS number to own database
+		if (!response.ok) {
+			const success = await getPropertiesFromOwnDatabaseCAS();
+
+			if (!success) {
+				// need to input info manually
+				CASnotFound = true;
+				showStructureEditor = true;
+				return;
+			}
+		}
+
 		// found
 		if (response.ok) {
 			CASfound = true;
 			const data = await response.json();
 
+			chemicalInfo.CAS = data.rn;
 			chemicalInfo.chemicalName = data.name;
 			chemicalInfo.MW = data.molecularMass;
 			chemicalInfo.inchi = data.inchi;
@@ -118,58 +233,39 @@
 			if (data.experimentalProperties) {
 				extractPhys(data.experimentalProperties);
 			}
-		} else {
-			// not found, check if has been previously ordered
-			const { outcome: getByCASOutcome, data } = await ClientAPI.post('/getchemicalbycas', null, {
-				body: { CAS: chemicalInfo.CAS }
-			});
-
-			if (getByCASOutcome.success) {
-				CASfound = true;
-
-				chemicalInfo.chemicalName = data.chemicalName;
-				chemicalInfo.MW = data.MW;
-				chemicalInfo.MP = data.MP;
-				chemicalInfo.BP = data.BP;
-				chemicalInfo.density = data.density;
-				chemicalInfo.smile = data.smile;
-				chemicalInfo.inchi = data.inchi;
-			} else {
-				// need to input info manually
-				CASnotFound = true;
-				showStructureEditor = true;
-			}
 		}
 		showOrderForm = true;
 	};
 </script>
 
-<form on:submit|preventDefault={getProperties}>
-	<Input
-		label="CAS number [eg 6674-22-2]"
-		name="CAS"
-		type="text"
-		data-testID="CASInput"
-		bind:value={chemicalInfo.CAS}
-		outline
-		required
-		autofocus
-	/>
-</form>
+<div class="flex">
+	<form on:submit|preventDefault={() => getProperties('CAS')} class="flex-1">
+		<Input
+			label="CAS number [eg 6674-22-2]"
+			name="CAS"
+			type="text"
+			data-testID="CASInput"
+			bind:value={chemicalInfo.CAS}
+			outline
+			autofocus
+			required
+		/>
+	</form>
+
+	<form on:submit|preventDefault={() => getProperties('chemicalName')} class="flex-1">
+		<Input
+			label="Chemical Name"
+			name="chemicalName"
+			type="text"
+			bind:value={chemicalInfo.chemicalName}
+			outline
+			required
+		/>
+	</form>
+</div>
 
 {#if showCASDisplayMessage}
 	<div class="flex items-center gap-4 mt-2">
-		<CASDisplayMessage {invalidCAS} {searchingCAS} {CASnotFound} {CASfound} />
+		<CASDisplayMessage {invalidCAS} {searchingCAS} {CASnotFound} {CASfound} {chemNameNotFound} />
 	</div>
-{/if}
-
-{#if showOrderForm}
-	<Input
-		label="Chemical Name"
-		name="chemicalName"
-		type="text"
-		bind:value={chemicalInfo.chemicalName}
-		outline
-		required
-	/>
 {/if}

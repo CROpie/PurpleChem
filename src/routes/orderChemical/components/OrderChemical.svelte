@@ -44,7 +44,7 @@
 	let showStructureEditor = false;
 	let CASnotFound = false;
 	let manualStructure = false;
-	let showCASDisplayMessage = false;
+	let showCASDisplayMessage = true;
 
 	// message variables
 	let ordering = false;
@@ -107,6 +107,9 @@
 		resetMessages();
 
 		if (!CASRegexPattern.test(String(chemicalInfo.CAS))) {
+			failValidation = true;
+		}
+		if (!chemicalInfo.chemicalName) {
 			failValidation = true;
 		}
 		if (!numbersOnly.test(String(orderInfo.amount))) {

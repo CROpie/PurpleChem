@@ -3,6 +3,7 @@
 	export let invalidCAS: boolean;
 	export let CASnotFound: boolean;
 	export let CASfound: boolean;
+	export let chemNameNotFound: boolean;
 </script>
 
 {#if searchingCAS}
@@ -15,6 +16,16 @@
 	<p class="text-red-500">No information from this CAS number was obtained.</p>
 	<p class="text-red-500">
 		<span class="text-complement">Chemical Name</span> will need to be added manually.
+	</p>
+	<p class="text-red-500">
+		<span class="text-complement">Structure</span> and
+		<span class="text-complement">Physical Properties</span> may be added manually.
+	</p>
+{/if}
+{#if chemNameNotFound}
+	<p class="text-red-500">No information from this chemical name was obtained.</p>
+	<p class="text-red-500">
+		<span class="text-complement">CAS rn</span> will need to be added manually.
 	</p>
 	<p class="text-red-500">
 		<span class="text-complement">Structure</span> and

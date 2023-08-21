@@ -19,17 +19,22 @@
 	$: selectedLocationID && filterOrdersList();
 
 	const filterOrdersList = () => {
+		filteredOrdersList = [...ordersList];
+
+		filteredOrdersList = filteredOrdersList.filter((order: DBOrder) => {
+			return order.isConsumed == false;
+		});
 		// ALL
 		if (selectedLocationID == -1) {
-			filteredOrdersList = [...ordersList];
+			// do nothing
 			// UNSORTED
 		} else if (selectedLocationID == -2) {
-			filteredOrdersList = [...ordersList].filter((order: DBOrder) => {
+			filteredOrdersList = filteredOrdersList.filter((order: DBOrder) => {
 				return order.location_id == null;
 			});
 			// SPECIFIC LOCATION
 		} else {
-			filteredOrdersList = [...ordersList].filter((order: DBOrder) => {
+			filteredOrdersList = filteredOrdersList.filter((order: DBOrder) => {
 				return order.location_id == selectedLocationID;
 			});
 		}
@@ -51,13 +56,22 @@
 	const modifyData = async ({ detail }: { detail: ModifyOrder }) => {
 		const modifiedData = detail;
 
-		ordersList.find((order) => {
-			if (order.id == modifiedData.id) {
-				order.amount = modifiedData.amount;
-				order.location = modifiedData.location;
-				modifiedData.location ? (order.location_id = modifiedData.location.id) : null;
-			}
+		const oldOrder = ordersList.find((order) => {
+			return order.id == modifiedData.id;
 		});
+
+		if (!oldOrder) {
+			console.log('something went wrong...');
+			return;
+		}
+
+		oldOrder.amount = modifiedData.amount;
+		if (oldOrder.amount == 0) {
+			oldOrder.isConsumed = true;
+		}
+		oldOrder.location = modifiedData.location;
+		modifiedData.location ? (oldOrder.location_id = modifiedData.location.id) : null;
+
 		ordersList = [...ordersList];
 
 		filterOrdersList();
