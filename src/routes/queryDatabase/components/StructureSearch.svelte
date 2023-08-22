@@ -1,14 +1,18 @@
 <script lang="ts">
+	/* MINOR COMPONENTS */
 	import { Button } from '$lib/components/button/button';
 
-	/* STRUCTURE EDITOR */
+	/* MODUELE IMPORTS */
 	import { RDKitSS } from '$lib/stores/rdkitstore';
 	import { onMount } from 'svelte';
 
+	/* TYPES */
+	import type { QueryInfo, QueryMessageState } from '$lib/types/queryDatabase';
+
 	let jsmeApplet: any;
 
-	export let queryInchi: string | null;
-	export let noStructure: boolean;
+	export let queryInfo: QueryInfo;
+	export let messageState: QueryMessageState;
 
 	onMount(() => {
 		// @ts-ignore
@@ -16,10 +20,10 @@
 	});
 
 	function queryDatabaseInchi() {
-		queryInchi = getInchi();
-		console.log(queryInchi);
-		if (!queryInchi) {
-			noStructure = true;
+		queryInfo.Inchi = getInchi();
+		console.log(queryInfo.Inchi);
+		if (!queryInfo.Inchi) {
+			messageState.noStructure = true;
 			return;
 		}
 	}

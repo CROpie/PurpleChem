@@ -1,6 +1,8 @@
 <script lang="ts">
+	/* MINOR COMPONENTS */
 	import Heading from '$lib/components/typography/Heading.svelte';
 
+	/* TYPES */
 	import type { DBOrder } from '$lib/types/inventory';
 
 	export let order: DBOrder;
@@ -15,20 +17,17 @@
 			{@html `${currentSVG}`}
 		</div>
 		<ul>
-			<li>CAS: {order.chemical.CAS}</li>
-			<li>MW: {order.chemical.MW ? order.chemical.MW : '-'}</li>
-			<li>BP: {order.chemical.BP ? order.chemical.BP : '-'}</li>
-			<li>MP: {order.chemical.MP ? order.chemical.MP : '-'}</li>
-			<li>Density: {order.chemical.density ? order.chemical.density : '-'}</li>
-			<li>Date Ordered: {order.orderDate.substring(0, 10)}</li>
-			<li>Supplier: {order.supplier.supplierName}</li>
-		</ul>
-
-		<ul>
-			<!-- <li>CAS: {order.chemicalID.CAS}</li> -->
-			<!-- TODO -->
-			<!-- <li>Supplier:</li>
-			<li>Date Ordered:</li> -->
+			<li>CAS: <span class="text-neutral">{order.chemical.CAS}</span></li>
+			<li>MW: <span class="text-neutral">{order.chemical.MW ? order.chemical.MW : '-'}</span></li>
+			<li>BP: <span class="text-neutral">{order.chemical.BP ? order.chemical.BP : '-'}</span></li>
+			<li>MP: <span class="text-neutral">{order.chemical.MP ? order.chemical.MP : '-'}</span></li>
+			<li>
+				Density: <span class="text-neutral"
+					>{order.chemical.density ? order.chemical.density : '-'}</span
+				>
+			</li>
+			<li>Date Ordered: <span class="text-neutral">{order.orderDate.substring(0, 10)}</span></li>
+			<li>Supplier: <span class="text-neutral">{order.supplier.supplierName}</span></li>
 		</ul>
 	</div>
 </div>

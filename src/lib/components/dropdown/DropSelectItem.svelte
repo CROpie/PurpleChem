@@ -24,12 +24,6 @@
 	const clickHandler = () => {
 		$details = { value, label };
 	};
-
-	// import { clickOutside } from './clickOutside';
-
-	// function handleClickOutside(event) {
-	// 	console.log('boop');
-	// }
 </script>
 
 <button class={buttonClass} on:click={clickHandler} type="button" role="option">

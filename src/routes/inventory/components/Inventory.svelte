@@ -1,11 +1,13 @@
 <script lang="ts">
+	/* MINOR COMPONENTS */
 	import Heading from '$lib/components/typography/Heading.svelte';
 
-	import type { DBLocation, DBOrder, ModifyOrder } from '$lib/types/inventory';
-
-	// Components
+	/* MAJOR COMPONENTS */
 	import LocationSidebar from './LocationSidebar.svelte';
 	import InventoryAccordion from './InventoryAccordion.svelte';
+
+	/* TYPES */
+	import type { DBLocation, DBOrder, ModifyOrder } from '$lib/types/inventory';
 
 	export let locationsList: DBLocation[];
 	export let ordersList: DBOrder[];
@@ -13,10 +15,12 @@
 	let filteredOrdersList = [...ordersList];
 
 	// filter & sort options
-	let currentLocation = 'All';
-	let selectedLocationID = -1;
+	let selectedLocation: DBLocation = {
+		id: -1,
+		locationName: 'All'
+	};
 
-	$: selectedLocationID && filterOrdersList();
+	$: selectedLocation && filterOrdersList();
 
 	const filterOrdersList = () => {
 		filteredOrdersList = [...ordersList];
@@ -25,17 +29,17 @@
 			return order.isConsumed == false;
 		});
 		// ALL
-		if (selectedLocationID == -1) {
+		if (selectedLocation.id == -1) {
 			// do nothing
 			// UNSORTED
-		} else if (selectedLocationID == -2) {
+		} else if (selectedLocation.id == -2) {
 			filteredOrdersList = filteredOrdersList.filter((order: DBOrder) => {
 				return order.location_id == null;
 			});
 			// SPECIFIC LOCATION
 		} else {
 			filteredOrdersList = filteredOrdersList.filter((order: DBOrder) => {
-				return order.location_id == selectedLocationID;
+				return order.location_id == selectedLocation.id;
 			});
 		}
 		sortOrders();
@@ -43,7 +47,7 @@
 
 	function sortOrders() {
 		filteredOrdersList = filteredOrdersList.sort((a, b) =>
-			a.chemical.chemicalName?.toLowerCase() > b.chemical.chemicalName?.toLowerCase() ? 1 : -1
+			a.chemical.chemicalName!.toLowerCase() > b.chemical.chemicalName!.toLowerCase() ? 1 : -1
 		);
 	}
 
@@ -51,6 +55,12 @@
 	const addLocation = async ({ detail }: { detail: DBLocation }) => {
 		const newLocationData = detail;
 		locationsList = [...locationsList, newLocationData];
+	};
+
+	const deleteLocation = async ({ detail }: { detail: DBLocation }) => {
+		const locationToDelete = detail;
+		locationsList = locationsList.filter((location) => location.id != locationToDelete.id);
+		// locationsList = [...locationsList];
 	};
 
 	const modifyData = async ({ detail }: { detail: ModifyOrder }) => {
@@ -92,12 +102,12 @@
 <div class="flex flex-wrap">
 	<LocationSidebar
 		{locationsList}
-		bind:selectedLocationID
-		bind:currentLocation
+		bind:selectedLocation
 		on:triggerAddLocation={addLocation}
+		on:triggerDeleteLocation={deleteLocation}
 	/>
 	<div class="flex-1">
-		<Heading tag="h3" class="ml-5 mt-2">{currentLocation}</Heading>
+		<Heading tag="h3" class="ml-5 mt-2">{selectedLocation.locationName}</Heading>
 		<InventoryAccordion
 			{locationsList}
 			{filteredOrdersList}

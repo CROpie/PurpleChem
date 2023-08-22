@@ -1,4 +1,4 @@
-import type { FetchOutcome } from '$lib/types.js';
+import type { FetchOutcome } from '$lib/types/global';
 
 type RequestOptions = {
 	query?: Record<string, string>;
@@ -32,8 +32,6 @@ export default class PurpleChemClientApi {
 			headers,
 			body: options.body ? JSON.stringify(options.body) : null
 		});
-
-		console.log('clientsideapi response: ', response);
 
 		if (!response.ok) {
 			const outcome: FetchOutcome = {

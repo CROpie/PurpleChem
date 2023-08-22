@@ -1,12 +1,13 @@
 <script lang="ts">
+	/* MINOR COMPONENTS */
 	import { Input } from '$lib/components/form/formAll';
 	import { DropSelect, DropSelectItem } from '$lib/components/dropdown/dropdownAll';
 
-	import type { OrderInfo } from '$lib/types/orderChemical';
+	/* TYPES */
+	import type { OrderInfo, Supplier } from '$lib/types/orderChemical';
 
 	export let orderInfo: OrderInfo;
-
-	export let supplierList: { id: number; supplierName: string }[];
+	export let supplierList: Supplier[];
 
 	// Units for dropdown select
 	const unitsList = [

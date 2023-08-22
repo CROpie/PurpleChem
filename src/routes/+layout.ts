@@ -1,15 +1,12 @@
-// src/routes/+layout.ts
+/* MODULES */
+import PurpleChemClientApi from '$lib/apiClient/PurpleChemClientAPI';
 
-// Not sure if it is worth the effort to do this, seeing as
-// the client will have to be passed from +page.svelte down via props
-// or contextAPI
-// maybe put into a store ?
-
-// import PurpleChemClientApi from '$lib/apiClient/PurpleChemClientAPI';
-// import type { LayoutLoad } from './$types';
-
-// export const load: LayoutLoad = async () => {
-// 	const ClientAPI = new PurpleChemClientApi();
-
-// 	return { ClientAPI };
-// };
+export const load = async ({ data }) => {
+	const ClientAPI = new PurpleChemClientApi();
+	if (data) {
+		const role = data.role;
+		return { ClientAPI, role };
+	} else {
+		return { ClientAPI };
+	}
+};

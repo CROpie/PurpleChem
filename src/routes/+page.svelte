@@ -1,6 +1,9 @@
 <script lang="ts">
+	/* MINOR COMPONENTS */
 	import { Heading } from '$lib/components/typography/Typo';
-	import LoginForm from './LoginForm.svelte';
+
+	/* MAJOR COMPONENTS */
+	import LoginForm from './loginForm/LoginForm.svelte';
 </script>
 
 <Heading tag="h2" class="text-center mt-3">Welcome to purplechem.com</Heading>
@@ -9,6 +12,6 @@
 <LoginForm />
 <div class="ml-4">
 	<p class="text-complement">[Demo] To sign in use:</p>
-	<p class="text-neutral">chris@purplechem.com // default</p>
-	<p class="text-neutral">admin@purplechem.com // default</p>
+	<p class="text-neutral">[user]: chris@purplechem.com, password = default</p>
+	<p class="text-neutral">[admin]: admin@purplechem.com, password = default</p>
 </div>

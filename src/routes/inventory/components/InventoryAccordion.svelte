@@ -1,18 +1,18 @@
 <script lang="ts">
-	// Major components
-	import TitleTab from './TitleTab.svelte';
-	import ModifyTab from './ModifyTab.svelte';
-	import PropertiesTab from './PropertiesTab.svelte';
-
-	// Minor components
+	/* MINOR COMPONENTS */
 	import {
 		AccordionDouble,
 		AccordionItemDouble
 	} from '$lib/components/Accordion2/accordionDoubleAll';
 
+	/* MAJOR COMPONENTS */
+	import TitleTab from './TitleTab.svelte';
+	import ModifyTab from './ModifyTab.svelte';
+	import PropertiesTab from './PropertiesTab.svelte';
+
+	/* TYPES */
 	import type { DBOrder, DBLocation } from '$lib/types/inventory';
 
-	/* DATA */
 	export let locationsList: DBLocation[];
 	export let filteredOrdersList: DBOrder[];
 

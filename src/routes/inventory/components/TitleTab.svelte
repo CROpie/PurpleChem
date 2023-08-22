@@ -1,10 +1,11 @@
 <script lang="ts">
-	import type { DBOrder } from '$lib/types/inventory';
-	export let order: DBOrder;
-
-	/* STRUCTURE */
+	/* MODULES */
 	import { RDKitSS } from '$lib/stores/rdkitstore';
 
+	/* TYPES */
+	import type { DBOrder } from '$lib/types/inventory';
+
+	export let order: DBOrder;
 	export let currentSVG;
 
 	function getSVG(smile: string | null) {

@@ -2,7 +2,7 @@
 	import { Input } from './formAll';
 	import type { colorChoice } from '../types';
 	import { twMerge } from 'tailwind-merge';
-	export let inputValue = 'Search';
+	export let inputValue: string | null = 'Search';
 	export let placeholder = '';
 
 	export let color = 'primary';

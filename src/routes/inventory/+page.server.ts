@@ -1,12 +1,17 @@
-import { fail } from '@sveltejs/kit';
-import type { Actions } from '@sveltejs/kit';
-import type { PageServerLoad } from '../$types';
+/* TYPES */
+import type { PageServerLoad } from './$types';
+import type { FetchOutcome } from '$lib/types/global';
+import type { DBLocation, DBOrder } from '$lib/types/inventory';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const APIClient = locals.apiclient;
 
-	const { outcome: loadOutcome, data } = await APIClient.get('/inventoryload/');
-	// console.log('data:', data);
+	const {
+		outcome: loadOutcome,
+		data
+	}: { outcome: FetchOutcome; data: { locationsList: DBLocation[]; ordersList: DBOrder[] } } =
+		await APIClient.get('/inventoryload/');
+
 	const { locationsList, ordersList } = data;
 	return { loadOutcome, locationsList, ordersList };
 };

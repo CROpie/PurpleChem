@@ -1,14 +1,15 @@
 <script lang="ts">
+	/* MINOR COMPONENTS */
 	import { Button } from '$lib/components/button/button';
 	import type { ChemicalInfo } from '$lib/types/orderChemical';
 
-	/* STRUCTURE EDITOR */
+	/* MODULES */
 	import { RDKitSS } from '$lib/stores/rdkitstore';
 	import { onMount } from 'svelte';
 
-	let jsmeApplet: any;
-
 	export let chemicalInfo: ChemicalInfo;
+
+	let jsmeApplet: any;
 
 	onMount(() => {
 		// @ts-ignore
@@ -16,11 +17,9 @@
 	});
 
 	function generateStructureInfo() {
-		// failStructure = false;
 		chemicalInfo.smile = jsmeApplet.smiles();
 		if (chemicalInfo.smile) {
 			chemicalInfo.inchi = $RDKitSS!.get_mol(chemicalInfo.smile).get_inchi();
-			console.log('inchi generated: ', chemicalInfo.inchi);
 		}
 	}
 </script>

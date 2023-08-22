@@ -1,94 +1,83 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+
+	/* MINOR COMPONENTS */
 	import { Button } from '$lib/components/button/button';
 	import { Search } from '$lib/components/form/formAll';
 
-	import ClientSideApiClient from '$lib/apiClient/PurpleChemClientAPI.js';
-	import type { FetchOutcome } from '$lib/types/formTypes';
-
-	// COMPONENTS
+	/* MAJOR COMPONENTS */
 	import ResultsTable from './ResultsTable.svelte';
 	import StructureSearch from './StructureSearch.svelte';
 	import QueryDisplayMessages from './QueryDisplayMessages.svelte';
 
-	const ClientAPI = new ClientSideApiClient();
+	/* TYPES */
+	import type { Query, QueryData, QueryInfo, QueryMessageState } from '$lib/types/queryDatabase';
 
-	let outcome: FetchOutcome = null;
+	const ClientAPI = $page.data.ClientAPI;
 
-	// messages
-	let searching = false;
-	let noHit = false;
-	let dbError = false;
-	let noStructure = false;
-
-	let queryChemicalName = '';
-	let queryInchi: string | null = null;
-	$: queryInchi && queryDatabase();
-	$: console.log(queryInchi);
-
-	type QueryData = {
-		id: number;
-		amount: number | string;
-		amountUnit?: string;
-		isConsumed: boolean | string;
-		orderDate: string;
-		status: string;
-		supplierPN: string | null;
-		fullname: string;
-		CAS: string;
-		chemicalName: string;
-		supplierName: string;
+	// chemicalName needs to be '' instead of null for searching all
+	let queryInfo: QueryInfo = {
+		ChemicalName: '',
+		Inchi: null
 	};
 
-	type Query = { queryType?: string; queryString?: string };
+	let messageState: QueryMessageState = {
+		fetchOutcome: null,
+		searching: false,
+		noHit: false,
+		dbError: false,
+		noStructure: false
+	};
 
-	// List of orders
+	let componentState = {
+		showStructureEditor: false
+	};
+
+	// List of orders from database
 	let allQueryOrders: QueryData[] = [];
 
-	// component toggle variables
-	let showStructureEditor = false;
+	// run queryDatabase if an Inchi is calculated
+	$: queryInfo.Inchi && queryDatabase();
 
 	/* FUNCTIONS */
 	const toggleStructureSearch = () => {
-		noHit = false;
-		showStructureEditor = !showStructureEditor;
+		messageState.noHit = false;
+		componentState.showStructureEditor = !componentState.showStructureEditor;
 	};
 
 	function clearMessages() {
-		noHit = false;
-		dbError = false;
-		noStructure = false;
+		messageState.noHit = false;
+		messageState.dbError = false;
+		messageState.noStructure = false;
 	}
 
 	const queryDatabase = async () => {
-		console.log('querying database...');
 		clearMessages();
 
 		let query: Query = {};
 
-		if (queryInchi) {
-			query = { queryType: 'structure', queryString: queryInchi };
+		if (queryInfo.Inchi) {
+			query = { queryType: 'structure', queryString: queryInfo.Inchi };
 		} else {
-			query = { queryType: 'string', queryString: queryChemicalName };
-			showStructureEditor = false;
+			query = { queryType: 'string', queryString: queryInfo.ChemicalName };
+			componentState.showStructureEditor = false;
 		}
-		// ensure that queryChemicalName will go through after a structure search
-		queryInchi = null;
+		// ensure that queryInfo.ChemicalName will go through if structure search previously used
+		queryInfo.Inchi = null;
 
-		searching = true;
+		messageState.searching = true;
 		const response = await ClientAPI.post('/querydatabase', null, {
 			body: {
 				query
 			}
 		});
-		searching = false;
+		messageState.searching = false;
 
-		outcome = response.outcome;
+		messageState.fetchOutcome = response.outcome;
 		allQueryOrders = response.data;
 
-		console.log(allQueryOrders);
-
 		if (allQueryOrders && allQueryOrders.length == 0) {
-			noHit = true;
+			messageState.noHit = true;
 			return;
 		}
 
@@ -107,18 +96,19 @@
 <div class="mx-8 mt-3">
 	<form class="flex-1" on:submit={queryDatabase}>
 		<Search
-			bind:inputValue={queryChemicalName}
+			bind:inputValue={queryInfo.ChemicalName}
 			outline
 			placeholder="Chemical Name, CAS or username"
 			divClass="my-4"
 		/>
 	</form>
 
-	<QueryDisplayMessages {searching} {dbError} {noHit} {noStructure} />
+	<QueryDisplayMessages {messageState} />
 
-	{#if showStructureEditor}
-		<StructureSearch bind:queryInchi bind:noStructure />
+	{#if componentState.showStructureEditor}
+		<StructureSearch bind:queryInfo bind:messageState />
 	{/if}
 	<Button type="button" outline on:click={toggleStructureSearch}>Toggle Structure Search</Button>
+
 	<ResultsTable {allQueryOrders} />
 </div>

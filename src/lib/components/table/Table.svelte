@@ -4,9 +4,11 @@
 
 	// export let striped = true;
 	export let outline = false;
+	export let hoverable = false;
 
 	// setContext('striped', striped);
 	setContext('outline', outline);
+	setContext('hoverable', hoverable);
 
 	let divClass = 'relative overflow-x-auto shadow-md sm:rounded-lg';
 	let tableClass = 'w-full text-left text-sm';

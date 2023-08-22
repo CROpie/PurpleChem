@@ -6,10 +6,13 @@
 <Heading tag="h2" class="text-center mt-3">Secret Admin Area</Heading>
 
 <div class="flex flex-col gap-2 mx-8 mt-4">
-	<Button href="addUser">Add a New User</Button>
-	<Button href="modifyuser">Modify Users</Button>
-	<Button href="modifychemical">Modify Chemical Data</Button>
-	<Button href="modifyorder">Modify Order</Button>
-	<Button href="status">Change Status of Orders</Button>
-	<Button href="addCSV">Add Orders via CSV File</Button>
+	<Button outline href="updateStatus" class="mb-4">Update Order Status</Button>
+	<Button outline href="addUser">Add a New User</Button>
+	<Button outline href="addSupplier" class="mb-4">Add a New Supplier</Button>
+	<Button outline href="modifyUser">Modify Users</Button>
+	<Button outline href="modifySupplier">Modify Suppliers</Button>
+	<Button outline href="modifyChemical">Modify Chemical Data</Button>
+	<Button outline href="modifyOrder" class="mb-4">Modify Order</Button>
+
+	<Button outline href="addCSV">Add Orders via CSV File</Button>
 </div>

@@ -1,74 +1,73 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+
+	/* MINOR COMPONENTS */
 	import Button from '$lib/components/button/Button.svelte';
 	import Input from '$lib/components/form/Input.svelte';
 	import { DropSelect, DropSelectItem } from '$lib/components/dropdown/dropdownAll';
 
-	import { createEventDispatcher } from 'svelte';
-
-	import type { DBOrder, DBLocation, ModifyOrder } from '$lib/types/inventory';
-	import type { FetchOutcome, FormResult } from '$lib/types/formTypes';
-
+	/* MAJOR COMPONENTS */
 	import ModifyMessages from './ModifyMessages.svelte';
 
-	import ClientSideApiClient from '$lib/apiClient/PurpleChemClientAPI.js';
+	/* MODULES */
+	import { createEventDispatcher } from 'svelte';
 
-	const ClientAPI = new ClientSideApiClient();
+	/* TYPTES */
+	import type {
+		DBOrder,
+		DBLocation,
+		ModifyOrder,
+		InventoryAccordionMessageState
+	} from '$lib/types/inventory';
 
-	/* VARIABLES */
+	const ClientAPI = $page.data.ClientAPI;
+
 	export let order: DBOrder;
 	export let locationsList: DBLocation[];
 
-	let outcome: FetchOutcome = null;
-
 	const dispatch = createEventDispatcher();
 
-	// Validation / messages
-	const numbersOnly = /^[0-9]+$/;
+	let dropdownLocationID: number | null = null;
+	let dropdownLocationName = 'Choose a storage location.';
 
-	// set the text and value of the custom dropdown (select)
-	let currentLocation = 'Choose a storage location.';
-	let currentValue: number | null = null;
+	let messageState: InventoryAccordionMessageState = {
+		fetchOutcome: null,
+		failValidation: false,
+		waiting: false
+	};
 
-	console.log(order);
 	if (order.location) {
-		currentLocation = order.location.locationName;
-		currentValue = order.location_id;
+		dropdownLocationID = order.location.id;
+		dropdownLocationName = order.location.locationName;
 	}
 
-	// form variables
-	let failValidation = false;
-	let waiting = false;
-
-	let form: FormResult = null;
-
 	async function handleSubmit() {
-		form = null;
-		failValidation = false;
-		waiting = false;
+		messageState.fetchOutcome = null;
+		messageState.failValidation = false;
+
+		const numbersOnly = /^[0-9]+$/;
 
 		if (!numbersOnly.test(String(order.amount))) {
-			failValidation = true;
+			messageState.failValidation = true;
 			return;
 		}
 
-		waiting = true;
-
-		console.log(order.id, order.amount, currentValue);
+		messageState.waiting = true;
 
 		const response = await ClientAPI.post('/patchamountlocation', null, {
 			body: {
 				orderID: order.id,
 				amount: order.amount,
-				locationID: currentValue
+				locationID: dropdownLocationID
 			}
 		});
 
-		waiting = false;
+		messageState.waiting = false;
 
-		outcome = response.outcome;
+		messageState.fetchOutcome = response.outcome;
 		const data: ModifyOrder = response.data;
 
-		if (outcome?.success) {
+		if (messageState.fetchOutcome?.success) {
 			dispatch('triggerUpdate', data);
 		}
 	}
@@ -100,20 +99,18 @@
 			class="sm:w-64 w-36 border-2 rounded-lg"
 			outline
 			popClass="w-36"
-			defaultText={currentLocation}
-			bind:value={currentValue}
+			defaultText={dropdownLocationName}
+			bind:value={dropdownLocationID}
 		>
 			{#each locationsList as location (location?.id)}
-				<DropSelectItem value={location?.id} label={location?.locationName} />
+				<DropSelectItem value={location.id} label={location.locationName} />
 			{:else}
 				<DropSelectItem label="No Locations!" />
 			{/each}
 		</DropSelect>
-
-		<!-- <input type="hidden" name="orderID" value={order.id} /> -->
 	</div>
 	<div>
 		<Button type="submit" outline class="border-none text-2xl">✓</Button>
 	</div>
 </form>
-<ModifyMessages {outcome} {waiting} {failValidation} />
+<ModifyMessages {messageState} />

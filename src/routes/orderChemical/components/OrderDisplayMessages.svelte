@@ -1,38 +1,33 @@
 <script lang="ts">
-	import type { FetchOutcome } from '$lib/types/formTypes';
+	/* TYPES */
+	import type { OrderChemMessageState } from '$lib/types/orderChemical';
 
-	export let failValidation: boolean;
-	export let failStructure: boolean;
-	export let failAmount: boolean;
-	export let failAmountUnit: boolean;
-	export let failSupplierID: boolean;
-	export let ordering: boolean;
-	export let outcome: FetchOutcome;
+	export let messageState: OrderChemMessageState;
 </script>
 
-{#if failValidation}
+{#if messageState.failValidation}
 	<p class="text-red-500">
 		Please check that all the necessary fields have been entered correctly.
 	</p>
 {/if}
-{#if failStructure}
+{#if messageState.failStructure}
 	<p class="text-red-500">Please generate the structure info before placing the order.</p>
 {/if}
-{#if failAmount}
+{#if messageState.failAmount}
 	<p class="text-red-500">Please enter a whole number amount.</p>
 {/if}
-{#if failAmountUnit}
+{#if messageState.failAmountUnit}
 	<p class="text-red-500">Please select a unit.</p>
 {/if}
-{#if failSupplierID}
+{#if messageState.failSupplierID}
 	<p class="text-red-500">Please select a supplier.</p>
 {/if}
-{#if ordering}
+{#if messageState.ordering}
 	<p class="text-orange-500">Ordering...</p>
 {/if}
-{#if outcome?.success}
+{#if messageState.fetchOutcome?.success}
 	<p class="text-green-500">Order successful.</p>
 {/if}
-{#if outcome?.error}
-	<p class="text-orange-500">{outcome.error}</p>
+{#if messageState.fetchOutcome?.error}
+	<p class="text-orange-500">{messageState.fetchOutcome.error}</p>
 {/if}

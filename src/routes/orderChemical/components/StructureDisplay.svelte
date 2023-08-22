@@ -1,9 +1,10 @@
 <script lang="ts">
-	/* STRUCTURE EDITOR */
+	/* MODULES */
 	import { RDKitSS } from '$lib/stores/rdkitstore';
 	import { onMount } from 'svelte';
 
 	export let smile: string | null;
+
 	let currentSVG: string | null = null;
 
 	onMount(() => {

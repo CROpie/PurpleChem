@@ -1,10 +1,13 @@
-export const load = async ({ locals }) => {
+/* TYPES */
+import type { Supplier } from '$lib/types/orderChemical';
+import type { FetchOutcome } from '$lib/types/global';
+import type { PageServerLoad } from './$types.js';
+
+export const load: PageServerLoad = async ({ locals }) => {
 	const APIClient = locals.apiclient;
-
-	let { outcome: loadOutcome, data: supplierList } = await APIClient.get('/orderchemicalload/');
-
-	// need to ensure that supplierList is at least [] for foreach?
-	// or a way to add new suppliers?
+	// eslint-disable-next-line
+	let { outcome: loadOutcome, data: supplierList }: { outcome: FetchOutcome; data: Supplier[] } =
+		await APIClient.get('/orderchemicalload/');
 
 	if (supplierList && supplierList.length == 0) {
 		loadOutcome = {

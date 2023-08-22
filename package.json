@@ -55,6 +55,7 @@
 		"flowbite": "^1.6.6",
 		"flowbite-svelte": "^0.38.5",
 		"jsme-editor": "^2022.9.26",
+		"jwt-decode": "^3.1.2",
 		"tailwind-merge": "^1.13.2"
 	}
 }

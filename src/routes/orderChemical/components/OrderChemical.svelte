@@ -1,20 +1,29 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+
+	/* MINOR COMPONENTS */
 	import { Button } from '$lib/components/button/button';
 
-	import type { FetchOutcome } from '$lib/types/formTypes';
-	import type { ChemicalInfo, OrderInfo, Supplier } from '$lib/types/orderChemical';
-
-	// COMPONENTS
+	/* MAJOR COMPONENTS */
 	import CASSearch from './CASSearch.svelte';
 	import StructureDisplay from './StructureDisplay.svelte';
 	import StructureSearch from './StructureSearch.svelte';
 	import OrderForm from './OrderForm.svelte';
-	import ManualPhys from './ManualPhys.svelte';
+	import ManualPhysInput from './ManualPhysInput.svelte';
 	import OrderDisplayMessages from './OrderDisplayMessages.svelte';
 
-	import ClientSideApiClient from '$lib/apiClient/PurpleChemClientAPI.js';
+	/* TYPES */
+	import type {
+		ChemicalInfo,
+		OrderInfo,
+		Supplier,
+		OrderChemMessageState,
+		OrderChemComponentState
+	} from '$lib/types/orderChemical';
 
-	const ClientAPI = new ClientSideApiClient();
+	export let supplierList: Supplier[];
+
+	const ClientAPI = $page.data.ClientAPI;
 
 	/* OBJECTS THAT COLLECT ALL THE ORDERING INFORMATION */
 
@@ -38,25 +47,24 @@
 	};
 	let orderInfo = { ...blankOrderInfo };
 
-	export let supplierList: Supplier[];
+	let componentState: OrderChemComponentState = {
+		showOrderForm: false,
+		showStructureEditor: false,
+		showCASDisplayMessage: true,
+		showStructure: false,
+		manualStructure: false,
+		CASnotFound: false
+	};
 
-	// component toggle variables
-	let showOrderForm = false;
-	let showStructureEditor = false;
-	let CASnotFound = false;
-	let manualStructure = false;
-	let showCASDisplayMessage = true;
-	let showStructure = false;
-
-	// message variables
-	let ordering = false;
-	let failValidation = false;
-	let failStructure = false;
-	let failAmount = false;
-	let failSupplierID = false;
-	let failAmountUnit = false;
-
-	let outcome: FetchOutcome = null;
+	let messageState: OrderChemMessageState = {
+		fetchOutcome: null,
+		ordering: false,
+		failValidation: false,
+		failStructure: false,
+		failAmount: false,
+		failSupplierID: false,
+		failAmountUnit: false
+	};
 
 	// Validation regxes
 	const CASRegexPattern = /^\d{2,7}-\d{2}-\d$/;
@@ -69,65 +77,52 @@
 	}
 
 	function resetComponents() {
-		showOrderForm = false;
-		showStructureEditor = false;
-		CASnotFound = false;
-		manualStructure = false;
-		showStructure = false;
-	}
-
-	function resetOrderDetail() {
-		chemicalInfo = {
-			CAS: null,
-			chemicalName: null,
-			MW: null,
-			MP: null,
-			BP: null,
-			density: null,
-			smile: null,
-			inchi: null
-		};
-		orderInfo = {
-			supplier_id: null,
-			amount: null,
-			amountUnit: null,
-			supplierPN: null
-		};
+		componentState.showOrderForm = false;
+		componentState.showStructureEditor = false;
+		componentState.CASnotFound = false;
+		componentState.manualStructure = false;
+		componentState.showStructure = false;
 	}
 
 	function resetMessages() {
-		ordering = false;
-		failValidation = false;
-		failStructure = false;
-		failAmount = false;
-		failSupplierID = false;
-		failAmountUnit = false;
+		messageState.ordering = false;
+		messageState.failValidation = false;
+		messageState.failStructure = false;
+		messageState.failAmount = false;
+		messageState.failSupplierID = false;
+		messageState.failAmountUnit = false;
 		// hide any messages from CAS Display Message, so they don't remain after ordering a chemical
-		showCASDisplayMessage = false;
+		componentState.showCASDisplayMessage = false;
 	}
 
 	const validateData = async () => {
 		resetMessages();
 
 		if (!CASRegexPattern.test(String(chemicalInfo.CAS))) {
-			failValidation = true;
+			messageState.failValidation = true;
 		}
 		if (!chemicalInfo.chemicalName) {
-			failValidation = true;
+			messageState.failValidation = true;
 		}
 		if (!numbersOnly.test(String(orderInfo.amount))) {
-			failAmount = true;
+			messageState.failAmount = true;
 		}
 		if (!orderInfo.supplier_id) {
-			failSupplierID = true;
+			messageState.failSupplierID = true;
 		}
 		if (!orderInfo.amountUnit) {
-			failAmountUnit = true;
+			messageState.failAmountUnit = true;
 		}
-		if (showStructureEditor && !chemicalInfo.inchi) {
-			failStructure = true;
+		if (componentState.showStructureEditor && !chemicalInfo.inchi) {
+			messageState.failStructure = true;
 		}
-		if (failValidation || failStructure || failAmount || failSupplierID || failAmountUnit) {
+		if (
+			messageState.failValidation ||
+			messageState.failStructure ||
+			messageState.failAmount ||
+			messageState.failSupplierID ||
+			messageState.failAmountUnit
+		) {
 			return;
 		}
 
@@ -135,64 +130,46 @@
 	};
 
 	async function orderChemical() {
-		ordering = true;
+		messageState.ordering = true;
 		const response = await ClientAPI.post('/orderchemical', null, {
 			body: {
 				chemicalInfo,
 				orderInfo
 			}
 		});
-		ordering = false;
-		outcome = response.outcome;
-		if (outcome?.success) {
-			resetOrderDetail();
-			resetComponents();
+		messageState.ordering = false;
+		messageState.fetchOutcome = response.outcome;
+		if (messageState.fetchOutcome?.success) {
 			resetOrderObjects();
+			resetComponents();
 		}
 	}
 </script>
 
 <div class="m-8">
 	<!-- implement search by name or CAS -->
-	<CASSearch
-		bind:chemicalInfo
-		bind:orderInfo
-		bind:showOrderForm
-		bind:showStructureEditor
-		bind:CASnotFound
-		bind:showCASDisplayMessage
-		bind:outcome
-		bind:showStructure
-	/>
+	<CASSearch bind:chemicalInfo bind:orderInfo bind:componentState />
 
-	{#if showStructureEditor}
+	{#if componentState.showStructureEditor}
 		<StructureSearch bind:chemicalInfo />
 	{/if}
 
-	{#if showStructure}
+	{#if componentState.showStructure}
 		<StructureDisplay smile={chemicalInfo.smile} />
 	{/if}
 
-	{#if showOrderForm}
+	{#if componentState.showOrderForm}
 		<OrderForm bind:orderInfo {supplierList} />
 	{/if}
 
-	{#if CASnotFound}
-		<ManualPhys bind:chemicalInfo />
+	{#if componentState.CASnotFound}
+		<ManualPhysInput bind:chemicalInfo />
 	{/if}
 
-	{#if showOrderForm}
+	{#if componentState.showOrderForm}
 		<Button type="button" outline class="w-full mt-8" on:click={validateData}>ORDER CHEMICAL</Button
 		>
 	{/if}
 
-	<OrderDisplayMessages
-		{ordering}
-		{failValidation}
-		{failStructure}
-		{failAmount}
-		{failAmountUnit}
-		{failSupplierID}
-		{outcome}
-	/>
+	<OrderDisplayMessages {messageState} />
 </div>

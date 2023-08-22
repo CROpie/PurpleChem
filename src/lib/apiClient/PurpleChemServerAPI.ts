@@ -1,4 +1,4 @@
-import type { FetchOutcome } from '$lib/types.js';
+import type { FetchOutcome } from '$lib/types/global';
 
 type RequestOptions = {
 	query?: Record<string, string>;
@@ -20,6 +20,11 @@ export default class PurpleChemServerApi {
 	}
 
 	async request(options: RequestOptions) {
+		const outcome: FetchOutcome = {
+			success: false,
+			error: null
+		};
+
 		let query = new URLSearchParams(options.query || {}).toString();
 		if (query !== '') {
 			query = '?' + query;
@@ -32,24 +37,29 @@ export default class PurpleChemServerApi {
 			headers['Authorization'] = `Bearer ${this.token}`;
 		}
 
+		// Since hooks runs before this request, the token should be refreshed
+		// and this code should not run.
+		if (!this.token) {
+			outcome.error = 'Token has expired. Please refresh the page.';
+			return { outcome };
+		}
+
 		const response = await fetch(this.base_url + options.url + query, {
 			method: options.method,
 			headers,
 			body: options.body ? JSON.stringify(options.body) : null
 		});
 
-		let outcome: FetchOutcome = {
-			success: false,
-			error: null
-		};
-
-		// if there is an error picked up, such as duplicate info, in the database,
-		// an HTML excmption will be raised, and will be picked up as { detail }
-		// in the !response.ok block.
+		// HTTPException info will be sent to reponse.detail
+		// Pydantic errors will be sent to detail[arr].msg
 
 		if (!response.ok) {
 			const { detail } = await response.json();
-			outcome.error = detail;
+			if (detail[0].msg) {
+				outcome.error = detail[0].msg;
+			} else {
+				outcome.error = detail;
+			}
 			return { outcome };
 		}
 
@@ -57,7 +67,6 @@ export default class PurpleChemServerApi {
 
 		outcome.success = true;
 
-		// console.log('ServerSide: ', data, outcome);
 		return { outcome, data };
 	}
 

@@ -1,10 +1,13 @@
 <script lang="ts">
-	import ModifyForm from './ModifyForm.svelte';
-
+	/* MINOR COMPONENTS*/
 	import Heading from '$lib/components/typography/Heading.svelte';
 
-	import type { DBOrder, DBLocation } from '$lib/types/inventory';
+	/* MAJOR COMPONENTS */
+	import ModifyForm from './ModifyForm.svelte';
 	import ModifyForceStatus from './ModifyForceStatus.svelte';
+
+	/* TYPES */
+	import type { DBOrder, DBLocation } from '$lib/types/inventory';
 
 	export let order: DBOrder;
 	export let locationsList: DBLocation[];

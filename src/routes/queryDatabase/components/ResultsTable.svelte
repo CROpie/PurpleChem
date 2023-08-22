@@ -1,4 +1,5 @@
 <script lang="ts">
+	/* MINOR COMPONENTS */
 	import {
 		Table,
 		TableBody,
@@ -9,24 +10,14 @@
 	} from '$lib/components/table/TableAll';
 	import { Button } from '$lib/components/button/button';
 
-	type QueryData = {
-		id: number;
-		amount: number | string;
-		amountUnit?: string;
-		isConsumed: boolean | string;
-		orderDate: string;
-		status: string;
-		supplierPN: string | null;
-		fullname: string;
-		CAS: string;
-		chemicalName: string;
-		supplierName: string;
-	};
+	/* TYPES */
+	import type { QueryData } from '$lib/types/queryDatabase';
 
 	export let allQueryOrders: QueryData[];
+
 	$: allQueryOrders && displayWithConsumed();
 
-	let queryOrders: QueryData[] = [];
+	let filteredQueryOrders: QueryData[] = allQueryOrders ? allQueryOrders : [];
 
 	const tableHead = [
 		'chemicalName',
@@ -39,11 +30,12 @@
 		'orderDate'
 	];
 
-	let showingConsumed = true;
+	// Consumed chemical toggle
+	let showConsumed = true;
 
-	// Table sorting
-	let sortKey = 'chemicalName'; // default sort key
-	let sortDirection = 1; // default sort direction (ascending)
+	// Table sorting defaults
+	let sortKey = 'chemicalName';
+	let sortDirection = 1;
 
 	const sortTable = (key: string) => {
 		// If the same key is clicked, reverse the sort direction
@@ -53,42 +45,42 @@
 			sortKey = key;
 			sortDirection = 1;
 		}
-		queryOrders = queryOrders.sort((a, b) =>
+		filteredQueryOrders = filteredQueryOrders.sort((a, b) =>
 			// @ts-ignore
 			a[sortKey].toLowerCase() > b[sortKey].toLowerCase() ? -sortDirection : sortDirection
 		);
 	};
 
 	const displayWithConsumed = () => {
-		showingConsumed = true;
-		queryOrders = allQueryOrders;
+		showConsumed = true;
+		filteredQueryOrders = allQueryOrders;
 		sortDirection = 1;
 		sortTable('chemicalName');
 	};
 
 	const displayWithoutConsumed = () => {
-		showingConsumed = false;
-		queryOrders = allQueryOrders?.filter((order) => order.isConsumed == 'no');
+		showConsumed = false;
+		filteredQueryOrders = allQueryOrders?.filter((order) => order.isConsumed == 'no');
 		sortDirection = 1;
 		sortTable('chemicalName');
 	};
 </script>
 
-{#if showingConsumed}
+{#if showConsumed}
 	<Button type="button" outline on:click={displayWithoutConsumed}>Hide Consumed</Button>
 {:else}
 	<Button type="button" outline on:click={displayWithConsumed}>Show Consumed</Button>
 {/if}
 
 <div class="mt-4">
-	<Table hoverable color="primary" striped>
+	<Table hoverable color="primary" outline>
 		<TableHead>
 			{#each tableHead as heading}
 				<TableHeadCell on:click={() => sortTable(heading)}>{heading}</TableHeadCell>
 			{/each}
 		</TableHead>
 		<TableBody>
-			{#each queryOrders as order}
+			{#each filteredQueryOrders as order}
 				<TableBodyRow>
 					{#each tableHead as heading}
 						<TableBodyCell>{order[heading]}</TableBodyCell>

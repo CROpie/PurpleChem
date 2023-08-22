@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+
+	/* MINOR COMPONENTS */
 	import {
 		Sidebar,
 		SidebarWrapper,
@@ -7,68 +10,88 @@
 	} from '$lib/components/sidebar/sidebarAll';
 	import Input from '$lib/components/form/Input.svelte';
 
-	import type { locations } from '$lib/types/orderType';
-	import type { FormResult } from '$lib/types/formTypes';
-	import { createEventDispatcher } from 'svelte';
-
-	import type { FetchOutcome } from '$lib/types/formTypes';
-
+	/* MAJOR COMPONENTS */
 	import LocationMessages from './LocationMessages.svelte';
 
-	import ClientSideApiClient from '$lib/apiClient/PurpleChemClientAPI';
+	/* MODULES */
+	import { createEventDispatcher } from 'svelte';
 
-	const TestClient = new ClientSideApiClient();
+	/*TYPES */
+	import type {
+		InventorySidebarMessageState,
+		InventorySidebarComponentState,
+		LocationInput,
+		Location
+	} from '$lib/types/inventory';
 
-	// variables
-	export let locationsList: locations[];
+	export let locationsList: Location[];
+	export let selectedLocation: Location;
 
-	// bound to Inventory.svelte
-	export let selectedLocationID;
-	export let currentLocation;
+	const ClientAPI = $page.data.ClientAPI;
 
-	// form submission
-	let form: FormResult = null;
-	let newLocationData: locations;
+	let locationInput: LocationInput = {
+		locationName: null
+	};
 
-	let newLocation: string | null = null;
-	let waiting = false;
-	let addNew = false;
+	let messageState: InventorySidebarMessageState = {
+		fetchOutcome: null,
+		waiting: false
+	};
+
+	let componentState: InventorySidebarComponentState = {
+		addNew: false
+	};
 
 	const dispatch = createEventDispatcher();
-
-	// functions
 
 	function newLocationClickHandler() {
 		// bug: clicking 'New' causes 'selected' to disappear from All (or whatever it was on).
 		// the selectedLocationID doesn't change, so the displayed orders doesn't change. Just the hightlight on the text.
-		addNew = true;
-		form = null;
+		componentState.addNew = true;
 	}
 
-	const chooseLocation = (locationID: number, locationName: string) => {
-		addNew = false;
-		selectedLocationID = locationID;
-		currentLocation = locationName;
+	async function deleteLocationClickHandler() {
+		messageState.fetchOutcome = null;
+		messageState.waiting = true;
+
+		const response = await ClientAPI.post('/deletelocation', null, {
+			body: { selectedLocationID: selectedLocation.id }
+		});
+		messageState.waiting = false;
+		messageState.fetchOutcome = response.outcome;
+
+		if (messageState.fetchOutcome?.success) {
+			dispatch('triggerDeleteLocation', {
+				id: selectedLocation.id,
+				locationName: selectedLocation.locationName
+			});
+			selectedLocation.id = -1;
+			selectedLocation.locationName = 'All';
+		}
+	}
+
+	const chooseLocation = (location: Location) => {
+		componentState.addNew = false;
+		selectedLocation = location;
+		messageState.fetchOutcome = null;
 	};
 
-	let outcome: FetchOutcome = null;
-
-	async function handleSubmit() {
-		if (!newLocation) {
+	async function handleSubmitNew() {
+		if (!locationInput.locationName) {
 			return;
 		}
-		waiting = true;
-		const response = await TestClient.post('/addnewlocation', null, {
-			body: { newLocation }
+		messageState.waiting = true;
+		const response = await ClientAPI.post('/addnewlocation', null, {
+			body: { newLocation: locationInput.locationName }
 		});
-		waiting = false;
+		messageState.waiting = false;
 
-		addNew = false;
+		componentState.addNew = false;
 
-		outcome = response.outcome;
-		const newLocationData = response.data;
+		messageState.fetchOutcome = response.outcome;
+		const newLocationData: Location = response.data;
 
-		if (outcome?.success) {
+		if (messageState.fetchOutcome?.success) {
 			dispatch('triggerAddLocation', newLocationData);
 		}
 	}
@@ -77,26 +100,30 @@
 <Sidebar class="mt-12 w-full sm:w-64" outline>
 	<SidebarWrapper>
 		<SidebarGroup>
-			<SidebarItem label="All" on:click={() => chooseLocation(-1, 'All')} startSelected />
-			<SidebarItem label="Unsorted" on:click={() => chooseLocation(-2, 'Unsorted')} />
+			<SidebarItem
+				label="All"
+				on:click={() => chooseLocation({ id: -1, locationName: 'All' })}
+				startSelected
+			/>
+			<SidebarItem
+				label="Unsorted"
+				on:click={() => chooseLocation({ id: -2, locationName: 'Unsorted' })}
+			/>
 		</SidebarGroup>
 		<SidebarGroup border>
 			{#each locationsList as location (location.id)}
-				<SidebarItem
-					label={location.locationName}
-					on:click={() => chooseLocation(location.id, location.locationName)}
-				/>
+				<SidebarItem label={location.locationName} on:click={() => chooseLocation(location)} />
 			{:else}
 				<SidebarItem label="" />
 			{/each}
 
-			{#if addNew}
-				<form on:submit|preventDefault={handleSubmit}>
+			{#if componentState.addNew}
+				<form on:submit|preventDefault={handleSubmitNew}>
 					<Input
 						type="text"
 						name="newLocation"
 						class="w-full"
-						bind:value={newLocation}
+						bind:value={locationInput.locationName}
 						outline
 						autofocus
 					/>
@@ -105,7 +132,14 @@
 		</SidebarGroup>
 		<SidebarGroup border>
 			<SidebarItem label="New" class="text-neutral" on:click={newLocationClickHandler} />
+			{#if selectedLocation.id > 0}
+				<SidebarItem
+					label="Delete Selected"
+					class="text-primaryLight"
+					on:click={deleteLocationClickHandler}
+				/>
+			{/if}
 		</SidebarGroup>
 	</SidebarWrapper>
-	<LocationMessages bind:outcome bind:waiting />
+	<LocationMessages bind:messageState />
 </Sidebar>

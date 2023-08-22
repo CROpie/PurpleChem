@@ -1,16 +1,15 @@
 <script lang="ts">
-	import type { FetchOutcome } from '$lib/types/formTypes';
+	import type { InventorySidebarMessageState } from '$lib/types/inventory';
 
-	export let waiting: boolean;
-	export let outcome: FetchOutcome;
+	export let messageState: InventorySidebarMessageState;
 </script>
 
-{#if waiting}
+{#if messageState.waiting}
 	<p class="text-red-500">Connecting to server...</p>
 {/if}
-{#if outcome?.error}
-	<p class="text-red-500">{outcome.error}</p>
+{#if messageState.fetchOutcome?.error}
+	<p class="text-red-500">{messageState.fetchOutcome.error}</p>
 {/if}
-{#if outcome?.success}
-	<p class="text-complement">New Location Added</p>
+{#if messageState.fetchOutcome?.success}
+	<p class="text-green-500">Task completed sucessfully</p>
 {/if}

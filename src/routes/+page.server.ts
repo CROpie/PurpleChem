@@ -1,4 +1,7 @@
+/* MODULES */
 import { redirect } from '@sveltejs/kit';
+
+/* TYPES */
 import type { Actions } from '@sveltejs/kit';
 
 export const actions: Actions = {

@@ -1,20 +1,18 @@
 <script lang="ts">
-	import type { FetchOutcome } from '$lib/types/formTypes';
+	import type { InventoryAccordionMessageState } from '$lib/types/inventory';
 
-	export let waiting: boolean;
-	export let outcome: FetchOutcome;
-	export let failValidation: boolean;
+	export let messageState: InventoryAccordionMessageState;
 </script>
 
-{#if failValidation}
+{#if messageState.failValidation}
 	<p class="text-red-500">Please enter an integer in the 'remaining' field.</p>
 {/if}
-{#if waiting}
+{#if messageState.waiting}
 	<p class="text-red-500">Saving...</p>
 {/if}
-{#if outcome?.success}
+{#if messageState.fetchOutcome?.success}
 	<p class="text-green-500">Saved.</p>
 {/if}
-{#if outcome?.error}
-	<p class="text-red-500">{outcome.error}</p>
+{#if messageState.fetchOutcome?.error}
+	<p class="text-red-500">{messageState.fetchOutcome.error}</p>
 {/if}

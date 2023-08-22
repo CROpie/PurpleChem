@@ -1,19 +1,22 @@
 <script lang="ts">
-	export let searching: boolean;
-	export let dbError: boolean;
-	export let noHit: boolean;
-	export let noStructure: boolean;
+	/* TYPES */
+	import type { QueryMessageState } from '$lib/types/queryDatabase';
+
+	export let messageState: QueryMessageState;
 </script>
 
-{#if searching}
+{#if messageState.searching}
 	<p class="text-orange-500">Searching Database..</p>
 {/if}
-{#if dbError}
+{#if messageState.dbError}
 	<p class="text-red-500">Database error..</p>
 {/if}
-{#if noHit}
+{#if messageState.noHit}
 	<p class="text-red-500">No Hits!</p>
 {/if}
-{#if noStructure}
-	<p class="text-red-500">Error while searching structure...</p>
+{#if messageState.noStructure}
+	<p class="text-red-500">Please use the editor to draw a structure...</p>
+{/if}
+{#if messageState.fetchOutcome?.error}
+	<p class="text-red-500">{messageState.fetchOutcome.error}</p>
 {/if}

@@ -1,14 +1,17 @@
 <script lang="ts">
+	/* STYLES */
 	import '../app.css';
 
-	import { onMount } from 'svelte';
-
+	/* MINOR COMPONENTS */
 	import { Navbar, NavUl, NavBrand, NavLi, NavHamburger } from '$lib/components/navbar/Nav';
 	import { DarkLightTheme } from '$lib/components/theme/themePick';
 
+	/* MODULES */
+	import { onMount } from 'svelte';
 	import { RDKitSS } from '$lib/stores/rdkitstore';
 
-	const isAdmin = true;
+	export let data;
+	const { role } = data;
 
 	onMount(() => {
 		initRDKit();
@@ -23,16 +26,16 @@
 
 	async function logOut() {
 		const response = await fetch('api/logout');
+		if (response.ok) {
+			window.location.href = '/';
+		} else {
+			console.log('Something went wrong when logging out...?');
+		}
 	}
 </script>
 
-<!-- B. Bienfait and P. Ertl, JSME: a free molecule editor in JavaScript, J. Cheminformatics 5:24 (2013) -->
 <svelte:head>
 	<title>Chem Database</title>
-	<!-- <script src="/jsme-editor/jsme.nocache.js"></script> -->
-	<!-- <script src="/@rdkit/rdkit/dist/RDKit_minimal.js"></script> -->
-	<!-- <script src="https://jsme.cloud.douglasconnect.com/JSME_2017-02-26/jsme/jsme.nocache.js"></script>
-	<script src="https://unpkg.com/@rdkit/rdkit/dist/RDKit_minimal.js"></script> -->
 </svelte:head>
 
 <div class="sticky top-0 z-20">
@@ -50,7 +53,7 @@
 		<!-- hamburger only appears on mobile size -->
 		<NavHamburger on:click={toggle} />
 		<NavUl {hidden}>
-			{#if isAdmin}
+			{#if role == 'admin'}
 				<NavLi href="/admin" class="dark:text-green-300">Admin Area</NavLi>
 			{/if}
 			<NavLi href="inventory">Inventory</NavLi>

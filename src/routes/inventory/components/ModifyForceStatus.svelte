@@ -1,17 +1,19 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+
+	/* MINOR COMPONENTS */
 	import Button from '$lib/components/button/Button.svelte';
 
+	/* MODULES */
 	import { createEventDispatcher } from 'svelte';
 
+	/* TYPES */
 	import type { DBOrder } from '$lib/types/inventory';
 
-	import ClientSideApiClient from '$lib/apiClient/PurpleChemClientAPI.js';
-
-	const ClientAPI = new ClientSideApiClient();
+	const ClientAPI = $page.data.ClientAPI;
+	const dispatch = createEventDispatcher();
 
 	export let order: DBOrder;
-
-	const dispatch = createEventDispatcher();
 
 	// used when forcing order.status -> received
 	const forceStatus = async () => {

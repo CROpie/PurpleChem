@@ -1,10 +1,10 @@
-declare global {
-	namespace App {
-		interface Locals {
-			apiclient: any;
-		}
-		// interface {}
-		// interface Error {}
-		// interface Platform {}
+declare namespace App {
+	interface Locals {
+		apiclient;
+		authclient;
+		role: string | undefined;
 	}
+	// interface PageData {}
+	// interface Error {}
+	// interface Platform {}
 }

@@ -1,14 +1,21 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+
+	/* MINOR COMPONENTS */
 	import { Input } from '$lib/components/form/formAll';
 
+	/* MAJOR COMPONENTS */
 	import CASDisplayMessage from './CASDisplayMessage.svelte';
 
-	import type { ChemicalInfo, OrderInfo } from '$lib/types/orderChemical';
+	/* TYPES */
+	import type {
+		ChemicalInfo,
+		OrderInfo,
+		OrderChemComponentState,
+		SearchCASMessageState
+	} from '$lib/types/orderChemical';
 
-	import ClientSideApiClient from '$lib/apiClient/PurpleChemClientAPI.js';
-	import type { FetchOutcome } from '$lib/apiClient/types';
-
-	const ClientAPI = new ClientSideApiClient();
+	const ClientAPI = $page.data.ClientAPI;
 
 	export let chemicalInfo: ChemicalInfo;
 	export let orderInfo: OrderInfo;
@@ -32,18 +39,16 @@
 	};
 
 	// toggle component variables
-	export let showOrderForm: boolean;
-	export let showStructureEditor: boolean;
-	export let CASnotFound: boolean;
-	export let showCASDisplayMessage: boolean;
-	export let showStructure: boolean;
+	export let componentState: OrderChemComponentState;
 
-	// message variables
-	export let outcome: FetchOutcome;
-	let invalidCAS = false;
-	let searchingCAS = false;
-	let CASfound = false;
-	let chemNameNotFound = false;
+	let messageState: SearchCASMessageState = {
+		fetchOutcome: null,
+		invalidCAS: false,
+		searchingCAS: false,
+		CASfound: false,
+		CASnotFound: false,
+		chemNameNotFound: false
+	};
 
 	// validation variables
 	const CASRegexPattern = /^\d{2,7}-\d{2}-\d$/;
@@ -62,22 +67,19 @@
 	}
 
 	function resetComponents() {
-		showOrderForm = false;
-		showStructureEditor = false;
-		CASnotFound = true;
-		showStructure = false;
+		componentState.showOrderForm = false;
+		componentState.showStructureEditor = false;
+		componentState.CASnotFound = true;
+		componentState.showStructure = false;
 	}
 
 	function clearMessages() {
-		outcome = null;
-
-		invalidCAS = false;
-		searchingCAS = false;
-		CASnotFound = false;
-		CASfound = false;
-		showOrderForm = false;
-		showStructureEditor = false;
-		chemNameNotFound = false;
+		messageState.fetchOutcome = null;
+		messageState.invalidCAS = false;
+		messageState.searchingCAS = false;
+		messageState.CASfound = false;
+		messageState.CASnotFound = false;
+		messageState.chemNameNotFound = false;
 	}
 
 	function extractPhys(propertyArray: any[]) {
@@ -99,7 +101,7 @@
 			return false;
 		}
 		if (!CASRegexPattern.test(chemicalInfo.CAS)) {
-			invalidCAS = true;
+			messageState.invalidCAS = true;
 			return false;
 		}
 		return true;
@@ -119,7 +121,10 @@
 
 		const response = await fetch(uri);
 		if (!response.ok) {
-			outcome = { success: false, error: 'Something went wrong when retrieving the CAS number...' };
+			messageState.fetchOutcome = {
+				success: false,
+				error: 'Something went wrong when retrieving the CAS number...'
+			};
 			return false;
 		}
 
@@ -161,7 +166,7 @@
 		if (!getByCASOutcome.success) {
 			return false;
 		}
-		CASfound = true;
+		messageState.CASfound = true;
 
 		chemicalInfo.chemicalName = data.chemicalName;
 		chemicalInfo.MW = data.MW;
@@ -187,9 +192,9 @@
 				if (!success2) {
 					clearAll();
 					chemicalInfo.CAS = null;
-					chemNameNotFound = true;
-					showOrderForm = true;
-					showStructureEditor = true;
+					messageState.chemNameNotFound = true;
+					componentState.showOrderForm = true;
+					componentState.showStructureEditor = true;
 					return;
 				}
 			}
@@ -199,15 +204,15 @@
 			if (!validateCAS()) return;
 		}
 
-		showCASDisplayMessage = true;
+		componentState.showCASDisplayMessage = true;
 
 		clearAll();
 
 		let uri = `https://commonchemistry.cas.org/api/detail?cas_rn=${chemicalInfo.CAS}`;
 
-		searchingCAS = true;
+		messageState.searchingCAS = true;
 		const response = await fetch(uri);
-		searchingCAS = false;
+		messageState.searchingCAS = false;
 
 		// not found, check if someone has added this CAS number to own database
 		if (!response.ok) {
@@ -215,16 +220,17 @@
 
 			if (!success) {
 				// need to input info manually
-				CASnotFound = true;
-				showStructureEditor = true;
-				showOrderForm = true;
+				messageState.CASnotFound = true;
+				componentState.CASnotFound = true;
+				componentState.showStructureEditor = true;
+				componentState.showOrderForm = true;
 				return;
 			}
 		}
 
 		// found
 		if (response.ok) {
-			CASfound = true;
+			messageState.CASfound = true;
 			const data = await response.json();
 
 			chemicalInfo.CAS = data.rn;
@@ -237,9 +243,8 @@
 				extractPhys(data.experimentalProperties);
 			}
 		}
-		console.log('showing the form');
-		showStructure = true;
-		showOrderForm = true;
+		componentState.showStructure = true;
+		componentState.showOrderForm = true;
 	};
 </script>
 
@@ -269,8 +274,8 @@
 	</form>
 </div>
 
-{#if showCASDisplayMessage}
+{#if componentState.showCASDisplayMessage}
 	<div class="flex items-center gap-4 mt-2">
-		<CASDisplayMessage {invalidCAS} {searchingCAS} {CASnotFound} {CASfound} {chemNameNotFound} />
+		<CASDisplayMessage {messageState} />
 	</div>
 {/if}
