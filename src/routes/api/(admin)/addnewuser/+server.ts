@@ -1,12 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { FetchOutcome } from '$lib/types/global.js';
 
-import PurpleChemAuthApi from '$lib/apiClient/PurpleChemAuthAPI.js';
-
 export const POST = async ({ cookies, locals, request }) => {
-	const AuthAPI = new PurpleChemAuthApi();
-	// APIClient calls the DataURL
-
 	const token = cookies.get('session');
 
 	let outcome: FetchOutcome = { success: false, error: null };
@@ -19,6 +14,7 @@ export const POST = async ({ cookies, locals, request }) => {
 	} = await request.json();
 	const role = anyCaseRole.toLowerCase();
 
+	const AuthAPI = locals.authclient;
 	const APIClient = locals.apiclient;
 
 	// create a new entry in the Auth users table

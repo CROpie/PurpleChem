@@ -12,7 +12,6 @@
 
 	export let data;
 	const { role } = data;
-
 	onMount(() => {
 		initRDKit();
 	});

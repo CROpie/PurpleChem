@@ -43,6 +43,7 @@
 		// different path for admin?
 
 		if (messageState.outcome?.success) {
+			
 			window.location.href = '/inventory';
 		}
 	}

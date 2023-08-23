@@ -1,0 +1,3 @@
+username,password,role,full_name,CAS,supplierName,status,amount,amountUnit,supplierPN
+chris@purplechem.com,default,user,chris opie,24057-28-1,Sigma-Aldrich,received,5,g,232238-5G
+tim@purplechem.com,default,admin,tim blackmore,121-44-8,TCI,ordered,25,mL,T0424

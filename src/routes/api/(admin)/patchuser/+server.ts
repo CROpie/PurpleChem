@@ -11,4 +11,3 @@ export const POST = async ({ locals, request }) => {
 
 	return json({ outcome });
 };
-
