@@ -32,10 +32,9 @@
 	async function handleSave(supplier: supplier) {
 		outcome = null;
 		updating = true;
-		const response = await ClientAPI.post('/patchsupplier', null, {
+		const response = await ClientAPI.post('/patchsupplier', {
 			body: {
-				id: supplier.id,
-				supplierName: supplier.supplierName
+				supplier
 			}
 		});
 		updating = false;
@@ -45,7 +44,7 @@
 	async function handleDelete(supplier: supplier) {
 		outcome = null;
 		updating = true;
-		const response = await ClientAPI.post('/deletesupplier', null, {
+		const response = await ClientAPI.post('/deletesupplier', {
 			body: {
 				id: supplier.id
 			}

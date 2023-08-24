@@ -83,7 +83,7 @@
 	];
 
 	async function submitData() {
-		const response = await ClientAPI.post('/csv', null, {
+		const response = await ClientAPI.post('/csv', {
 			body: { userAuthList, userDataList, chemicalList, supplierList, orderList }
 		});
 		if (response.outcome.error) {
@@ -232,5 +232,5 @@
 	<p class="text-orange-500">Writing to database...</p>
 {/if}
 {#if messageState.resultText}
-	<p class="text-green-500">{messageState.resultText}</p>
+	<p class="text-blue-500">{messageState.resultText}</p>
 {/if}

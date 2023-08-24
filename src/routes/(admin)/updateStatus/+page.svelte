@@ -47,7 +47,7 @@
 			newStatus = 'submitted';
 		}
 		updating = true;
-		const response = await ClientAPI.post('/patchstatus', null, {
+		const response = await ClientAPI.post('/patchstatus', {
 			body: {
 				id: order.id,
 				status: newStatus

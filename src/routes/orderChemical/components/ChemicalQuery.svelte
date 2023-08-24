@@ -138,36 +138,22 @@
 		return true;
 	}
 
-	const getPropertiesFromOwnDatabaseChemName = async () => {
-		const { outcome: getByChemNameOutcome, data } = await ClientAPI.post(
-			'/getchemicalbychemname',
-			null,
-			{
-				body: { chemicalName: chemicalInfo.chemicalName }
-			}
-		);
-		if (!getByChemNameOutcome.success) {
+	const getPropertiesFromOwnDatabase = async (type: string) => {
+		let query: string | null = null;
+
+		if (type == 'CAS') {
+			query = chemicalInfo.CAS;
+		} else {
+			query = chemicalInfo.chemicalName;
+		}
+
+		const { outcome, data } = await ClientAPI.post('/chemicalquery', {
+			body: { type, query }
+		});
+		if (!outcome.success) {
 			return false;
 		}
 		chemicalInfo.CAS = data.CAS;
-		chemicalInfo.MW = data.MW;
-		chemicalInfo.MP = data.MP;
-		chemicalInfo.BP = data.BP;
-		chemicalInfo.density = data.density;
-		chemicalInfo.smile = data.smile;
-		chemicalInfo.inchi = data.inchi;
-		return true;
-	};
-
-	const getPropertiesFromOwnDatabaseCAS = async () => {
-		const { outcome: getByCASOutcome, data } = await ClientAPI.post('/getchemicalbycas', null, {
-			body: { CAS: chemicalInfo.CAS }
-		});
-		if (!getByCASOutcome.success) {
-			return false;
-		}
-		messageState.CASfound = true;
-
 		chemicalInfo.chemicalName = data.chemicalName;
 		chemicalInfo.MW = data.MW;
 		chemicalInfo.MP = data.MP;
@@ -182,12 +168,12 @@
 		if (queryType == 'chemicalName') {
 			if (!validateChemName()) return;
 
+			// try to find CAS online
 			const success = await getCASFromChemName();
 
 			if (!success) {
 				// see if someone has ordered this particular chemical name already
-
-				const success2 = await getPropertiesFromOwnDatabaseChemName();
+				const success2 = await getPropertiesFromOwnDatabase('chemicalName');
 
 				if (!success2) {
 					clearAll();
@@ -216,7 +202,7 @@
 
 		// not found, check if someone has added this CAS number to own database
 		if (!response.ok) {
-			const success = await getPropertiesFromOwnDatabaseCAS();
+			const success = await getPropertiesFromOwnDatabase('CAS');
 
 			if (!success) {
 				// need to input info manually

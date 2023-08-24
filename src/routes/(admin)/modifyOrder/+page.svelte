@@ -37,12 +37,9 @@
 	async function handleSave(order: DBOrder) {
 		outcome = null;
 		updating = true;
-		const response = await ClientAPI.post('/patchorder', null, {
+		const response = await ClientAPI.post('/patchorder', {
 			body: {
-				id: order.id,
-				amount: order.amount,
-				amountUnit: order.amountUnit,
-				supplierPN: order.supplierPN
+				order
 			}
 		});
 		console.log(response);
@@ -53,7 +50,7 @@
 	async function handleDelete(order: DBOrder) {
 		outcome = null;
 		updating = true;
-		const response = await ClientAPI.post('/deleteorder', null, {
+		const response = await ClientAPI.post('/deleteorder', {
 			body: {
 				id: order.id
 			}

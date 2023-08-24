@@ -33,7 +33,7 @@ export const POST = async ({ cookies, locals, request }) => {
 	// AuthAPI will return an object containing the newly created id (as well as username, full_name if required)
 	const { id } = response.data;
 
-	const { outcome: databaseOutcome } = await APIClient.post('/adduser/', null, {
+	const { outcome: databaseOutcome } = await APIClient.post('/user/', null, {
 		body: { id, username, full_name }
 	});
 

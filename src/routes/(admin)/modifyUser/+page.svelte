@@ -33,10 +33,9 @@
 	async function handleSave(user: user) {
 		outcome = null;
 		updating = true;
-		const response = await ClientAPI.post('/patchuser', null, {
+		const response = await ClientAPI.post('/patchuser', {
 			body: {
-				id: user.id,
-				full_name: user.full_name
+				user
 			}
 		});
 		updating = false;
@@ -46,7 +45,7 @@
 	async function handleDelete(user: user) {
 		outcome = null;
 		updating = true;
-		const response = await ClientAPI.post('/deleteuser', null, {
+		const response = await ClientAPI.post('/deleteuser', {
 			body: {
 				id: user.id
 			}

@@ -22,7 +22,7 @@
 	const tableHead = [
 		'chemicalName',
 		'CAS',
-		'fullname',
+		'full_name',
 		'amount',
 		'isConsumed',
 		'supplierName',

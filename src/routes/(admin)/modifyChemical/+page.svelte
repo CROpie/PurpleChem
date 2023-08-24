@@ -28,15 +28,9 @@
 	async function handleSave(chemical: Chemical) {
 		outcome = null;
 		updating = true;
-		const response = await ClientAPI.post('/patchchemical', null, {
+		const response = await ClientAPI.post('/patchchemical', {
 			body: {
-				id: chemical.id,
-				CAS: chemical.CAS,
-				chemicalName: chemical.chemicalName,
-				MW: chemical.MW,
-				MP: chemical.MP,
-				BP: chemical.BP,
-				density: chemical.density
+				chemical
 			}
 		});
 		updating = false;
@@ -46,7 +40,7 @@
 	async function handleDelete(chemical: Chemical) {
 		outcome = null;
 		updating = true;
-		const response = await ClientAPI.post('/deletechemical', null, {
+		const response = await ClientAPI.post('/deletechemical', {
 			body: {
 				id: chemical.id
 			}

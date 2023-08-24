@@ -54,7 +54,7 @@
 
 		messageState.waiting = true;
 
-		const response = await ClientAPI.post('/patchamountlocation', null, {
+		const response = await ClientAPI.post('/patchinventory', {
 			body: {
 				orderID: order.id,
 				amount: order.amount,

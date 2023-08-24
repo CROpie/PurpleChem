@@ -22,7 +22,7 @@
 			return;
 		}
 
-		const response = await ClientAPI.post('/addnewsupplier', null, {
+		const response = await ClientAPI.post('/addsupplier', {
 			body: { newSupplierName }
 		});
 		outcome = response.outcome;

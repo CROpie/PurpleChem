@@ -30,7 +30,7 @@
 			return;
 		}
 
-		const response = await ClientAPI.post('/addnewuser', null, {
+		const response = await ClientAPI.post('/adduser', {
 			body: { newUsername, newPassword, fullName, role }
 		});
 		outcome = response.outcome;

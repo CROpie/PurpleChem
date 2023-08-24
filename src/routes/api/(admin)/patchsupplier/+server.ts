@@ -3,11 +3,10 @@ import { json } from '@sveltejs/kit';
 export const POST = async ({ locals, request }) => {
 	const APIClient = locals.apiclient;
 
-	const { id, supplierName } = await request.json();
-	console.log(id, supplierName);
+	const { supplier } = await request.json();
 
-	const { outcome } = await APIClient.patch('/patchsupplier/', null, {
-		body: { id, supplierName }
+	const { outcome } = await APIClient.patch('/supplier/', null, {
+		body: supplier
 	});
 
 	return json({ outcome });

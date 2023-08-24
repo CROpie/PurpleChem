@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const APIClient = locals.apiclient;
 	// eslint-disable-next-line
 	let { outcome: loadOutcome, data: supplierList }: { outcome: FetchOutcome; data: Supplier[] } =
-		await APIClient.get('/orderchemicalload/');
+		await APIClient.get('/supplierslist/');
 
 	if (supplierList && supplierList.length == 0) {
 		loadOutcome = {

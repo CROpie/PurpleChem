@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/button/button';
 
 	/* MAJOR COMPONENTS */
-	import CASSearch from './CASSearch.svelte';
+	import ChemicalQuery from './ChemicalQuery.svelte';
 	import StructureDisplay from './StructureDisplay.svelte';
 	import StructureSearch from './StructureSearch.svelte';
 	import OrderForm from './OrderForm.svelte';
@@ -131,7 +131,7 @@
 
 	async function orderChemical() {
 		messageState.ordering = true;
-		const response = await ClientAPI.post('/orderchemical', null, {
+		const response = await ClientAPI.post('/postorder', {
 			body: {
 				chemicalInfo,
 				orderInfo
@@ -148,7 +148,7 @@
 
 <div class="m-8">
 	<!-- implement search by name or CAS -->
-	<CASSearch bind:chemicalInfo bind:orderInfo bind:componentState />
+	<ChemicalQuery bind:chemicalInfo bind:orderInfo bind:componentState />
 
 	{#if componentState.showStructureEditor}
 		<StructureSearch bind:chemicalInfo />

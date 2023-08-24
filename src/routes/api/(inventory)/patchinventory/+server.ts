@@ -8,8 +8,9 @@ export const POST = async ({ locals, request }) => {
 	if (amount == 0) {
 		isConsumed = true;
 	}
+	console.log(id, amount, location_id, isConsumed);
 
-	const { outcome, data } = await APIClient.patch('/patchamountlocation/', null, {
+	const { outcome, data } = await APIClient.patch('/inventory/', null, {
 		body: { id, amount, location_id, isConsumed }
 	});
 

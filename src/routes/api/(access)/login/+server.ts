@@ -7,6 +7,8 @@ export const POST = async ({ request, cookies, locals }) => {
 		error: null
 	};
 
+	console.log(request);
+
 	const { userInfo } = await request.json();
 	const { email: username, password } = userInfo;
 

@@ -5,7 +5,7 @@ export const POST = async ({ locals, request }) => {
 
 	const APIClient = locals.apiclient;
 
-	const { outcome } = await APIClient.post('/addsupplier/', null, {
+	const { outcome } = await APIClient.post('/supplier/', null, {
 		body: { supplierName }
 	});
 

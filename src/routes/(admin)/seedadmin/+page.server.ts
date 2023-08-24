@@ -14,7 +14,6 @@ export const load = async ({ locals }) => {
 	console.log(response);
 
 	if (!response.outcome.success) {
-		console.log('hello no success');
 		outcome = response.outcome;
 		return { outcome };
 	}

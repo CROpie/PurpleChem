@@ -17,7 +17,7 @@
 
 	// used when forcing order.status -> received
 	const forceStatus = async () => {
-		const response = await ClientAPI.post('/forcereceived', null, {
+		const response = await ClientAPI.post('/patchinventorystatus', {
 			body: {
 				query: order.id
 			}

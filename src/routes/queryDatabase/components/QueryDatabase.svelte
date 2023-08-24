@@ -66,7 +66,7 @@
 		queryInfo.Inchi = null;
 
 		messageState.searching = true;
-		const response = await ClientAPI.post('/querydatabase', null, {
+		const response = await ClientAPI.post('/ordersquery', {
 			body: {
 				query
 			}

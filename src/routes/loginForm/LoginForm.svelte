@@ -32,7 +32,7 @@
 
 		messageState.waiting = true;
 
-		const response = await ClientAPI.post('/login', null, {
+		const response = await ClientAPI.post('/login', {
 			body: { userInfo }
 		});
 
@@ -43,7 +43,6 @@
 		// different path for admin?
 
 		if (messageState.outcome?.success) {
-			
 			window.location.href = '/inventory';
 		}
 	}

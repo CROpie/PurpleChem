@@ -5,9 +5,7 @@ export const POST = async ({ locals, request }) => {
 
 	const { id, status } = await request.json();
 
-	const { outcome } = await APIClient.patch('/patchstatus/', null, {
-		body: { id, status }
-	});
+	const { outcome } = await APIClient.patch('/orderstatus/', { order_id: id, status });
 
 	return json({ outcome });
 };

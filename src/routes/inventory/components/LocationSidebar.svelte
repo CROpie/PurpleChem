@@ -54,7 +54,7 @@
 		messageState.fetchOutcome = null;
 		messageState.waiting = true;
 
-		const response = await ClientAPI.post('/deletelocation', null, {
+		const response = await ClientAPI.post('/deletelocation', {
 			body: { selectedLocationID: selectedLocation.id }
 		});
 		messageState.waiting = false;
@@ -81,7 +81,7 @@
 			return;
 		}
 		messageState.waiting = true;
-		const response = await ClientAPI.post('/addnewlocation', null, {
+		const response = await ClientAPI.post('/postlocation', {
 			body: { newLocation: locationInput.locationName }
 		});
 		messageState.waiting = false;

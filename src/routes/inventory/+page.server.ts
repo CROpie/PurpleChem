@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		outcome: loadOutcome,
 		data
 	}: { outcome: FetchOutcome; data: { locationsList: DBLocation[]; ordersList: DBOrder[] } } =
-		await APIClient.get('/inventoryload/');
+		await APIClient.get('/inventory/');
 
 	const { locationsList, ordersList } = data;
 	return { loadOutcome, locationsList, ordersList };

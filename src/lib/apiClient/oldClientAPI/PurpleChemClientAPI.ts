@@ -18,12 +18,16 @@ export default class PurpleChemClientApi {
 	}
 
 	async request(options: RequestOptions) {
+		let query = new URLSearchParams(options.query || {}).toString();
+		if (query !== '') {
+			query = '?' + query;
+		}
 		const headers = {
 			'Content-Type': 'application/json',
 			...options.headers
 		};
 
-		const response = await fetch(this.base_url + options.url, {
+		const response = await fetch(this.base_url + options.url + query, {
 			method: options.method,
 			headers,
 			body: options.body ? JSON.stringify(options.body) : null
@@ -38,11 +42,23 @@ export default class PurpleChemClientApi {
 		}
 
 		const { data, outcome } = await response.json();
-
+		console.log('ClientSide: ', data, outcome);
 		return { outcome, data };
 	}
 
-	async post(url: string, options?: any) {
-		return this.request({ method: 'POST', url, ...options });
+	async get(url: string, query?: Record<string, string> | null, options?: any) {
+		return this.request({ method: 'GET', url, query, ...options });
+	}
+
+	async post(url: string, query?: Record<string, string> | null, options?: any) {
+		return this.request({ method: 'POST', url, query, ...options });
+	}
+
+	async put(url: string, query?: Record<string, string> | null, options?: any) {
+		return this.request({ method: 'PUT', url, query, ...options });
+	}
+
+	async delete(url: string, query?: Record<string, string> | null, options?: any) {
+		return this.request({ method: 'DELETE', url, query, ...options });
 	}
 }

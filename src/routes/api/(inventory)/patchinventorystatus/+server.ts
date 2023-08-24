@@ -4,9 +4,8 @@ export const POST = async ({ locals, request }) => {
 	const APIClient = locals.apiclient;
 
 	const { query } = await request.json();
-	console.log('query: ', query);
 
-	const { outcome } = await APIClient.patch('/forcereceived/', `query=${query}`);
+	const { outcome } = await APIClient.patch('/inventorystatus/', `order_id=${query}`);
 
 	return json({ outcome });
 };
