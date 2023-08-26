@@ -7,7 +7,10 @@ type RequestOptions = {
 	body?: any;
 };
 
-const AuthURL = 'http://127.0.0.1:8000';
+// localhost
+// const AuthURL = 'http://127.0.0.1:8000';
+// droplet
+const AuthURL = 'http://170.64.192.236:80';
 
 export default class PurpleChemAuthApi {
 	private base_url: string;

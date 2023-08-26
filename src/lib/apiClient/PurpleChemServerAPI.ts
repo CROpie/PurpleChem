@@ -8,7 +8,10 @@ type RequestOptions = {
 	body?: any;
 };
 
-const DataURL = 'http://127.0.0.1:8005';
+// localhost
+// const DataURL = 'http://127.0.0.1:8005';
+// droplet
+const DataURL = 'http://170.64.192.236:85';
 
 export default class PurpleChemServerApi {
 	private base_url: string;

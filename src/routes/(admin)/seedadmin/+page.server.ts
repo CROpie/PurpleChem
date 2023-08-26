@@ -20,7 +20,12 @@ export const load = async ({ locals }) => {
 
 	const { id } = response.data;
 
-	const response2 = await fetch('http://127.0.0.1:8005/seeddataadmin/', {
+	// localhost
+	// http://127.0.0.1:8005/seeddataadmin/
+	// droplet
+	// const DataURL = 'http://170.64.192.236:85';
+
+	const response2 = await fetch('http://170.64.192.236:85/seeddataadmin/', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ id, username: 'admin@purplechem.com', full_name: 'administrator' })
