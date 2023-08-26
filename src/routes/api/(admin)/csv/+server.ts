@@ -30,7 +30,7 @@ export const POST = async ({ cookies, locals, request }) => {
 	// create a new entry in the Auth users table
 	// return the id, use this id to create a matching entry in the Data profiles table
 
-	const response = await fetch('http://127.0.0.1:8000/csvusers/', {
+	const response = await fetch('http://170.64.192.236:80/csvusers/', {
 		method: 'POST',
 		headers: {
 			Authorization: `Bearer ${token}`,
