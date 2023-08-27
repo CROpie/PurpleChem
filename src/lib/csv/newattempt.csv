@@ -1,3 +1,31 @@
 username,password,role,full_name,CAS,supplierName,status,amount,amountUnit,supplierPN
-chris@purplechem.com,default,user,chris opie,24057-28-1,Sigma-Aldrich,received,5,g,232238-5G
-tim@purplechem.com,default,admin,tim blackmore,121-44-8,TCI,ordered,25,mL,T0424
+chris@purplechem.com,default,user,chris o,24057-28-1,Sigma-Aldrich,received,5,g,232238-5G
+chris@purplechem.com,default,user,chris o,7647-14-5,Sigma-Aldrich,received,25,g,S9888
+chris@purplechem.com,default,user,chris o,128625-52-5,Sigma-Aldrich,received,25,g,377848
+chris@purplechem.com,default,user,chris o,94790-37-1,Sigma-Aldrich,received,25,g,12804
+chris@purplechem.com,default,user,chris o,538-75-0,Sigma-Aldrich,received,50,g,D80002
+chris@purplechem.com,default,user,chris o,109-72-8,TCI,received,100,mL,B0396
+chris@purplechem.com,default,user,chris o,10294-33-4 ,TCI,received,100,mL,B2553
+chris@purplechem.com,default,user,chris o,110-86-1,TCI,ordered,100,mL,Q0034
+chris@purplechem.com,default,user,chris o,289-95-2,TCI,ordered,1,g,P0662
+chris@purplechem.com,default,user,chris o,S0489,TCI,submitted,100,g,26628-22-8
+tim@purplechem.com,default,admin,tim b,121-44-8,TCI,ordered,25,mL,T0424
+tim@purplechem.com,default,admin,tim b,122-52-1,TCI,ordered,25,mL,T0430
+tim@purplechem.com,default,admin,tim b,603-35-0,TCI,submitted,100,g,T0519
+tim@purplechem.com,default,admin,tim b,14691-89-5,TCI,received,25,g,A1348
+tim@purplechem.com,default,admin,tim b,2564-83-2,TCI,received,5,g,T3751
+tim@purplechem.com,default,admin,tim b,63-91-2,Sigma-Aldrich,received,50,g,P2126
+tim@purplechem.com,default,admin,tim b,2446-83-5,Sigma-Aldrich,received,25,g,225541
+tim@purplechem.com,default,admin,tim b,14221-01-3,Sigma-Aldrich,received,10,g,697265
+tim@purplechem.com,default,admin,tim b,7722-64-7,Sigma-Aldrich,received,200,g,223468
+tim@purplechem.com,default,admin,tim b,594-19-4,Sigma-Aldrich,received,100,mL,186198
+admin@purplechem.com,default,admin,administrator,71-43-2,Sigma-Aldrich,received,500,mL,319953
+admin@purplechem.com,default,admin,administrator,75-09-2,Sigma-Aldrich,received,1,L,650463
+admin@purplechem.com,default,admin,administrator,67-56-1,Sigma-Aldrich,received,1,L,34860
+admin@purplechem.com,default,admin,administrator,64-17-5,Sigma-Aldrich,received,500,mL,32221
+admin@purplechem.com,default,admin,administrator,67-66-3,Sigma-Aldrich,received,500,mL,C2432
+admin@purplechem.com,default,admin,administrator,109-99-9,Sigma-Aldrich,received,1,L,186562
+admin@purplechem.com,default,admin,administrator,60-29-7,Sigma-Aldrich,received,500,mL,91238
+admin@purplechem.com,default,admin,administrator,1634-04-4,Sigma-Aldrich,ordered,500,mL,306975
+admin@purplechem.com,default,admin,administrator,110-54-3,Sigma-Aldrich,ordered,3,L,139386
+admin@purplechem.com,default,admin,administrator,141-78-6,Sigma-Aldrich,submitted,3,L,319902

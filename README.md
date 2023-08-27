@@ -2,7 +2,7 @@
 
 https://purple-chem.vercel.app/
 
-An inventory management system for chemistry researchers built using SvelteKit, using Supabase for the backend (Auth & Database).
+An inventory management system for chemistry researchers built using SvelteKit/JavaScript (frontend), deployed on Vercel, and FastAPI/Python (backend), deployed on DigitalOcean (see [PurpleChemAuth](https://github.com/CROpie/PurpleChemAuth) & [PurpleChemData](https://github.com/CROpie/PurpleChemData)).
 
 Integration tests via vitest, the [@testing-library](https://testing-library.com/) and [msw](https://mswjs.io/) have been incorporated to ensure the intregrity of the application.
 
@@ -18,7 +18,7 @@ Some features have been replicated using [React.js](https://github.com/CROpie/Pu
 - Logging in as an admin provides extra features such as adding users, modifying users, chemicals and orders, and importing orders via a .csv file.
 - Light and dark themes with corresponding colour palettes have been provided for the users.
 
-## Auth via Supabase
+## Auth via FastAPI/Auth0
 
 Log in using the company email and password. Administrative privileges are required to add new users. To see the application in action, please log in with either:
 
@@ -33,9 +33,9 @@ New orders are given a 'submitted' status by default. Administrative privileges 
 
 ## Order Chemical
 
-New orders begin with the input of a CAS number, which is used to query the CAS online database called [commonchemistry](https://commonchemistry.cas.org/). If the chemical is known, phycial and structural properties will be automatically included in the order form. The amount of the chemical and suppler information will need to be manually inputted before submitting the order.
+New orders begin with the input of a CAS number or chemical name, which are used to query the CAS online database called [commonchemistry](https://commonchemistry.cas.org/). If the chemical is known, phycial and structural properties will be automatically included in the order form. The amount of the chemical and suppler information will need to be manually inputted before submitting the order.
 
-In the case that the CAS number is not known by commonchemistry, the researcher may draw the structure themselves using the [JSME editor](https://jsme-editor.github.io/). Physical properties may also be added if desired.
+In the case that the CAS number or chemical name is not known by commonchemistry, the researcher may draw the structure themselves using the [JSME editor](https://jsme-editor.github.io/). Physical properties may also be added if desired.
 
 Chemicals are stored in their own table in the database, and are refered to in the orders table by foreign key. A repeated order of a chemical will incorporate this foreign key. All orders have their own unique reference number which is used to keep track of the particular instance of a chemical.
 
@@ -47,4 +47,4 @@ The entire database of orders can be queried by partical matches to researcher, 
 
 ## Admin Tools
 
-Reserchers are unable to modify orders (aside from amount remaining and personal inventory location), chemical information or researcher information. The ability to do so is provided to administrative users (eg supervisors, lab heads & IT staff). Administrators are able to add new users into the system. Additionally, the database may be readily populated using a CSV file containing the appropriate fields.
+Reserchers are unable to modify orders (aside from amount remaining and personal inventory location), chemical information or researcher information. The ability to do so is provided to administrative users (eg supervisors, lab heads & IT staff). Administrators are able to add new users into the system. Additionally, the database may be readily populated using a CSV file containing the appropriate fields. Importing a CSV file has been optimized and is performed in a highly efficient manner.
