@@ -13,17 +13,14 @@ Some features have been replicated using [React.js](https://github.com/CROpie/Pu
 ## Features
 
 - The process of ordering a chemical incorporates an api call to [commonchemistry](https://commonchemistry.cas.org/), retrieving strucutral and physical properties of the chemical to be ordered, which are stored on the database when the order is placed.
-- A personal inventory allows for a user-friendly way for researchers to keep track of where their chemicals are located in their personal space, as well as how how much material remains, and easy access to physicals properties.
-- The entire database of orders can be searched by researcher name, CAS number, chemical name and by **structure**.
-- Logging in as an admin provides extra features such as adding users, modifying users, chemicals and orders, and importing orders via a .csv file.
+- A personal inventory allows for a user-friendly way for researchers to keep track of where their chemicals are located in their personal space, as well as how much material remains, and easy access to physical properties.
+- The entire database of orders can be searched by researcher name, CAS number, chemical name and by **structure** (via the [JSME editor](https://jsme-editor.github.io/)).
+- Logging in as an admin provides extra features such as adding users and suppliers, modifying users, chemicals and orders, and importing orders via a .csv file.
 - Light and dark themes with corresponding colour palettes have been provided for the users.
 
 ## Auth via FastAPI/Auth0
 
-Log in using the company email and password. Administrative privileges are required to add new users. To see the application in action, please log in with either:
-
-- **email:** chris@purplechem.com, **pass:** default
-- **email:** admin@purplechem.com, **pass:** default
+Log in using the company email and password. Administrative privileges are required for certain functions, such as adding new users and deciding their role (admin/user). JWTs are provided to logged in users, and are required during each api call to the backend. A refresh token system is also operational.
 
 ## Inventory
 
