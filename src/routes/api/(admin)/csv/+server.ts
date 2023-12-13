@@ -30,7 +30,7 @@ export const POST = async ({ cookies, locals, request }) => {
 	// create a new entry in the Auth users table
 	// return the id, use this id to create a matching entry in the Data profiles table
 
-	const response = await fetch('http://170.64.192.236:80/csvusers/', {
+	const response = await fetch('https://api1.cropie.store/csvusers/', {
 		method: 'POST',
 		headers: {
 			Authorization: `Bearer ${token}`,

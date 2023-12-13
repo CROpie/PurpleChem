@@ -25,7 +25,8 @@ export const load = async ({ locals }) => {
 	// droplet
 	// const DataURL = 'http://170.64.192.236:85';
 
-	const response2 = await fetch('http://170.64.192.236:85/seeddataadmin/', {
+	// const response2 = await fetch('http://170.64.192.236:85/seeddataadmin/', {
+	const response2 = await fetch('https://api2.cropie.store/seeddataadmin/', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ id, username: 'admin@purplechem.com', full_name: 'administrator' })
