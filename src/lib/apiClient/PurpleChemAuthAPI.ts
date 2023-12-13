@@ -10,7 +10,8 @@ type RequestOptions = {
 // localhost
 // const AuthURL = 'http://127.0.0.1:8000';
 // droplet
-const AuthURL = 'http://170.64.192.236:80';
+// const AuthURL = 'http://170.64.192.236:80';
+const AuthURL = 'https://api1.cropie.store';
 
 export default class PurpleChemAuthApi {
 	private base_url: string;
